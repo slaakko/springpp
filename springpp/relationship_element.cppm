@@ -31,7 +31,8 @@ public:
     virtual ~RelationshipElementRep();
     virtual RelationshipElementRep* Clone(RelationshipElement* relationshipElement) const = 0;
     virtual void Draw(wing::Graphics& graphics) = 0;
-    void DrawSelected(wing::Graphics& graphics);
+    virtual void DrawSelected(wing::Graphics& graphics);
+    virtual bool Contains(const wing::PointF& location) const;
     void DrawSourceText(wing::Graphics& graphics, wing::Font* font, wing::Brush* textBrush, const Line& line, float leadingWidth);
     void DrawTargetText(wing::Graphics& graphics, wing::Font* font, wing::Brush* textBrush, const Line& line, float symbolWidth);
     Line GetSourceTextLine(const Line& firstLine, float& leadingWidth, float padding) const;
@@ -43,6 +44,7 @@ private:
 class RelationshipElement : public DiagramElement
 {
 public:
+    RelationshipElement();
     RelationshipElement(RelationshipKind rkind_);
     soul::xml::Element* ToXml() const override;
     void Parse(soul::xml::Element* xmlElement) override;
@@ -74,6 +76,7 @@ public:
     CompoundLocation GetCompoundLocation() const override;
     void AddActions(Diagram* diagram, int elementIndex, wing::ContextMenu* contextMenu) const override;
     bool IsInheritance() const { return rkind == RelationshipKind::inheritance; }
+    bool IsCombinedInheritance() const { return rkind == RelationshipKind::combinedInheritance; }
     bool IsComposition() const { return rkind == RelationshipKind::composition; }
     bool IsAggregation() const { return rkind == RelationshipKind::aggregation; }
     bool IsReference() const { return rkind == RelationshipKind::reference; }
@@ -84,13 +87,12 @@ public:
     void RemoveFromElements();
     void SetContainerElementIndeces(const std::map<ContainerElement*, int>& containerElementIndexMap);
     void MapContainerElements(const std::map<DiagramElement*, DiagramElement*>& cloneMap);
-    void Resolve();
+    void Resolve(Diagram* diagram);
     void Calculate(const Snap& snap, DiagramElement* element, float w, int index, int count);
     void Straighten();
+    int MainDirection() const;
 private:
     void SetRep();
-    bool ContainsCombinedInheritance(const wing::PointF& location, float selectedLineWidth, Layout* layout) const;
-    int MainDirection() const;
     RelationshipKind rkind;
     Cardinality cardinality;
     EndPoint source;

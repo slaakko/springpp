@@ -11,6 +11,7 @@ import springpp.layout;
 import springpp.configuration;
 import springpp.class_element;
 import springpp.action;
+import springpp.relationship_element;
 
 namespace springpp {
 
@@ -25,6 +26,10 @@ std::string RelationshipKindStr(RelationshipKind rkind)
         case RelationshipKind::inheritance:
         {
             return "inheritance";
+        }
+        case RelationshipKind::combinedInheritance:
+        {
+            return "combinedInheritance";
         }
         case RelationshipKind::composition:
         {
@@ -54,6 +59,7 @@ const std::map<std::string, RelationshipKind> relationshipKindMap =
 {
     { "none", RelationshipKind::none },
     { "inheritance", RelationshipKind::inheritance },
+    { "combinedInheritance", RelationshipKind::combinedInheritance },
     { "composition", RelationshipKind::composition },
     { "aggregation", RelationshipKind::aggregation },
     { "reference", RelationshipKind::reference },
@@ -226,6 +232,9 @@ DiagramElementFactory::DiagramElementFactory()
     AbstractDiagramElementCreator* classElementCreator = new ConcreteDiagramElementCreator<ClassElement>();
     creatorMap["classElement"] = classElementCreator;
     creators.push_back(std::unique_ptr<AbstractDiagramElementCreator>(classElementCreator));
+    AbstractDiagramElementCreator* relationshipElementCreator = new ConcreteDiagramElementCreator<RelationshipElement>();
+    creatorMap["relationshipElement"] = relationshipElementCreator;
+    creators.push_back(std::unique_ptr<AbstractDiagramElementCreator>(relationshipElementCreator));
 }
 
 DiagramElement* DiagramElementFactory::CreateDiagramElement(const std::string& xmlElementName) const

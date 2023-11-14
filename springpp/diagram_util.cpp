@@ -6,8 +6,8 @@
 module springpp.diagram_util;
 
 import springpp.diagram;
+import springpp.class_element;
 import springpp.container_element;
-import springpp.relationship_element;
 import util;
 
 namespace springpp {
@@ -89,6 +89,147 @@ int MainDirection(DiagramElement* source, DiagramElement* target)
     Line line(sourceCenter, targetCenter);
     Vector v = line.ToVector();
     return MainDirection(v);
+}
+
+HorizontallyLess::HorizontallyLess(Diagram* diagram_) : diagram(diagram_)
+{
+}
+
+bool HorizontallyLess::operator()(int leftIndex, int rightIndex) const
+{
+    DiagramElement* left = diagram->GetElementByIndex(leftIndex);
+    DiagramElement* right = diagram->GetElementByIndex(rightIndex);
+    if (left->Location().X < right->Location().X)
+    {
+        return true;
+    }
+    else if (left->Location().X > right->Location().X)
+    {
+        return false;
+    }
+    else
+    {
+        return left->Location().Y < right->Location().Y;
+    }
+}
+
+VerticallyLess::VerticallyLess(Diagram* diagram_) : diagram(diagram_)
+{
+}
+
+bool VerticallyLess::operator()(int leftIndex, int rightIndex) const
+{
+    DiagramElement* left = diagram->GetElementByIndex(leftIndex);
+    DiagramElement* right = diagram->GetElementByIndex(rightIndex);
+    if (left->Location().Y < right->Location().Y)
+    {
+        return true;
+    }
+    else if (left->Location().Y > right->Location().Y)
+    {
+        return false;
+    }
+    else
+    {
+        return left->Location().X < right->Location().X;
+    }
+}
+
+std::unique_ptr<RelationshipElement> CombineInheritanceRelationships(const std::vector<RelationshipElement*>& inheritanceRelationships,
+    std::vector<RelationshipElement*>& sourceRelationships)
+{
+    std::unique_ptr<RelationshipElement> combinedRelationship;
+    std::map<DiagramElement*, int> targetMap;
+    for (RelationshipElement* relationship : inheritanceRelationships)
+    {
+        if (relationship->Target().Element() != nullptr)
+        {
+            ++targetMap[relationship->Target().Element()];
+        }
+    }
+    int maxCount = -1;
+    DiagramElement* maxTargetElement = nullptr;
+    for (const std::pair<DiagramElement*, int>& p : targetMap)
+    {
+        if (p.second > maxCount)
+        {
+            maxCount = p.second;
+            maxTargetElement = p.first;
+        }
+    }
+    if (maxTargetElement && maxTargetElement->IsClassElement())
+    {
+        EndPoint targetEndPoint;
+        std::vector<EndPoint> sourceEndPoints;
+        ClassElement* targetClassElement = static_cast<ClassElement*>(maxTargetElement);
+        for (RelationshipElement* relationship : inheritanceRelationships)
+        {
+            if (relationship->Target().Element() != nullptr)
+            {
+                if (relationship->Target().Element() == targetClassElement)
+                {
+                    if (targetEndPoint.Element() == nullptr)
+                    {
+                        targetEndPoint = relationship->Target();
+                    }
+                    if (relationship->Source().Element() != nullptr)
+                    {
+                        if (relationship->Source().Element()->IsClassElement())
+                        {
+                            sourceEndPoints.push_back(relationship->Source());
+                            sourceRelationships.push_back(relationship);
+                        }
+                    }
+                }
+            }
+        }
+        if (sourceRelationships.size() > 1)
+        {
+            combinedRelationship.reset(new RelationshipElement(RelationshipKind::combinedInheritance));
+            combinedRelationship->SetCardinality(Cardinality::one);
+            combinedRelationship->SourceEndPoints() = sourceEndPoints;
+            combinedRelationship->Target() = targetEndPoint;
+        }
+    }
+    return combinedRelationship;
+}
+
+std::vector<std::unique_ptr<RelationshipElement>> SplitCombinedInheritanceRelationship(RelationshipElement* combinedRelationship)
+{
+    std::vector<std::unique_ptr<RelationshipElement>> relationships;
+    EndPoint target = combinedRelationship->Target();
+    for (const EndPoint& source : combinedRelationship->SourceEndPoints())
+    {
+        std::unique_ptr<RelationshipElement> relationship(new RelationshipElement(RelationshipKind::inheritance));
+        relationship->Source() = source;
+        relationship->Target() = target;
+        relationships.push_back(std::move(relationship));
+    }
+    combinedRelationship->RemoveFromElements();
+    for (const std::unique_ptr<RelationshipElement>& relationship : relationships)
+    {
+        relationship->AddToElements();
+    }
+    return relationships;
+}
+
+bool LineContains(const wing::PointF& from, const wing::PointF& to, const wing::PointF& loc, float selectedLineWidth)
+{
+    Line line(from, to);
+    Line lineToLoc(from, loc);
+    Vector a(line.ToVector());
+    Vector b(lineToLoc.ToVector());
+    float f = ProjectionFactor(b, a);
+    if (f >= 0 && f <= a.Length())
+    {
+        Vector c = Projection(b, a);
+        Vector d = b - c;
+        if (d.Length() <= selectedLineWidth / 2)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 } // namespace springpp

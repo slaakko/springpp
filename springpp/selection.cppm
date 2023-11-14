@@ -86,6 +86,7 @@ public:
     void AlignHorizontalCenter();
     void SpaceEvenlyVertically();
     void SpaceEvenlyHorizontally();
+    void CombineInheritanceRelationships();
 private:
     std::vector<int> indeces;
 };

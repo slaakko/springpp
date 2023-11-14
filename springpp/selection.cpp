@@ -6,6 +6,7 @@
 module springpp.selection;
 
 import springpp.action;
+import springpp.command;
 import springpp.diagram;
 import springpp.diagram_util;
 import springpp.container_element;
@@ -16,56 +17,6 @@ import springpp.configuration;
 import springpp.canvas;
 
 namespace springpp {
-
-class HorizontallyLess
-{
-public:
-    HorizontallyLess(Diagram* diagram_) : diagram(diagram_) {}
-    bool operator()(int leftIndex, int rightIndex) const
-    {
-        DiagramElement* left = diagram->GetElementByIndex(leftIndex);
-        DiagramElement* right = diagram->GetElementByIndex(rightIndex);
-        if (left->Location().X < right->Location().X)
-        {
-            return true;
-        }
-        else if (left->Location().X > right->Location().X)
-        {
-            return false;
-        }
-        else
-        {
-            return left->Location().Y < right->Location().Y;
-        }
-    }
-private:
-    Diagram* diagram;
-};
-
-class VerticallyLess
-{
-public:
-    VerticallyLess(Diagram* diagram_) : diagram(diagram_) {}
-    bool operator()(int leftIndex, int rightIndex) const
-    {
-        DiagramElement* left = diagram->GetElementByIndex(leftIndex);
-        DiagramElement* right = diagram->GetElementByIndex(rightIndex);
-        if (left->Location().Y < right->Location().Y)
-        {
-            return true;
-        }
-        else if (left->Location().Y > right->Location().Y)
-        {
-            return false;
-        }
-        else
-        {
-            return left->Location().X < right->Location().X;
-        }
-    }
-private:
-    Diagram* diagram;
-};
 
 void DeleteElements(Diagram* diagram, const std::vector<int>& elementIndeces)
 {
@@ -723,6 +674,60 @@ void ElementSelection::SpaceEvenlyHorizontally()
         moveCommand->AddNewLocation(element->GetCompoundLocation());
     }
     diagram->GetCommandList().AddCommand(moveCommand.release());
+}
+
+void ElementSelection::CombineInheritanceRelationships()
+{
+    Diagram* diagram = GetDiagram();
+    std::vector<RelationshipElement*> inheritanceRelationships;
+    for (int index : indeces)
+    {
+        DiagramElement* element = diagram->GetElementByIndex(index);
+        if (element->IsRelationshipElement())
+        {
+            RelationshipElement* relationshipElement = static_cast<RelationshipElement*>(element);
+            if (relationshipElement->IsInheritance())
+            {
+                inheritanceRelationships.push_back(relationshipElement);
+            }
+        }
+    }
+    std::vector<RelationshipElement*> sourceRelationships;
+    std::unique_ptr<RelationshipElement> combinedInheritanceRelationship = springpp::CombineInheritanceRelationships(inheritanceRelationships, sourceRelationships);
+    if (combinedInheritanceRelationship)
+    {
+        std::vector<int> inheritanceRelationshipIndeces;
+        for (RelationshipElement* sourceRelationship : sourceRelationships)
+        {
+            int index = diagram->GetIndexOfElement(sourceRelationship);
+            if (index != -1)
+            {
+                inheritanceRelationshipIndeces.push_back(index);
+            }
+        }
+        std::unique_ptr<DeleteElementsCommand> deleteElementsCommand(new DeleteElementsCommand(diagram));
+        std::sort(inheritanceRelationshipIndeces.begin(), inheritanceRelationshipIndeces.end());
+        int n = inheritanceRelationshipIndeces.size();
+        for (int i = n - 1; i >= 0; --i)
+        {
+            int index = inheritanceRelationshipIndeces[i];
+            std::unique_ptr<DiagramElement> element = diagram->RemoveElementByIndex(index);
+            if (element->IsRelationshipElement())
+            {
+                RelationshipElement* relationship = static_cast<RelationshipElement*>(element.get());
+                relationship->RemoveFromElements();
+            }
+            deleteElementsCommand->AddDeletedElement(element.release(), index);
+            indeces.erase(std::remove(indeces.begin(), indeces.end(), index), indeces.end());
+        }
+        diagram->GetCommandList().AddCommand(deleteElementsCommand.release());
+        int addIndex = diagram->NextIndex();
+        std::unique_ptr<AddElementsCommand> addElementsCommand(new AddElementsCommand(diagram));
+        addElementsCommand->AddIndex(addIndex);
+        combinedInheritanceRelationship->AddToElements();
+        diagram->AddElement(combinedInheritanceRelationship.release());
+        diagram->GetCommandList().AddCommand(addElementsCommand.release());
+    }
 }
 
 ResizeHandle::ResizeHandle(RectangleSelection* selection_, const wing::PointF& location_, const Snap& snap_) :

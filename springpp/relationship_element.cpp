@@ -101,10 +101,48 @@ void RelationshipElementRep::DrawSelected(wing::Graphics& graphics)
     graphics.DrawLine(selectedLinePen, prev, relationshipElement->Target().Point());
 }
 
+RelationshipElement::RelationshipElement() : 
+    DiagramElement(DiagramElementKind::relationshipElement), rkind(RelationshipKind::none), cardinality(Cardinality::one), sourceTextSize(), targetTextSize()
+{
+    SetRep();
+}
+
 RelationshipElement::RelationshipElement(RelationshipKind rkind_) : 
     DiagramElement(DiagramElementKind::relationshipElement), rkind(rkind_), cardinality(Cardinality::one), sourceTextSize(), targetTextSize()
 {
     SetRep();
+}
+
+bool RelationshipElementRep::Contains(const wing::PointF& location) const
+{
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Layout* layout = Configuration::Instance().GetLayout();
+    Diagram* diagram = GetDiagram();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    float selectedLineWidth = relationshipLayoutElement->SelectedLineWidth();
+    wing::PointF from = relationshipElement->Source().Point();
+    for (wing::PointF to : relationshipElement->IntermediatePoints())
+    {
+        if (springpp::Contains(from, to, location, selectedLineWidth))
+        {
+            return true;
+        }
+        from = to;
+    }
+    wing::PointF to = relationshipElement->Target().Point();
+    for (const auto& sourceEndPoint : relationshipElement->SourceEndPoints())
+    {
+        wing::PointF from = sourceEndPoint.Point();
+        if (springpp::Contains(from, to, location, selectedLineWidth))
+        {
+            return true;
+        }
+    }
+    if (springpp::Contains(from, to, location, selectedLineWidth))
+    {
+        return true;
+    }
+    return false;
 }
 
 soul::xml::Element* RelationshipElement::ToXml() const
@@ -126,10 +164,10 @@ soul::xml::Element* RelationshipElement::ToXml() const
     }
     for (const auto& point : intermediatePoints)
     {
-        soul::xml::Element* xmlElement = soul::xml::MakeElement("intermediatePoint");
-        xmlElement->SetAttribute("x", std::to_string(point.X));
-        xmlElement->SetAttribute("y", std::to_string(point.Y));
-        xmlElement->AppendChild(xmlElement);
+        soul::xml::Element* intermediatePointElement = soul::xml::MakeElement("intermediatePoint");
+        intermediatePointElement->SetAttribute("x", std::to_string(point.X));
+        intermediatePointElement->SetAttribute("y", std::to_string(point.Y));
+        xmlElement->AppendChild(intermediatePointElement);
     }
     xmlElement->AppendChild(target.ToXml("target"));
     return xmlElement;
@@ -281,6 +319,11 @@ void RelationshipElement::SetRep()
         case RelationshipKind::inheritance:
         {
             rep.reset(new Inheritance(this));
+            break;
+        }
+        case RelationshipKind::combinedInheritance:
+        {
+            rep.reset(new CombinedInheritance(this));
             break;
         }
         case RelationshipKind::composition:
@@ -437,45 +480,7 @@ bool RelationshipElement::IntersectsWith(const wing::RectF& rect) const
 
 bool RelationshipElement::Contains(const wing::PointF& location) const
 {
-    Layout* layout = Configuration::Instance().GetLayout();
-    Diagram* diagram = GetDiagram();
-    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
-    float selectedLineWidth = relationshipLayoutElement->SelectedLineWidth();
-    if (IsInheritance()  && !sourceEndPoints.empty())
-    {
-        return ContainsCombinedInheritance(location, selectedLineWidth, layout);
-    }
-    else
-    {
-        wing::PointF from = source.Point();
-        for (wing::PointF to : intermediatePoints)
-        {
-            if (springpp::Contains(from, to, location, selectedLineWidth))
-            {
-                return true;
-            }
-            from = to;
-        }
-        wing::PointF to = target.Point();
-        for (const auto& sourceEndPoint : sourceEndPoints)
-        {
-            wing::PointF from = sourceEndPoint.Point();
-            if (springpp::Contains(from, to, location, selectedLineWidth))
-            {
-                return true;
-            }
-        }
-        if (springpp::Contains(from, to, location, selectedLineWidth))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool RelationshipElement::ContainsCombinedInheritance(const wing::PointF& location, float selectedLineWidth, Layout* layout) const
-{
-    return false; // todo
+    return rep->Contains(location);
 }
 
 int RelationshipElement::MainDirection() const
@@ -537,10 +542,13 @@ CompoundLocation RelationshipElement::GetCompoundLocation() const
 void RelationshipElement::AddActions(Diagram* diagram, int elementIndex, wing::ContextMenu* contextMenu) const
 {
     DiagramElement::AddActions(diagram, elementIndex, contextMenu);
-    wing::MenuItem* straightenMenuItem = new wing::MenuItem("Straighten");
-    contextMenu->AddMenuItem(straightenMenuItem);
-    contextMenu->AddAction(new StraightenRelationshipElementAction(diagram, elementIndex, straightenMenuItem));
-    if (IsInheritance() && !sourceEndPoints.empty())
+    if (!IsCombinedInheritance())
+    {
+        wing::MenuItem* straightenMenuItem = new wing::MenuItem("Straighten");
+        contextMenu->AddMenuItem(straightenMenuItem);
+        contextMenu->AddAction(new StraightenRelationshipElementAction(diagram, elementIndex, straightenMenuItem));
+    }
+    else
     {
         wing::MenuItem* splitMenuItem = new wing::MenuItem("Split");
         contextMenu->AddMenuItem(splitMenuItem);
@@ -647,9 +655,8 @@ void RelationshipElement::MapContainerElements(const std::map<DiagramElement*, D
     }
 }
 
-void RelationshipElement::Resolve()
+void RelationshipElement::Resolve(Diagram* diagram)
 {
-    Diagram* diagram = GetDiagram();
     source.Resolve(diagram);
     if (source.Element())
     {

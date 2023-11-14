@@ -6,12 +6,14 @@
 module springpp.action;
 
 import springpp.diagram;
+import springpp.diagram_util;
 import springpp.class_properties_dialog;
 import springpp.class_element;
 import springpp.canvas;
 import springpp.relationship_element;
 import springpp.save_image_dialog;
 import springpp.relationship_properties_dialog;
+import springpp.container_element;
 
 namespace springpp {
 
@@ -199,7 +201,12 @@ CombineInheritancesAction::CombineInheritancesAction(Diagram* diagram_, wing::Me
 
 void CombineInheritancesAction::Execute(Diagram* diagram)
 {
-    // todo
+    Selection* selection = diagram->GetSelection();
+    if (selection->IsElementSelection())
+    {
+        ElementSelection* elementSelection = static_cast<ElementSelection*>(selection);
+        elementSelection->CombineInheritanceRelationships();
+    }
 }
 
 DeleteSelectionAction::DeleteSelectionAction(Diagram* diagram_, wing::MenuItem* menuItem) : DiagramAction(diagram_, menuItem)
@@ -208,7 +215,10 @@ DeleteSelectionAction::DeleteSelectionAction(Diagram* diagram_, wing::MenuItem* 
 
 void DeleteSelectionAction::Execute(Diagram* diagram)
 {
-    // todo
+    diagram->GetSelection()->Delete();
+    diagram->ResetSelection();
+    diagram->SetChanged();
+    diagram->Invalidate();
 }
 
 DeleteDiagramElementAction::DeleteDiagramElementAction(Diagram* diagram_, int elementIndex_, wing::MenuItem* menuItem_) : 
@@ -218,7 +228,43 @@ DeleteDiagramElementAction::DeleteDiagramElementAction(Diagram* diagram_, int el
 
 void DeleteDiagramElementAction::Execute(Diagram* diagram, int elementIndex)
 {
-    // todo
+    std::unique_ptr<DeleteElementsCommand> deleteElementsCommand(new DeleteElementsCommand(diagram));
+    std::unique_ptr<DiagramElement> element = diagram->RemoveElementByIndex(elementIndex);
+    if (element->IsContainerElement())
+    {
+        ContainerElement* containerElement = static_cast<ContainerElement*>(element.get());
+        std::vector<RelationshipElement*> containerElementRelationships = containerElement->GetAllRelationships();
+        std::vector<RelationshipElement*> relationships;
+        for (RelationshipElement* relationship : containerElementRelationships)
+        {
+            if (std::find(relationships.begin(), relationships.end(), relationship) == relationships.end())
+            {
+                relationships.push_back(relationship);
+            }
+        }
+        std::vector<int> relationshipIndeces;
+        for (RelationshipElement* relationship : relationships)
+        {
+            int index = diagram->GetIndexOfElement(relationship);
+            if (index != -1)
+            {
+                if (std::find(relationshipIndeces.begin(), relationshipIndeces.end(), index) == relationshipIndeces.end())
+                {
+                    relationshipIndeces.push_back(index);
+                }
+            }
+        }
+        std::sort(relationshipIndeces.begin(), relationshipIndeces.end());
+        int m = relationshipIndeces.size();
+        for (int i = m - 1; i >= 0; --i)
+        {
+            int index = relationshipIndeces[i];
+            std::unique_ptr<DiagramElement> element = diagram->RemoveElementByIndex(index);
+            deleteElementsCommand->AddDeletedElement(element.release(), index);
+        }
+    }
+    deleteElementsCommand->AddDeletedElement(element.release(), elementIndex);
+    diagram->GetCommandList().AddCommand(deleteElementsCommand.release());
 }
 
 ClassElementPropertiesAction::ClassElementPropertiesAction(Diagram* diagram_, int elementIndex_, wing::MenuItem* menuItem_) : 
@@ -371,7 +417,27 @@ SplitRelationshipElementAction::SplitRelationshipElementAction(Diagram* diagram_
 
 void SplitRelationshipElementAction::Execute(Diagram* diagram, int elementIndex)
 {
-    // todo
+    DiagramElement* diagramElement = diagram->GetElementByIndex(elementIndex);
+    if (diagramElement->IsRelationshipElement())
+    {
+        RelationshipElement* relationship = static_cast<RelationshipElement*>(diagramElement);
+        if (relationship->IsCombinedInheritance())
+        {
+            std::vector<std::unique_ptr<RelationshipElement>> relationships = SplitCombinedInheritanceRelationship(relationship);
+            std::unique_ptr<DeleteElementsCommand> deleteCommand(new DeleteElementsCommand(diagram));
+            std::unique_ptr<DiagramElement> element(diagram->RemoveElementByIndex(elementIndex));
+            deleteCommand->AddDeletedElement(element.release(), elementIndex);
+            diagram->GetCommandList().AddCommand(deleteCommand.release());
+            std::unique_ptr<AddElementsCommand> addElementsCommand(new AddElementsCommand(diagram));
+            for (std::unique_ptr<RelationshipElement>& relationship : relationships)
+            {
+                int addIndex = diagram->NextIndex();
+                addElementsCommand->AddIndex(addIndex);
+                diagram->AddElement(relationship.release());
+            }
+            diagram->GetCommandList().AddCommand(addElementsCommand.release());
+        }
+    }
 }
 
 } // namespace springpp

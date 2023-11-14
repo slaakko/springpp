@@ -25,7 +25,7 @@ enum class EndPointKind
 
 enum class RelationshipKind
 {
-    none, inheritance, composition, aggregation, reference, createInstance, attachNote
+    none, inheritance, combinedInheritance, composition, aggregation, reference, createInstance, attachNote
 };
 
 std::string RelationshipKindStr(RelationshipKind rkind);

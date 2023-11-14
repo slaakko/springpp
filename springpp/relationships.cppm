@@ -19,6 +19,29 @@ public:
     void Draw(wing::Graphics& graphics) override;
 };
 
+class CombinedInheritance : public RelationshipElementRep
+{
+public:
+    CombinedInheritance(RelationshipElement* relationshipElement_);
+    RelationshipElementRep* Clone(RelationshipElement* relationshipElement_) const override;
+    void Draw(wing::Graphics& graphics) override;
+    void DrawSelected(wing::Graphics& graphics) override;
+    bool Contains(const wing::PointF& location) const override;
+private:
+    void DrawCombinedInheritance0(wing::Graphics& graphics, RelationshipElement* relationshipElement);
+    void DrawCombinedInheritance90(wing::Graphics& graphics, RelationshipElement* relationshipElement);
+    void DrawCombinedInheritance180(wing::Graphics& graphics, RelationshipElement* relationshipElement);
+    void DrawCombinedInheritance270(wing::Graphics& graphics, RelationshipElement* relationshipElement);
+    void DrawCombinedInheritance0Selected(wing::Graphics& graphics, RelationshipElement* relationshipElement);
+    void DrawCombinedInheritance90Selected(wing::Graphics& graphics, RelationshipElement* relationshipElement);
+    void DrawCombinedInheritance180Selected(wing::Graphics& graphics, RelationshipElement* relationshipElement);
+    void DrawCombinedInheritance270Selected(wing::Graphics& graphics, RelationshipElement* relationshipElement);
+    bool Contains0(const wing::PointF& location, RelationshipElement* relationshipElement) const;
+    bool Contains90(const wing::PointF& location, RelationshipElement* relationshipElement) const;
+    bool Contains180(const wing::PointF& location, RelationshipElement* relationshipElement) const;
+    bool Contains270(const wing::PointF& location, RelationshipElement* relationshipElement) const;
+};
+
 class Composition: public RelationshipElementRep
 {
 public:

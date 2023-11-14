@@ -91,7 +91,7 @@ void Diagram::Load(const std::string& filePath)
     }
     for (auto relationshipElement : relationshipElements)
     {
-        relationshipElement->Resolve();
+        relationshipElement->Resolve(this);
     }
 }
 

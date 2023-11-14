@@ -334,6 +334,11 @@ void ClassElement::Parse(soul::xml::Element* xmlElement)
     {
         throw std::runtime_error("XML element 'classElement' has no 'name' attribute");
     }
+    std::string abstractStr = xmlElement->GetAttribute("abstract");
+    if (abstractStr == "true")
+    {
+        SetAbstract();
+    }
     std::unique_ptr<soul::xml::xpath::NodeSet> operationNodeSet = soul::xml::xpath::EvaluateToNodeSet("operation", xmlElement);
     int no = operationNodeSet->Count();
     for (int i = 0; i < no; ++i)

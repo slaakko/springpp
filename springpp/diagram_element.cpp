@@ -10,8 +10,10 @@ import springpp.diagram;
 import springpp.layout;
 import springpp.configuration;
 import springpp.class_element;
-import springpp.action;
+import springpp.object_element;
+import springpp.note_element;
 import springpp.relationship_element;
+import springpp.action;
 
 namespace springpp {
 
@@ -232,6 +234,15 @@ DiagramElementFactory::DiagramElementFactory()
     AbstractDiagramElementCreator* classElementCreator = new ConcreteDiagramElementCreator<ClassElement>();
     creatorMap["classElement"] = classElementCreator;
     creators.push_back(std::unique_ptr<AbstractDiagramElementCreator>(classElementCreator));
+
+    AbstractDiagramElementCreator* objectElementCreator = new ConcreteDiagramElementCreator<ObjectElement>();
+    creatorMap["objectElement"] = objectElementCreator;
+    creators.push_back(std::unique_ptr<AbstractDiagramElementCreator>(objectElementCreator));
+
+    AbstractDiagramElementCreator* noteElementCreator = new ConcreteDiagramElementCreator<NoteElement>();
+    creatorMap["noteElement"] = noteElementCreator;
+    creators.push_back(std::unique_ptr<AbstractDiagramElementCreator>(noteElementCreator));
+
     AbstractDiagramElementCreator* relationshipElementCreator = new ConcreteDiagramElementCreator<RelationshipElement>();
     creatorMap["relationshipElement"] = relationshipElementCreator;
     creators.push_back(std::unique_ptr<AbstractDiagramElementCreator>(relationshipElementCreator));

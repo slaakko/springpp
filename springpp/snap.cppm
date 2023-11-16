@@ -12,7 +12,7 @@ export namespace springpp {
 
 enum class SnapPoint
 {
-    none, top, bottom, left, right, center, operation, field
+    none, top, bottom, left, right, center, operation, attribute
 };
 
 std::string SnapPointStr(SnapPoint snapPoint);
@@ -38,7 +38,7 @@ public:
     static consteval int RightCenter() { return (int(SnapPoint::right) << 8) | int(SnapPoint::center); }
     static consteval int RightBottom() { return (int(SnapPoint::right) << 8) | int(SnapPoint::bottom); }
     static int Operation(int index) { return (int(SnapPoint::operation) << 8) | index; }
-    static int Field(int index) { return (int(SnapPoint::field) << 8) | index; }
+    static int Attribute(int index) { return (int(SnapPoint::attribute) << 8) | index; }
     std::string ToString() const;
     SnapPoint PrimaryPoint() const { return primaryPoint; }
     SnapPoint SecondaryPoint() const { return secondaryPoint; }

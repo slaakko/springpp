@@ -92,6 +92,7 @@ struct Line
     Line(const wing::PointF& start_, const wing::PointF& end_) : start(start_), end(end_) {}
     Line(const wing::PointF& start_, const Vector& v);
     Vector ToVector() const { return Vector(end.X - start.X, end.Y - start.Y); }
+    float Length() const { return Distance(start, end); }
     wing::PointF start;
     wing::PointF end;
 };

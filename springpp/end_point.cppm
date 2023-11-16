@@ -32,6 +32,7 @@ public:
     void SetText(const std::string& text_) { text = text_; }
     int Index() const { return index; }
     void SetIndex(const std::map<ContainerElement*, int>& containerElementIndexMap);
+    void MapIndex(const std::map<int, int>& indexMap);
     void Resolve(Diagram* diagram);
     soul::xml::Element* ToXml(const std::string& elementName) const;
     void Parse(soul::xml::Element* xmlElement);

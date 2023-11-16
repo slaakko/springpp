@@ -12,7 +12,7 @@ import std.core;
 export namespace springpp {
 
 class RelationshipElement;
-class FieldElement;
+class AttributeElement;
 class OperationElement;
 
 class ContainerElement : public DiagramElement
@@ -22,8 +22,8 @@ public:
     ContainerElement(DiagramElementKind kind_, const std::string& name_);
     ~ContainerElement();
     virtual std::vector<RelationshipElement*> GetAllRelationships() const = 0;
-    virtual FieldElement* GetField(int fieldIndex) const;
-    virtual int GetIndexOfFieldElement(FieldElement* fieldElement) const;
+    virtual AttributeElement* GetAttribute(int attributeIndex) const;
+    virtual int GetIndexOfAttributeElement(AttributeElement* attributeElement) const;
     virtual OperationElement* GetOperation(int operationIndex) const;
     virtual int GetIndexOfOperationElement(OperationElement* operationElement) const;
     virtual float GetMaxChildElementWidth() const { return 0.0f; }

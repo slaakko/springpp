@@ -15,6 +15,8 @@ import springpp.primitive;
 import springpp.layout;
 import springpp.configuration;
 import springpp.canvas;
+import soul.xml.dom;
+import util;
 
 namespace springpp {
 
@@ -193,8 +195,18 @@ void Selection::AddActions(wing::ContextMenu* contextMenu)
 
 std::u32string Selection::Copy()
 {
-    // todo
-    return  std::u32string();
+    std::vector<std::unique_ptr<DiagramElement>> clonedElements = Clone();
+    soul::xml::Document elementDoc;
+    elementDoc.AppendChild(soul::xml::MakeElement("springpp.diagram.elements"));
+    for (const std::unique_ptr<DiagramElement>& clonedElement : clonedElements)
+    {
+        std::unique_ptr<soul::xml::Element> xmlElement(clonedElement->ToXml());
+        elementDoc.DocumentElement()->AppendChild(xmlElement.release());
+    }
+    std::stringstream strstream;
+    util::CodeFormatter formatter(strstream);
+    elementDoc.Write(formatter);
+    return util::ToUtf32(strstream.str());
 }
 
 void Selection::SaveImage(const std::string& fileName, const Padding& margins, wing::ImageFormat imageFormat)

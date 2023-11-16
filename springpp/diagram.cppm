@@ -93,6 +93,7 @@ public:
     void Offset(float dx, float dy);
     wing::RectF CalculateBoundingRect() const;
     void SaveImage(const std::string& fileName, const Padding& margins, wing::ImageFormat format);
+    void Paste(const std::u32string& clipboardData);
 private:
     DiagramFlags flags;
     Canvas* canvas;

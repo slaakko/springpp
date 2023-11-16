@@ -25,7 +25,7 @@ struct Padding
 
 std::string DefaultCaptionFontFamily();
 std::string DefaultOperationFontFamily();
-std::string DefaultFieldFontFamily();
+std::string DefaultAttributeFontFamily();
 std::string DefaultRelationshipFontFamily();
 std::string DefaultNoteFontFamily();
 float DefaultFontSize();
@@ -33,7 +33,8 @@ wing::FontStyle DefaultAbstractClassCaptionFontStyle();
 wing::FontStyle DefaultConcreteClassCaptionFontStyle();
 wing::FontStyle DefaultConcreteOperationFontStyle();
 wing::FontStyle DefaultAbstractOperationFontStyle();
-wing::FontStyle DefaultFieldFontStyle();
+wing::FontStyle DefaultObjectCaptionFontStyle();
+wing::FontStyle DefaultAttributeFontStyle();
 wing::FontStyle DefaultDefaultRelationshipFontStyle();
 
 float DefaultFrameWidth(wing::Graphics* graphics);
@@ -171,6 +172,29 @@ public:
     ConcreteClassLayoutElement(Layout* layout_);
 };
 
+class ObjectLayoutElement : public LayoutElement
+{
+public:
+    ObjectLayoutElement(Layout* layout_);
+    CaptionElement* GetCaptionElement() const { return captionElement.get(); }
+    PaddingElement* GetPaddingElement() const { return paddingElement.get(); }
+    ColorElement* GetTextColorElement() const { return textColorElement.get(); }
+    ColorElement* GetFrameColorElement() const { return frameColorElement.get(); }
+    float FrameWidth() const { return frameWidth; }
+    float FrameRoundingRadius() const { return frameRoundingRadius; }
+    soul::xml::Element* ToXml() const override;
+    void Parse(soul::xml::Element* parentXmlElement) override;
+    wing::Pen* FramePen();
+private:
+    std::unique_ptr<CaptionElement> captionElement;
+    std::unique_ptr<PaddingElement> paddingElement;
+    std::unique_ptr<ColorElement> textColorElement;
+    std::unique_ptr<ColorElement> frameColorElement;
+    float frameWidth;
+    float frameRoundingRadius;
+    wing::Pen* framePen;
+};
+
 class OperationLayoutElement : public LayoutElement
 {
 public:
@@ -196,10 +220,10 @@ public:
     AbstractOperationLayoutElement(Layout* layout_);
 };
 
-class FieldLayoutElement : public LayoutElement
+class AttributeLayoutElement : public LayoutElement
 {
 public:
-    FieldLayoutElement(Layout* layout_);
+    AttributeLayoutElement(Layout* layout_);
     ColorElement* GetTextColorElement() const { return textColorElement.get(); }
     FontElement* GetFontElement() const { return fontElement.get(); }
     soul::xml::Element* ToXml() const override;
@@ -298,9 +322,10 @@ public:
     PaddingElement* GetDiagramPaddingElement() const { return diagramPaddingElement.get(); }
     ClassLayoutElement* GetAbstractClassLayoutElement() const { return abstractClassLayoutElement.get(); }
     ClassLayoutElement* GetConcreteClassLayoutElement() const { return concreteClassLayoutElement.get(); }
+    ObjectLayoutElement* GetObjectLayoutElement() const { return objectLayoutElement.get(); }
     OperationLayoutElement* GetAbstractOperationLayoutElement() const { return abstractOperationLayoutElement.get(); }
     OperationLayoutElement* GetConcreteOperationLayoutElement() const { return concreteOperationLayoutElement.get(); }
-    FieldLayoutElement* GetFieldLayoutElement() const { return fieldLayoutElement.get(); }
+    AttributeLayoutElement* GetAttributeLayoutElement() const { return attributeLayoutElement.get(); }
     ResizeHandleLayoutElement* GetResizeHandleLayoutElement() const { return resizeHandleLayoutElement.get(); }
     RelationshipLayoutElement* GetRelationshipLayoutElement() const { return relationshipLayoutElement.get(); }
     const wing::StringFormat& GetStringFormat() const { return stringFormat; }
@@ -314,9 +339,10 @@ private:
     std::unique_ptr<ColorElement> selectionColorElement;
     std::unique_ptr<ClassLayoutElement> abstractClassLayoutElement;
     std::unique_ptr<ClassLayoutElement> concreteClassLayoutElement;
+    std::unique_ptr<ObjectLayoutElement> objectLayoutElement;
     std::unique_ptr<OperationLayoutElement> abstractOperationLayoutElement;
     std::unique_ptr<OperationLayoutElement> concreteOperationLayoutElement;
-    std::unique_ptr<FieldLayoutElement> fieldLayoutElement;
+    std::unique_ptr<AttributeLayoutElement> attributeLayoutElement;
     std::unique_ptr<ResizeHandleLayoutElement> resizeHandleLayoutElement;
     std::unique_ptr<RelationshipLayoutElement> relationshipLayoutElement;
     wing::StringFormat stringFormat;

@@ -1305,4 +1305,276 @@ void Aggregation::Draw(wing::Graphics& graphics)
     }
 }
 
+Reference::Reference(RelationshipElement* relationshipElement_) : RelationshipElementRep(relationshipElement_)
+{
+}
+
+RelationshipElementRep* Reference::Clone(RelationshipElement* relationshipElement_) const
+{
+    Reference* clone = new Reference(relationshipElement_);
+    return clone;
+}
+
+void Reference::Draw(wing::Graphics& graphics)
+{
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    ClassLayoutElement* classLayoutElement = layout->GetConcreteClassLayoutElement();
+    PaddingElement* classPaddingElement = classLayoutElement->GetPaddingElement();
+    float cardinalitySymbolRadius = relationshipLayoutElement->CardinalitySymbolRadius();
+    float lineArrowWidth = relationshipLayoutElement->LineArrowWidth();
+    float lineArrowHeight = relationshipLayoutElement->LineArrowHeight();
+    float nullReferenceSymbolWidth = relationshipLayoutElement->NullReferenceSymbolWidth();
+    float nullReferenceSymbolHeight = relationshipLayoutElement->NullReferenceSymbolHeight();
+    wing::Font* font = relationshipLayoutElement->GetFontElement()->GetFont();
+    wing::Brush* textBrush = relationshipLayoutElement->TextColorElement()->GetBrush();
+    wing::Brush* arrowBrush = relationshipLayoutElement->GetArrowBrush();
+    wing::Pen* linePen = relationshipLayoutElement->LinePen();
+    wing::PointF start = relationshipElement->Source().Point();
+    wing::PointF first = start;
+    if (relationshipElement->Source().Element()->IsAttributeElement())
+    {
+        float relationshipSymbolRadius = relationshipLayoutElement->RelationshipSymbolRadius();
+        Vector left(-1, 0);
+        Vector ul(UnitVector(left) * relationshipSymbolRadius);
+        Line l(start, ul);
+        Vector up(0, -1);
+        Vector uu(UnitVector(up) * relationshipSymbolRadius);
+        Line u(l.end, uu);
+        wing::RectF r(u.end, wing::SizeF(2.0f * relationshipSymbolRadius, 2.0f * relationshipSymbolRadius));
+        graphics.FillEllipse(arrowBrush, r);
+        wing::PointF next;
+        if (relationshipElement->IntermediatePoints().empty())
+        {
+            next = relationshipElement->Target().Point();
+        }
+        else
+        {
+            next = relationshipElement->IntermediatePoints().front();
+        }
+        Line line(start, next);
+        Vector v = line.ToVector();
+        Vector n = UnitVector(v) * relationshipSymbolRadius;
+        Line f(start, n);
+        first = f.end;
+    }
+    wing::PointF end;
+    if (relationshipElement->IntermediatePoints().empty())
+    {
+        end = relationshipElement->Target().Point();
+    }
+    else
+    {
+        end = relationshipElement->IntermediatePoints().front();
+    }
+    Line referenceLine(first, end);
+    if (!relationshipElement->Source().Text().empty())
+    {
+        float leadingWidth = classPaddingElement->GetPadding().left;
+        Line textLine = GetSourceTextLine(referenceLine, leadingWidth, leadingWidth);
+        DrawSourceText(graphics, font, textBrush, textLine, leadingWidth);
+    }
+    wing::PointF prevPoint = referenceLine.start;
+    for (const wing::PointF& intermediatePoint : relationshipElement->IntermediatePoints())
+    {
+        graphics.DrawLine(linePen, prevPoint, intermediatePoint);
+        prevPoint = intermediatePoint;
+    }
+    Line arrowLine(relationshipElement->Target().Point(), prevPoint);
+    Vector av(arrowLine.ToVector());
+    Cardinality cardinality = relationshipElement->GetCardinality();
+    if (cardinality == Cardinality::many)
+    {
+        Line line = arrowLine;
+        Vector v = line.ToVector();
+        Vector u(UnitVector(v) * cardinalitySymbolRadius);
+        Line toCircleCenter(line.start, u);
+        wing::PointF circleCenter(toCircleCenter.end);
+        Vector n1(0, -1);
+        Vector u1(UnitVector(n1) * cardinalitySymbolRadius);
+        Line l1(circleCenter, u1);
+        Vector n2(-1, 0);
+        Vector u2(UnitVector(n2) * cardinalitySymbolRadius);
+        Line l2(l1.end, u2);
+        wing::PointF topLeftCorner(l2.end);
+        wing::RectF rect(topLeftCorner, wing::SizeF(2.0f * cardinalitySymbolRadius, 2.0f * cardinalitySymbolRadius));
+        graphics.FillEllipse(arrowBrush, rect);
+        Line circleLine(relationshipElement->Target().Point(), UnitVector(av) * 2.0f * cardinalitySymbolRadius);
+        Vector uv(UnitVector(av) * static_cast<float>(std::sqrt(3.0) / 2.0f * lineArrowWidth));
+        Line arrowStartLine(circleLine.end, uv);
+        Line arrowEndLine(arrowStartLine.end, circleLine.end);
+        Vector la(UnitVector(Rotate(arrowEndLine, 90.0f).ToVector()) * (lineArrowHeight / 2));
+        Vector ra(UnitVector(Rotate(arrowEndLine, -90.0f).ToVector()) * (lineArrowHeight / 2));
+        Line leftArrowLine(arrowEndLine.start, la);
+        Line rightArrowLine(arrowEndLine.start, ra);
+        std::vector<wing::PointF> points;
+        points.push_back(circleLine.end);
+        points.push_back(leftArrowLine.end);
+        points.push_back(rightArrowLine.end);
+        graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
+        graphics.DrawLine(linePen, arrowEndLine.start, arrowLine.end);
+        if (!relationshipElement->Target().Text().empty())
+        {
+            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
+        }
+    }
+    else if (cardinality == Cardinality::one)
+    {
+        Vector uv(UnitVector(av) * static_cast<float>(std::sqrt(3.0) / 2.0f * lineArrowWidth));
+        Line arrowStartLine(relationshipElement->Target().Point(), uv);
+        Line arrowEndLine(arrowStartLine.end, relationshipElement->Target().Point());
+        Vector la(UnitVector(Rotate(arrowEndLine, 90.0f).ToVector()) * (lineArrowHeight / 2));
+        Vector ra(UnitVector(Rotate(arrowEndLine, -90.0f).ToVector()) * (lineArrowHeight / 2));
+        Line leftArrowLine(arrowEndLine.start, la);
+        Line rightArrowLine(arrowEndLine.start, ra);
+        std::vector<wing::PointF> points;
+        points.push_back(relationshipElement->Target().Point());
+        points.push_back(leftArrowLine.end);
+        points.push_back(rightArrowLine.end);
+        graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
+        graphics.DrawLine(linePen, arrowEndLine.start, arrowLine.end);
+        if (!relationshipElement->Target().Text().empty())
+        {
+            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
+        }
+    }
+    else if (cardinality == Cardinality::zero)
+    {
+        Line line(arrowLine.end, relationshipElement->Target().Point());
+        Vector v = line.ToVector();
+        Vector up = UnitVector(v) * (line.Length() - 2 * nullReferenceSymbolHeight);
+        Line prevLine(line.start, up);
+        Vector uf = UnitVector(v) * (line.Length() - nullReferenceSymbolHeight);
+        Line lastLine(line.start, uf);
+        graphics.DrawLine(linePen, prevLine.start, prevLine.end);
+        Line prev = Line(prevLine.end, UnitVector(v) * (nullReferenceSymbolWidth / 2));
+        Line prevl = Rotate(prev, 90.0f);
+        Line prevr = Rotate(prev, -90.0f);
+        Line finalLine = Line(lastLine.end, UnitVector(v) * (nullReferenceSymbolWidth / 2));
+        Line finall = Rotate(finalLine, 90.0f);
+        Line finalr = Rotate(finalLine, -90.0f);
+        graphics.DrawLine(linePen, prevl.end, prevr.end);
+        graphics.DrawLine(linePen, finall.end, finalr.end);
+    }
+}
+
+CreateInstance::CreateInstance(RelationshipElement* relationshipElement_) : RelationshipElementRep(relationshipElement_)
+{
+}
+
+RelationshipElementRep* CreateInstance::Clone(RelationshipElement* relationshipElement_) const
+{
+    CreateInstance* clone = new CreateInstance(relationshipElement_);
+    return clone;
+}
+
+void CreateInstance::Draw(wing::Graphics& graphics)
+{
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    ClassLayoutElement* classLayoutElement = layout->GetConcreteClassLayoutElement();
+    PaddingElement* classPaddingElement = classLayoutElement->GetPaddingElement();
+    float cardinalitySymbolRadius = relationshipLayoutElement->CardinalitySymbolRadius();
+    float lineArrowWidth = relationshipLayoutElement->LineArrowWidth();
+    float lineArrowHeight = relationshipLayoutElement->LineArrowHeight();
+    wing::Font* font = relationshipLayoutElement->GetFontElement()->GetFont();
+    wing::Brush* textBrush = relationshipLayoutElement->TextColorElement()->GetBrush();
+    wing::Brush* arrowBrush = relationshipLayoutElement->GetArrowBrush();
+    wing::Pen* linePen = relationshipLayoutElement->LinePen();
+    wing::Pen* dashPen = relationshipLayoutElement->DashLinePen();
+    wing::PointF start = relationshipElement->Source().Point();
+    wing::PointF end;
+    if (relationshipElement->IntermediatePoints().empty())
+    {
+        end = relationshipElement->Target().Point();
+    }
+    else
+    {
+        end = relationshipElement->IntermediatePoints().front();
+    }
+    Line instanceLine(start, end);
+    if (!relationshipElement->Source().Text().empty())
+    {
+        float leadingWidth = classPaddingElement->GetPadding().left;
+        Line textLine = GetSourceTextLine(instanceLine, leadingWidth, leadingWidth);
+        DrawSourceText(graphics, font, textBrush, textLine, leadingWidth);
+    }
+    Vector v(instanceLine.ToVector());
+    wing::PointF prevPoint = instanceLine.start;
+    if (!relationshipElement->IntermediatePoints().empty())
+    {
+        prevPoint = relationshipElement->IntermediatePoints().back();
+    }
+    wing::PointF finalPoint;
+    Line arrowLine(relationshipElement->Target().Point(), prevPoint);
+    Vector av(arrowLine.ToVector());
+    Cardinality cardinality = relationshipElement->GetCardinality();
+    if (cardinality == Cardinality::many)
+    {
+        Line line = arrowLine;
+        Vector v = line.ToVector();
+        Vector u(UnitVector(v) * cardinalitySymbolRadius);
+        Line toCircleCenter(line.start, u);
+        wing::PointF circleCenter(toCircleCenter.end);
+        Vector n1(0, -1);
+        Vector u1(UnitVector(n1) * cardinalitySymbolRadius);
+        Line l1(circleCenter, u1);
+        Vector n2(-1, 0);
+        Vector u2(UnitVector(n2) * cardinalitySymbolRadius);
+        Line l2(l1.end, u2);
+        wing::PointF topLeftCorner(l2.end);
+        wing::RectF rect(topLeftCorner, wing::SizeF(2.0f * cardinalitySymbolRadius, 2.0f * cardinalitySymbolRadius));
+        graphics.FillEllipse(arrowBrush, rect);
+        Line circleLine(relationshipElement->Target().Point(), UnitVector(av) * 2.0f * cardinalitySymbolRadius);
+        Vector uv(UnitVector(av) * static_cast<float>(std::sqrt(3.0) / 2.0 * lineArrowWidth));
+        Line arrowStartLine(circleLine.end, uv);
+        Line arrowEndLine(arrowStartLine.end, circleLine.end);
+        finalPoint = arrowEndLine.start;
+        Vector la(UnitVector(Rotate(arrowEndLine, 90.0f).ToVector()) * (lineArrowHeight / 2));
+        Vector ra(UnitVector(Rotate(arrowEndLine, -90.0f).ToVector()) * (lineArrowHeight / 2));
+        Line leftArrowLine(arrowEndLine.start, la);
+        Line rightArrowLine(arrowEndLine.start, ra);
+        std::vector<wing::PointF> points;
+        points.push_back(circleLine.end);
+        points.push_back(leftArrowLine.end);
+        points.push_back(rightArrowLine.end);
+        graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
+        finalPoint = arrowEndLine.start;
+        if (!relationshipElement->Target().Text().empty())
+        {
+            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
+        }
+    }
+    else if (cardinality == Cardinality::one)
+    {
+        Vector uv(UnitVector(av) * static_cast<float>(std::sqrt(3.0) / 2.0 * lineArrowWidth));
+        Line arrowStartLine(relationshipElement->Target().Point(), uv);
+        Line arrowEndLine(arrowStartLine.end, relationshipElement->Target().Point());
+        Vector la(UnitVector(Rotate(arrowEndLine, 90.0f).ToVector()) * (lineArrowHeight / 2));
+        Vector ra(UnitVector(Rotate(arrowEndLine, -90.0f).ToVector()) * (lineArrowHeight / 2));
+        Line leftArrowLine(arrowEndLine.start, la);
+        Line rightArrowLine(arrowEndLine.start, ra);
+        std::vector<wing::PointF> points;
+        points.push_back(relationshipElement->Target().Point());
+        points.push_back(leftArrowLine.end);
+        points.push_back(rightArrowLine.end);
+        graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
+        finalPoint = arrowEndLine.start;
+        if (!relationshipElement->Target().Text().empty())
+        {
+            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
+        }
+    }
+    std::vector<wing::PointF> points;
+    points.push_back(relationshipElement->Source().Point());
+    for (const wing::PointF& intermediatePoint : relationshipElement->IntermediatePoints())
+    {
+        points.push_back(intermediatePoint);
+    }
+    points.push_back(finalPoint);
+    graphics.DrawLines(dashPen, points.data(), static_cast<int>(points.size()));
+}
+
 } // namespace springpp

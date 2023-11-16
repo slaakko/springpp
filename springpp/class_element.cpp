@@ -40,13 +40,13 @@ void ClassElementRep::Measure(wing::Graphics& graphics)
     maxChildElementWidth = 0.0f;
     bool hasRelationship = false;
     MeasureOperations(graphics, classLayout, hasRelationship);
-    MeasureFields(graphics, classLayout, hasRelationship);
+    MeasureAttributes(graphics, classLayout, hasRelationship);
     if (hasRelationship)
     {
         float w = GetRelationshipSymbolFieldWidth(relationshipLayout->RelationshipSymbolRadius(), relationshipLayout->GetPaddingElement()->GetPadding().Horizontal());
         captionRect.Width += w;
         operationRect.Width += w;
-        fieldRect.Width += w;
+        attributeRect.Width += w;
         classElement->SetRelationshipPoints();
     }
     captionRect = wing::RectF(captionRectX, captionRectY, captionRectWidth, captionRectHeight);
@@ -86,37 +86,37 @@ void ClassElementRep::MeasureOperations(wing::Graphics& graphics, ClassLayoutEle
     operationRect.Height += paddingElement->GetPadding().bottom;
 }
 
-void ClassElementRep::MeasureFields(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship)
+void ClassElementRep::MeasureAttributes(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship)
 {
     PaddingElement* paddingElement = classLayout->GetPaddingElement();
     wing::PointF location = classElement->Location();
-    fieldRect = wing::RectF();
-    fieldRect.X = location.X;
-    fieldRect.Y = operationRect.Y + operationRect.Height;
-    fieldRect.Width = operationRect.Width;
-    fieldRect.Height = paddingElement->GetPadding().top;
+    attributeRect = wing::RectF();
+    attributeRect.X = location.X;
+    attributeRect.Y = operationRect.Y + operationRect.Height;
+    attributeRect.Width = operationRect.Width;
+    attributeRect.Height = paddingElement->GetPadding().top;
     wing::PointF origin;
-    origin.X = fieldRect.X + paddingElement->GetPadding().left;
-    origin.Y = fieldRect.Y + paddingElement->GetPadding().top;
-    int n = classElement->Fields().Count();
+    origin.X = attributeRect.X + paddingElement->GetPadding().left;
+    origin.Y = attributeRect.Y + paddingElement->GetPadding().top;
+    int n = classElement->Attributes().Count();
     for (int i = 0; i < n; ++i)
     {
-        FieldElement* field = classElement->Fields().Get(i);
-        field->Measure(graphics);
-        wing::SizeF fieldSize = field->Size();
-        float w = fieldSize.Width + paddingElement->GetPadding().Horizontal();
-        float h = fieldSize.Height;
+        AttributeElement* attribute = classElement->Attributes().Get(i);
+        attribute->Measure(graphics);
+        wing::SizeF attributeSize = attribute->Size();
+        float w = attributeSize.Width + paddingElement->GetPadding().Horizontal();
+        float h = attributeSize.Height;
         maxChildElementWidth = std::max(maxChildElementWidth, w);
-        if (field->Relationship() != nullptr)
+        if (attribute->Relationship() != nullptr)
         {
             hasRelationship = true;
         }
-        field->SetLocation(origin);
-        fieldRect.Width = std::max(fieldRect.Width, w);
+        attribute->SetLocation(origin);
+        attributeRect.Width = std::max(attributeRect.Width, w);
         origin.Y += h;
-        fieldRect.Height += h;
+        attributeRect.Height += h;
     }
-    fieldRect.Height += paddingElement->GetPadding().bottom;
+    attributeRect.Height += paddingElement->GetPadding().bottom;
 }
 
 void ClassElementRep::SetSize()
@@ -127,19 +127,19 @@ void ClassElementRep::SetSize()
     wing::SizeF size(0.0f, 0.0f);
     size.Width = std::max(size.Width, captionRectSize.Width);
     float h = captionRectSize.Height;
-    if (!classElement->Operations().IsEmpty() || !classElement->Fields().IsEmpty())
+    if (!classElement->Operations().IsEmpty() || !classElement->Attributes().IsEmpty())
     {
         wing::SizeF operationRectSize;
         operationRect.GetSize(&operationRectSize);
         size.Width = std::max(size.Width, operationRectSize.Width);
         h = h + operationRectSize.Height;
     }
-    if (!classElement->Fields().IsEmpty())
+    if (!classElement->Attributes().IsEmpty())
     {
-        wing::SizeF fieldRectSize;
-        fieldRect.GetSize(&fieldRectSize);
-        size.Width = std::max(size.Width, fieldRectSize.Width);
-        h = h + fieldRectSize.Height;
+        wing::SizeF attributeRectSize;
+        attributeRect.GetSize(&attributeRectSize);
+        size.Width = std::max(size.Width, attributeRectSize.Width);
+        h = h + attributeRectSize.Height;
     }
     size.Height = std::max(size.Height, h);
     classElement->SetSize(size);
@@ -152,7 +152,7 @@ void ClassElementRep::Draw(wing::Graphics& graphics)
     DrawFrame(graphics, classLayout);
     DrawCaption(graphics, classLayout);
     DrawOperations(graphics);
-    DrawFields(graphics);
+    DrawAttributes(graphics);
 }
 
 void ClassElementRep::DrawFrame(wing::Graphics& graphics, ClassLayoutElement* classLayout)
@@ -160,18 +160,18 @@ void ClassElementRep::DrawFrame(wing::Graphics& graphics, ClassLayoutElement* cl
     ClassElement* classElement = GetClassElement();
     PaddingElement* paddingElement = classLayout->GetPaddingElement();
     graphics.DrawRectangle(classLayout->FramePen(), classElement->BoundingRect());
-    if (!classElement->Operations().IsEmpty() || !classElement->Fields().IsEmpty())
+    if (!classElement->Operations().IsEmpty() || !classElement->Attributes().IsEmpty())
     {
         float captionLineY = paddingElement->GetPadding().Vertical() + captionTextHeight;
         wing::PointF captionLineStart = wing::PointF(classElement->Location().X, classElement->Location().Y + captionLineY);
         wing::PointF captionLineEnd = wing::PointF(classElement->Location().X + classElement->Size().Width, classElement->Location().Y + captionLineY);
         graphics.DrawLine(classLayout->FramePen(), captionLineStart, captionLineEnd);
     }
-    if (!classElement->Fields().IsEmpty())
+    if (!classElement->Attributes().IsEmpty())
     {
-        wing::PointF fieldLineStart = wing::PointF(classElement->Location().X, fieldRect.Y);
-        wing::PointF fieldLineEnd = wing::PointF(classElement->Location().X + classElement->Size().Width, fieldRect.Y);
-        graphics.DrawLine(classLayout->FramePen(), fieldLineStart, fieldLineEnd);
+        wing::PointF attributeLineStart = wing::PointF(classElement->Location().X, attributeRect.Y);
+        wing::PointF attributeLineEnd = wing::PointF(classElement->Location().X + classElement->Size().Width, attributeRect.Y);
+        graphics.DrawLine(classLayout->FramePen(), attributeLineStart, attributeLineEnd);
     }
 }
 
@@ -197,13 +197,13 @@ void ClassElementRep::DrawOperations(wing::Graphics& graphics)
     }
 }
 
-void ClassElementRep::DrawFields(wing::Graphics& graphics)
+void ClassElementRep::DrawAttributes(wing::Graphics& graphics)
 {
-    int n = classElement->Fields().Count();
+    int n = classElement->Attributes().Count();
     for (int i = 0; i < n; ++i)
     {
-        FieldElement* field = classElement->Fields().Get(i);
-        field->Draw(graphics);
+        AttributeElement* attribute = classElement->Attributes().Get(i);
+        attribute->Draw(graphics);
     }
 }
 
@@ -260,10 +260,10 @@ soul::xml::Element* ClassElement::ToXml() const
         soul::xml::Element* operationElement = operation->ToXml();
         xmlElement->AppendChild(operationElement);
     }
-    for (const auto& field : fields)
+    for (const auto& attribute : attributes)
     {
-        soul::xml::Element* fieldElement = field->ToXml();
-        xmlElement->AppendChild(fieldElement);
+        soul::xml::Element* attributeElement = attribute->ToXml();
+        xmlElement->AppendChild(attributeElement);
     }
     return xmlElement;
 }
@@ -357,18 +357,18 @@ void ClassElement::Parse(soul::xml::Element* xmlElement)
             throw std::runtime_error("XML element node expected in '" + xmlElement->Name() + "'");
         }
     }
-    std::unique_ptr<soul::xml::xpath::NodeSet> fieldNodeSet = soul::xml::xpath::EvaluateToNodeSet("field", xmlElement);
-    int nf = fieldNodeSet->Count();
+    std::unique_ptr<soul::xml::xpath::NodeSet> attributeNodeSet = soul::xml::xpath::EvaluateToNodeSet("attribute", xmlElement);
+    int nf = attributeNodeSet->Count();
     for (int i = 0; i < nf; ++i)
     {
-        soul::xml::Node* node = fieldNodeSet->GetNode(i);
+        soul::xml::Node* node = attributeNodeSet->GetNode(i);
         if (node->IsElementNode())
         {
             soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
-            FieldElement* fieldElement = new FieldElement();
-            fieldElement->SetContainerElement(this);
-            fieldElement->Parse(xmlElement);
-            fields.Add(fieldElement);
+            AttributeElement* attributeElement = new AttributeElement();
+            attributeElement->SetContainerElement(this);
+            attributeElement->Parse(xmlElement);
+            attributes.Add(attributeElement);
         }
         else
         {
@@ -377,19 +377,19 @@ void ClassElement::Parse(soul::xml::Element* xmlElement)
     }
 }
 
-FieldElement* ClassElement::GetField(int fieldIndex) const
+AttributeElement* ClassElement::GetAttribute(int attributeIndex) const
 {
-    return fields.Get(fieldIndex);
+    return attributes.Get(attributeIndex);
 }
 
-int ClassElement::GetIndexOfFieldElement(FieldElement* fieldElement) const
+int ClassElement::GetIndexOfAttributeElement(AttributeElement* attributeElement) const
 {
-    int n = fields.Count();
+    int n = attributes.Count();
     for (int i = 0; i < n; ++i)
     {
-        if (fields.Get(i) == fieldElement) return i;
+        if (attributes.Get(i) == attributeElement) return i;
     }
-    throw std::runtime_error("field '" + fieldElement->Name() + "' not found from class '" + Name() + "'");
+    throw std::runtime_error("attribute '" + attributeElement->Name() + "' not found from class '" + Name() + "'");
 }
 
 OperationElement* ClassElement::GetOperation(int operationIndex) const
@@ -432,13 +432,17 @@ DiagramElement* ClassElement::Clone() const
     for (int i = 0; i < no; ++i)
     {
         OperationElement* operationElement = operations.Get(i);
-        clone->Operations().Add(static_cast<OperationElement*>(operationElement->Clone()));
+        OperationElement* clonedOperation = static_cast<OperationElement*>(operationElement->Clone());
+        clonedOperation->SetContainerElement(clone);
+        clone->Operations().Add(clonedOperation);
     }
-    int nf = fields.Count();
+    int nf = attributes.Count();
     for (int i = 0; i < nf; ++i)
     {
-        FieldElement* fieldElement = fields.Get(i);
-        clone->Fields().Add(static_cast<FieldElement*>(fieldElement->Clone()));
+        AttributeElement* attributeElement = attributes.Get(i);
+        AttributeElement* clonedAttribute = static_cast<AttributeElement*>(attributeElement->Clone());
+        clonedAttribute->SetContainerElement(clone);
+        clone->Attributes().Add(clonedAttribute);
     }
     return clone;
 }
@@ -480,12 +484,12 @@ void ClassElement::SetOperations(IndexList<OperationElement>&& operations_)
     }
 }
 
-void ClassElement::SetFields(IndexList<FieldElement>&& fields_)
+void ClassElement::SetAttributes(IndexList<AttributeElement>&& attributes_)
 {
-    fields = std::move(fields_);
-    for (auto& field : fields)
+    attributes = std::move(attributes_);
+    for (auto& attribute : attributes)
     {
-        field->SetContainerElement(this);
+        attribute->SetContainerElement(this);
     }
 }
 
@@ -502,11 +506,11 @@ std::vector<RelationshipElement*> ClassElement::GetAllRelationships() const
             relationships.push_back(relationship);
         }
     }
-    int nf = fields.Count();
+    int nf = attributes.Count();
     for (int i = 0; i < nf; ++i)
     {
-        FieldElement* field = fields.Get(i);
-        RelationshipElement* relationship = field->Relationship();
+        AttributeElement* attribute = attributes.Get(i);
+        RelationshipElement* relationship = attribute->Relationship();
         if (relationship)
         {
             relationships.push_back(relationship);
@@ -530,10 +534,10 @@ void ClassElement::MapChildObjects(ContainerElement* from, std::map<DiagramEleme
         {
             cloneMap[fromClass->operations.Get(i)] = operations.Get(i);
         }
-        int nf = fromClass->fields.Count();
+        int nf = fromClass->attributes.Count();
         for (int i = 0; i < nf; ++i)
         {
-            cloneMap[fromClass->fields.Get(i)] = fields.Get(i);
+            cloneMap[fromClass->attributes.Get(i)] = attributes.Get(i);
         }
     }
 }
@@ -549,11 +553,11 @@ std::vector<EndPoint> ClassElement::GetEndPoints(EndPointKind endPointKind, Tool
             OperationElement* operation = operations.Get(i);
             endPoints.push_back(operation->GetEndPoint(Snap(Snap::Operation(i))));
         }
-        int nf = fields.Count();
-        for (int i = 0; i < no; ++i)
+        int nf = attributes.Count();
+        for (int i = 0; i < nf; ++i)
         {
-            FieldElement* field = fields.Get(i);
-            endPoints.push_back(field->GetEndPoint(Snap(Snap::Field(i))));
+            AttributeElement* attribute = attributes.Get(i);
+            endPoints.push_back(attribute->GetEndPoint(Snap(Snap::Attribute(i))));
         }
         return endPoints;
     }
@@ -579,11 +583,11 @@ void ClassElement::SetRelationshipPoints()
         OperationElement* operation = operations.Get(i);
         operation->SetRelationshipPoint();
     }
-    int nf = fields.Count();
+    int nf = attributes.Count();
     for (int i = 0; i < nf; ++i)
     {
-        FieldElement* field = fields.Get(i);
-        field->SetRelationshipPoint();
+        AttributeElement* attribute = attributes.Get(i);
+        attribute->SetRelationshipPoint();
     }
 }
 

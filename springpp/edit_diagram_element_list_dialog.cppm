@@ -7,7 +7,7 @@ export module springpp.edit_diagram_element_list_dialog;
 
 import springpp.index_list;
 import springpp.operation_element;
-import springpp.field_element;
+import springpp.attribute_element;
 import wing;
 import std.core;
 
@@ -51,6 +51,6 @@ private:
 
 bool ExecuteEditOperationsDialog(IndexList<OperationElement>& operationList, ContainerElement* containerElement, bool mayHaveAbstractOperations, wing::Window& parentWindow);
 
-bool ExecuteEditFieldsDialog(IndexList<FieldElement>& fieldList, ContainerElement* containerElement, wing::Window& parentWindow);
+bool ExecuteEditAttributesDialog(IndexList<AttributeElement>& attributeList, ContainerElement* containerElement, wing::Window& parentWindow);
 
 } // namespace springpp

@@ -8,7 +8,11 @@ module springpp.action;
 import springpp.diagram;
 import springpp.diagram_util;
 import springpp.class_properties_dialog;
+import springpp.object_properties_dialog;
+import springpp.note_properties_dialog;
 import springpp.class_element;
+import springpp.object_element;
+import springpp.note_element;
 import springpp.canvas;
 import springpp.relationship_element;
 import springpp.save_image_dialog;
@@ -318,7 +322,30 @@ void ObjectElementPropertiesAction::Execute(Diagram* diagram, int elementIndex)
     DiagramElement* element = diagram->GetElementByIndex(elementIndex);
     if (element->IsObjectElement())
     {
-        // todo
+        ObjectElement* objectElement = static_cast<ObjectElement*>(element);
+        std::unique_ptr<ObjectElement> clone(static_cast<ObjectElement*>(objectElement->Clone()));
+        std::unique_ptr<ObjectPropertiesDialog> objectPropertiesDialog(new ObjectPropertiesDialog(clone.get()));
+        Canvas* canvas = GetCanvas();
+        wing::Window* window = canvas->GetWindow();
+        diagram->HideContextMenu();
+        wing::DialogResult result = objectPropertiesDialog->ShowDialog(*window);
+        if (result == wing::DialogResult::ok)
+        {
+            std::unique_ptr<ReplaceElementCommand> replaceElementCommand(new ReplaceElementCommand(diagram, elementIndex));
+            std::map<DiagramElement*, DiagramElement*> cloneMap;
+            cloneMap[objectElement] = clone.get();
+            clone->MapChildObjects(objectElement, cloneMap);
+            std::vector<RelationshipElement*> relationships = objectElement->GetAllRelationships();
+            for (RelationshipElement* relationship : relationships)
+            {
+                relationship->MapContainerElements(cloneMap);
+                relationship->AddToElements();
+            }
+            diagram->SetElementByIndex(clone.release(), elementIndex);
+            diagram->SetChanged();
+            diagram->Invalidate();
+            diagram->GetCommandList().AddCommand(replaceElementCommand.release());
+        }
     }
 }
 
@@ -332,7 +359,30 @@ void NoteElementPropertiesAction::Execute(Diagram* diagram, int elementIndex)
     DiagramElement* element = diagram->GetElementByIndex(elementIndex);
     if (element->IsNoteElement())
     {
-        // todo
+        NoteElement* noteElement = static_cast<NoteElement*>(element);
+        std::unique_ptr<NoteElement> clone(static_cast<NoteElement*>(noteElement->Clone()));
+        std::unique_ptr<NotePropertiesDialog> notePropertiesDialog(new NotePropertiesDialog(clone.get()));
+        Canvas* canvas = diagram->GetCanvas();
+        wing::Window* window = canvas->GetWindow();
+        diagram->HideContextMenu();
+        wing::DialogResult result = notePropertiesDialog->ShowDialog(*window);
+        if (result == wing::DialogResult::ok)
+        {
+            std::unique_ptr<ReplaceElementCommand> replaceElementCommand(new ReplaceElementCommand(diagram, elementIndex));
+            std::map<DiagramElement*, DiagramElement*> cloneMap;
+            cloneMap[noteElement] = clone.get();
+            clone->MapChildObjects(noteElement, cloneMap);
+            std::vector<RelationshipElement*> relationships = noteElement->GetAllRelationships();
+            for (RelationshipElement* relationship : relationships)
+            {
+                relationship->MapContainerElements(cloneMap);
+                relationship->AddToElements();
+            }
+            diagram->SetElementByIndex(clone.release(), elementIndex);
+            diagram->SetChanged();
+            diagram->Invalidate();
+            diagram->GetCommandList().AddCommand(replaceElementCommand.release());
+        }
     }
 }
 

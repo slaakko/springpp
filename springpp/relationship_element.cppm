@@ -91,6 +91,7 @@ public:
     void Calculate(const Snap& snap, DiagramElement* element, float w, int index, int count);
     void Straighten();
     int MainDirection() const;
+    void MapIndeces(const std::map<int, int>& indexMap);
 private:
     void SetRep();
     RelationshipKind rkind;

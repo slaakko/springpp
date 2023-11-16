@@ -7,7 +7,7 @@ export module springpp.class_element;
 
 import springpp.container_element;
 import springpp.operation_element;
-import springpp.field_element;
+import springpp.attribute_element;
 import springpp.index_list;
 import wing;
 import std.core;
@@ -29,18 +29,18 @@ public:
     float MaxChildElementWidth() const { return maxChildElementWidth; }
 private:
     void MeasureOperations(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship);
-    void MeasureFields(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship);
+    void MeasureAttributes(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship);
     void DrawFrame(wing::Graphics& graphics, ClassLayoutElement* classLayout);
     void DrawCaption(wing::Graphics& graphics, ClassLayoutElement* classLayout);
     void DrawOperations(wing::Graphics& graphics);
-    void DrawFields(wing::Graphics& graphics);
+    void DrawAttributes(wing::Graphics& graphics);
     void SetSize();
     virtual ClassLayoutElement* GetClassLayout(Layout* layout) const = 0;
     ClassElement* classElement;
     float captionTextHeight;
     wing::RectF captionRect;
     wing::RectF operationRect;
-    wing::RectF fieldRect;
+    wing::RectF attributeRect;
     float maxChildElementWidth;
 };
 
@@ -60,15 +60,15 @@ public:
     const IndexList<OperationElement>& Operations() const { return operations; }
     IndexList<OperationElement>& Operations() { return operations; }
     void SetOperations(IndexList<OperationElement>&& operations_);
-    const IndexList<FieldElement>& Fields() const { return fields; }
-    IndexList<FieldElement>& Fields() { return fields; }
-    void SetFields(IndexList<FieldElement>&& fields_);
-    FieldElement* GetField(int fieldIndex) const override;
-    int GetIndexOfFieldElement(FieldElement* fieldElement) const override;
+    const IndexList<AttributeElement>& Attributes() const { return attributes; }
+    IndexList<AttributeElement>& Attributes() { return attributes; }
+    void SetAttributes(IndexList<AttributeElement>&& attributes_);
+    AttributeElement* GetAttribute(int attributeIndex) const override;
+    int GetIndexOfAttributeElement(AttributeElement* attributeElement) const override;
     OperationElement* GetOperation(int operationIndex) const override;
     int GetIndexOfOperationElement(OperationElement* operationElement) const override;
     std::vector<RelationshipElement*> GetAllRelationships() const override;
-    void MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap);
+    void MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap) override;
     float GetMaxChildElementWidth() const override;
     std::vector<EndPoint> GetEndPoints(EndPointKind endPointKind, Tool* tool) const override;
     void AddActions(Diagram* diagram, int elementIndex, wing::ContextMenu* contextMenu) const override;
@@ -77,7 +77,7 @@ private:
     bool isAbstract;
     std::unique_ptr<ClassElementRep> rep;
     IndexList<OperationElement> operations;
-    IndexList<FieldElement> fields;
+    IndexList<AttributeElement> attributes;
 };
 
 } // namespace springpp

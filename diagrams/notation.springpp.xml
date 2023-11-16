@@ -1,0 +1,8 @@
+<diagram>
+ <classElement abstract="false" name="Class">
+  <boundingRect height="6.943945" width="12.783380" x="29.000000" y="13.000000"/>
+ </classElement>
+ <objectElement name="anObject">
+  <boundingRect height="6.943945" width="18.051275" x="26.366051" y="27.000000"/>
+ </objectElement>
+</diagram>

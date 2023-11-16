@@ -41,14 +41,14 @@ void ContainerElement::RemoveRelationship(RelationshipElement* relationship_)
     relationships.erase(std::remove(relationships.begin(), relationships.end(), relationship_), relationships.end());
 }
 
-FieldElement* ContainerElement::GetField(int fieldIndex) const
+AttributeElement* ContainerElement::GetAttribute(int attributeIndex) const
 {
-    throw std::runtime_error("container element '" + Name() + "' has no fields");
+    throw std::runtime_error("container element '" + Name() + "' has no attributes");
 }
 
-int ContainerElement::GetIndexOfFieldElement(FieldElement* fieldElement) const
+int ContainerElement::GetIndexOfAttributeElement(AttributeElement* attributeElement) const
 {
-    throw std::runtime_error("container element '" + Name() + "' has no fields");
+    throw std::runtime_error("container element '" + Name() + "' has no attributes");
 }
 
 OperationElement* ContainerElement::GetOperation(int operationIndex) const

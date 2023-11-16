@@ -18,7 +18,9 @@ public:
     MainWindow();
     ~MainWindow();
 protected:
-    void OnKeyDown(wing::KeyEventArgs& args);
+    void OnWindowClosing(wing::CancelArgs& args) override;
+    void OnKeyDown(wing::KeyEventArgs& args) override;
+    void OnClipboardUpdate() override;
 private:
     void NewClick();
     void OpenClick();
@@ -37,6 +39,8 @@ private:
     void CanvasMouseEnter();
     void CanvasMouseLeave();
     void CanvasMouseMove(wing::MouseEventArgs& args);
+    void AddClipboardListener();
+    void RemoveClipboardListener();
     wing::Cursor arrowCursor;
     wing::Cursor& grabOpenCursor;
     wing::Cursor& grabClosedCursor;
@@ -63,6 +67,9 @@ private:
     wing::StatusBarTextItem* xCoordStatusBarItem;
     wing::StatusBarTextItem* yCoordStatusBarItem;
     std::string diagramFilePath;
+    std::unique_ptr<wing::ClipboardFormat> springppDiagramElementsFormat;
+    std::u32string clipboardData;
+    std::unique_ptr<wing::ClipboardListener> clipboardListener;
 };
 
 } // namespace springpp

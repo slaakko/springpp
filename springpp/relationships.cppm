@@ -58,4 +58,20 @@ public:
     void Draw(wing::Graphics& graphics) override;
 };
 
+class Reference : public RelationshipElementRep
+{
+public:    
+    Reference(RelationshipElement* relationshipElement_);
+    RelationshipElementRep* Clone(RelationshipElement* relationshipElement_) const override;
+    void Draw(wing::Graphics& graphics) override;
+};
+
+class CreateInstance : public RelationshipElementRep
+{
+public:
+    CreateInstance(RelationshipElement* relationshipElement_);
+    RelationshipElementRep* Clone(RelationshipElement* relationshipElement_) const override;
+    void Draw(wing::Graphics& graphics) override;
+};
+
 } // namespace springpp

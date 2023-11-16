@@ -9,6 +9,7 @@ import springpp.layout;
 import springpp.canvas;
 import springpp.diagram_element;
 import springpp.relationship_element;
+import springpp.primitive;
 import wing;
 import std.core;
 
@@ -45,6 +46,8 @@ std::unique_ptr<RelationshipElement> CombineInheritanceRelationships(const std::
 std::vector<std::unique_ptr<RelationshipElement>> SplitCombinedInheritanceRelationship(RelationshipElement* combinedRelationship);
 
 bool LineContains(const wing::PointF& from, const wing::PointF& to, const wing::PointF& loc, float selectedLineWidth);
+
+bool IsHorizontalLine(const wing::PointF& prev, const wing::PointF& next, Line& textLine);
 
 } // namespace springpp
 

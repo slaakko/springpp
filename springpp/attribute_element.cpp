@@ -3,7 +3,7 @@
 // Distributed under the MIT license
 // =================================
 
-module springpp.field_element;
+module springpp.attribute_element;
 
 import soul.xml.xpath;
 import springpp.relationship_element;
@@ -13,30 +13,30 @@ import springpp.container_element;
 
 namespace springpp {
 
-FieldElement::FieldElement() : DiagramElement(DiagramElementKind::fieldElement), containerElement(nullptr), relationship(nullptr)
+AttributeElement::AttributeElement() : DiagramElement(DiagramElementKind::attributeElement), containerElement(nullptr), relationship(nullptr)
 {
 }
 
-DiagramElement* FieldElement::Clone() const
+DiagramElement* AttributeElement::Clone() const
 {
-    FieldElement* clone = new FieldElement();
+    AttributeElement* clone = new AttributeElement();
     clone->SetName(Name());
     clone->SetBoundingRect(BoundingRect());
     clone->SetContainerElement(containerElement);
     return clone;
 }
 
-void FieldElement::SetContainerElement(ContainerElement* containerElement_)
+void AttributeElement::SetContainerElement(ContainerElement* containerElement_)
 {
     containerElement = containerElement_;
 }
 
-void FieldElement::AddRelationship(RelationshipElement* relationship_)
+void AttributeElement::AddRelationship(RelationshipElement* relationship_)
 {
     relationship = relationship_;
 }
 
-void FieldElement::RemoveRelationship(RelationshipElement* relationship_)
+void AttributeElement::RemoveRelationship(RelationshipElement* relationship_)
 {
     if (relationship == relationship_)
     {
@@ -44,7 +44,7 @@ void FieldElement::RemoveRelationship(RelationshipElement* relationship_)
     }
 }
 
-void FieldElement::SetRelationshipPoint()
+void AttributeElement::SetRelationshipPoint()
 {
     if (relationship != nullptr)
     {
@@ -58,7 +58,7 @@ void FieldElement::SetRelationshipPoint()
     }
 }
 
-wing::PointF FieldElement::GetRelationshipPoint() const
+wing::PointF AttributeElement::GetRelationshipPoint() const
 {
     Layout* layout = Configuration::Instance().GetLayout();
     RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
@@ -77,35 +77,35 @@ wing::PointF FieldElement::GetRelationshipPoint() const
     return point;
 }
 
-EndPoint FieldElement::GetEndPoint(const Snap& snap) const
+EndPoint AttributeElement::GetEndPoint(const Snap& snap) const
 {
-    EndPoint endPoint(const_cast<FieldElement*>(this), snap, GetRelationshipPoint());
+    EndPoint endPoint(const_cast<AttributeElement*>(this), snap, GetRelationshipPoint());
     return endPoint;
 }
 
-void FieldElement::Measure(wing::Graphics& graphics)
+void AttributeElement::Measure(wing::Graphics& graphics)
 {
     Layout* layout = Configuration::Instance().GetLayout();
-    FieldLayoutElement* fieldLayout = layout->GetFieldLayoutElement();
-    wing::Font* font = fieldLayout->GetFontElement()->GetFont();
+    AttributeLayoutElement* attributeLayout = layout->GetAttributeLayoutElement();
+    wing::Font* font = attributeLayout->GetFontElement()->GetFont();
     wing::RectF r = wing::MeasureString(graphics, Name(), *font, wing::PointF(0, 0), layout->GetStringFormat());
     wing::SizeF sz;
     r.GetSize(&sz);
     SetSize(sz);
 }
 
-void FieldElement::Draw(wing::Graphics& graphics)
+void AttributeElement::Draw(wing::Graphics& graphics)
 {
     Layout* layout = Configuration::Instance().GetLayout();
-    FieldLayoutElement* fieldLayout = layout->GetFieldLayoutElement();
-    wing::Font* font = fieldLayout->GetFontElement()->GetFont();
-    wing::Brush* brush = fieldLayout->GetTextColorElement()->GetBrush();
+    AttributeLayoutElement* attributeLayout = layout->GetAttributeLayoutElement();
+    wing::Font* font = attributeLayout->GetFontElement()->GetFont();
+    wing::Brush* brush = attributeLayout->GetTextColorElement()->GetBrush();
     wing::DrawString(graphics, Name(), *font, Location(), *brush);
 }
 
-soul::xml::Element* FieldElement::ToXml() const
+soul::xml::Element* AttributeElement::ToXml() const
 {
-    soul::xml::Element* xmlElement = soul::xml::MakeElement("field");
+    soul::xml::Element* xmlElement = soul::xml::MakeElement("attribute");
     soul::xml::Element* boundingRectElement = soul::xml::MakeElement("boundingRect");
     wing::RectF boundingRect = BoundingRect();
     boundingRectElement->SetAttribute("x", std::to_string(boundingRect.X));
@@ -117,7 +117,7 @@ soul::xml::Element* FieldElement::ToXml() const
     return xmlElement;
 }
 
-void FieldElement::Parse(soul::xml::Element* xmlElement)
+void AttributeElement::Parse(soul::xml::Element* xmlElement)
 {
     std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet("boundingRect", xmlElement);
     if (nodeSet->Count() == 1)
@@ -134,7 +134,7 @@ void FieldElement::Parse(soul::xml::Element* xmlElement)
             }
             else
             {
-                throw std::runtime_error("XML element 'fieldElement' has no 'x' attribute");
+                throw std::runtime_error("XML element 'attributeElement' has no 'x' attribute");
             }
             std::string yStr = boundingRectElement->GetAttribute("y");
             if (!yStr.empty())
@@ -143,7 +143,7 @@ void FieldElement::Parse(soul::xml::Element* xmlElement)
             }
             else
             {
-                throw std::runtime_error("XML element 'fieldElement' has no 'y' attribute");
+                throw std::runtime_error("XML element 'attributeElement' has no 'y' attribute");
             }
             std::string widthStr = boundingRectElement->GetAttribute("width");
             if (!widthStr.empty())
@@ -152,7 +152,7 @@ void FieldElement::Parse(soul::xml::Element* xmlElement)
             }
             else
             {
-                throw std::runtime_error("XML element 'fieldElement' has no 'width' attribute");
+                throw std::runtime_error("XML element 'attributeElement' has no 'width' attribute");
             }
             std::string heightStr = boundingRectElement->GetAttribute("height");
             if (!heightStr.empty())
@@ -161,7 +161,7 @@ void FieldElement::Parse(soul::xml::Element* xmlElement)
             }
             else
             {
-                throw std::runtime_error("XML element 'fieldElement' has no 'height' attribute");
+                throw std::runtime_error("XML element 'attributeElement' has no 'height' attribute");
             }
             SetBoundingRect(boundingRect);
         }
@@ -181,7 +181,7 @@ void FieldElement::Parse(soul::xml::Element* xmlElement)
     }
     else
     {
-        throw std::runtime_error("XML element 'fieldElement' has no 'name' attribute");
+        throw std::runtime_error("XML element 'attributeElement' has no 'name' attribute");
     }
 }
 

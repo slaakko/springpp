@@ -461,4 +461,42 @@ void Diagram::SaveImage(const std::string& fileName, const Padding& margins, win
     springpp::SaveImage(fileName, margins, canvas, diagramElements, graphics, format);
 }
 
+void Diagram::Paste(const std::u32string& clipboardData)
+{
+    std::unique_ptr<AddElementsCommand> addElementsCommand(new AddElementsCommand(this));
+    std::unique_ptr<soul::xml::Document> diagramElementDoc(soul::xml::ParseXmlContent(clipboardData, "clipboard"));
+    std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet("/springpp.diagram.elements/*", diagramElementDoc.get());
+    std::unique_ptr<ElementSelection> elementSelection(new ElementSelection(this));
+    std::vector<RelationshipElement*> relationshipElements;
+    std::map<int, int> indexMap;
+    int n = nodeSet->Count();
+    for (int i = 0; i < n; ++i)
+    {
+        soul::xml::Node* node = nodeSet->GetNode(i);
+        if (node->IsElementNode())
+        {
+            soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
+            std::string xmlElementName = xmlElement->Name();
+            std::unique_ptr<DiagramElement> diagramElement(CreateDiagramElement(xmlElementName));
+            diagramElement->Parse(xmlElement);
+            int index = elements.Count();
+            if (diagramElement->IsRelationshipElement())
+            {
+                relationshipElements.push_back(static_cast<RelationshipElement*>(diagramElement.get()));
+            }
+            AddElement(diagramElement.release());
+            indexMap[i] = index;
+            elementSelection->Add(index);
+            addElementsCommand->AddIndex(index);
+        }
+    }
+    for (RelationshipElement* relationship : relationshipElements)
+    {
+        relationship->MapIndeces(indexMap);
+        relationship->Resolve(this);
+    }
+    SetSelection(elementSelection.release());
+    commandList.AddCommand(addElementsCommand.release());
+}
+
 } // namespace springpp

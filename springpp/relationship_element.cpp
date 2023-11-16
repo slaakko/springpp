@@ -3,6 +3,12 @@
 // Distributed under the MIT license
 // =================================
 
+module;
+#include <Windows.h>
+#include <gdiplus.h>
+#undef min
+#undef max
+
 module springpp.relationship_element;
 
 import springpp.container_element;
@@ -73,17 +79,96 @@ RelationshipElementRep::~RelationshipElementRep()
 
 Line RelationshipElementRep::GetSourceTextLine(const Line& firstLine, float& leadingWidth, float padding) const
 {
-    return Line(); // todo
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Line textLine = firstLine;
+    if (IsHorizontalLine(firstLine.start, firstLine.end, textLine))
+    {
+        if (textLine != firstLine)
+        {
+            leadingWidth = padding;
+        }
+        return textLine;
+    }
+    if (!relationshipElement->IntermediatePoints().empty())
+    {
+        wing::PointF prev = firstLine.end;
+        for (int i = 1; i < relationshipElement->IntermediatePoints().size(); ++i)
+        {
+            wing::PointF next = relationshipElement->IntermediatePoints()[i];
+            if (IsHorizontalLine(prev, next, textLine))
+            {
+                leadingWidth = padding;
+                return textLine;
+            }
+            prev = next;
+        }
+        if (IsHorizontalLine(prev, relationshipElement->Target().Point(), textLine))
+        {
+            leadingWidth = padding;
+            return textLine;
+        }
+    }
+    return textLine;
 }
 
 void RelationshipElementRep::DrawSourceText(wing::Graphics& graphics, wing::Font* font, wing::Brush* textBrush, const Line& line, float leadingWidth)
 {
-    // todo
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    wing::GraphicsState state = graphics.Save();
+    float dx = line.end.X - line.start.X;
+    float dy = line.end.Y - line.start.Y;
+    double epsilon = std::numeric_limits<double>::epsilon();
+    if (std::abs(dx) >= 1.0f)
+    {
+        float angle = static_cast<float>(180.0 * std::atan2(dy, dx) / std::numbers::pi_v<double>);
+        graphics.RotateTransform(angle, Gdiplus::MatrixOrder::MatrixOrderAppend);
+    }
+    else
+    {
+        float angle = 0;
+        if (dy >= 0)
+        {
+            angle = 90.0f;
+        }
+        else
+        {
+            angle = -90.0f;
+        }
+        graphics.RotateTransform(angle, Gdiplus::MatrixOrder::MatrixOrderAppend);
+    }
+    graphics.TranslateTransform(line.start.X + leadingWidth, line.start.Y - relationshipElement->SourceTextSize().Height, Gdiplus::MatrixOrder::MatrixOrderAppend);
+    DrawString(graphics, relationshipElement->Source().Text(), *font, wing::PointF(0, 0), *textBrush);
+    graphics.Restore(state);
 }
 
 void RelationshipElementRep::DrawTargetText(wing::Graphics& graphics, wing::Font* font, wing::Brush* textBrush, const Line& line, float symbolWidth)
 {
-    // todo
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    wing::GraphicsState state = graphics.Save();
+    float dx = line.end.X - line.start.X;
+    float dy = line.end.Y - line.start.Y;
+    if (std::abs(dx) >= 1.0f)
+    {
+        float angle = static_cast<float>(180.0 * std::atan2(dy, dx) / std::numbers::pi_v<double>);
+        graphics.RotateTransform(angle, Gdiplus::MatrixOrder::MatrixOrderAppend);
+    }
+    else
+    {
+        float angle = 0;
+        if (dy >= 0)
+        {
+            angle = 90.0f;
+        }
+        else
+        {
+            angle = -90.0f;
+        }
+        graphics.RotateTransform(angle, Gdiplus::MatrixOrder::MatrixOrderAppend);
+    }
+    graphics.TranslateTransform(line.end.X - symbolWidth - relationshipElement->TargetTextSize().Width, line.start.Y - relationshipElement->TargetTextSize().Height, 
+        Gdiplus::MatrixOrder::MatrixOrderAppend);
+    DrawString(graphics, relationshipElement->Target().Text(), *font, wing::PointF(0, 0), *textBrush);
+    graphics.Restore(state);
 }
 
 void RelationshipElementRep::DrawSelected(wing::Graphics& graphics)
@@ -334,6 +419,16 @@ void RelationshipElement::SetRep()
         case RelationshipKind::aggregation:
         {
             rep.reset(new Aggregation(this));
+            break;
+        }
+        case RelationshipKind::reference:
+        {
+            rep.reset(new Reference(this));
+            break;
+        }
+        case RelationshipKind::createInstance:
+        {
+            rep.reset(new CreateInstance(this));
             break;
         }
     }
@@ -771,6 +866,16 @@ void RelationshipElement::Straighten()
             }
         }
     }
+}
+
+void RelationshipElement::MapIndeces(const std::map<int, int>& indexMap)
+{
+    source.MapIndex(indexMap);
+    for (EndPoint& sourceEndPoint : sourceEndPoints)
+    {
+        sourceEndPoint.MapIndex(indexMap);
+    }
+    target.MapIndex(indexMap);
 }
 
 } // namespace springpp

@@ -213,6 +213,24 @@ std::vector<std::unique_ptr<RelationshipElement>> SplitCombinedInheritanceRelati
     return relationships;
 }
 
+bool IsHorizontalLine(const wing::PointF& prev, const wing::PointF& next, Line& textLine)
+{
+    Line line(prev, next);
+    Vector v = line.ToVector();
+    int direction = MainDirection(v);
+    if (direction == 0)
+    {
+        textLine = line;
+        return true;
+    }
+    else if (direction == 180)
+    {
+        textLine = Line(next, prev);
+        return true;
+    }
+    return false;
+}
+
 bool LineContains(const wing::PointF& from, const wing::PointF& to, const wing::PointF& loc, float selectedLineWidth)
 {
     Line line(from, to);

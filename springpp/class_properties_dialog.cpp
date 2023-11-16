@@ -15,7 +15,7 @@ ClassPropertiesDialog::ClassPropertiesDialog(ClassElement* classElement_) : wing
     WindowClassBackgroundColor(wing::DefaultControlWindowClassBackgroundColor()).BackgroundColor(wing::DefaultControlBackgroundColor()).
     SetSize(wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(100), wing::ScreenMetrics::Get().MMToVerticalPixels(70)))),
     classElement(classElement_), classNameTextBox(nullptr), abstractCheckBox(nullptr), cancelButton(nullptr), okButton(nullptr), 
-    editOperationsButton(nullptr), editFieldsButton(nullptr)
+    editOperationsButton(nullptr), editAttributesButton(nullptr)
 {
     int column1Width = wing::ScreenMetrics::Get().MMToHorizontalPixels(20);
     wing::Size s = GetSize();
@@ -77,19 +77,19 @@ ClassPropertiesDialog::ClassPropertiesDialog(ClassElement* classElement_) : wing
     AddChild(editOperationsButtonPtr.release());
 
     int line4Top = operationsLabelLoc.Y + operationsLabelSize.Height + defaultControlSpacing.Height + textBoxPadding + borderWidth;
-    wing::Point fieldsLabelLoc(defaultControlSpacing.Width, line4Top);
-    std::unique_ptr<wing::Label> fieldsLabel(new wing::Label(wing::LabelCreateParams().Defaults().Text("Fields:").Location(fieldsLabelLoc).SetSize(defaultLabelSize).
+    wing::Point attributesLabelLoc(defaultControlSpacing.Width, line4Top);
+    std::unique_ptr<wing::Label> attributesLabel(new wing::Label(wing::LabelCreateParams().Defaults().Text("Attributes:").Location(attributesLabelLoc).SetSize(defaultLabelSize).
         SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    wing::Size fieldsLabelSize = fieldsLabel->GetSize();
-    AddChild(fieldsLabel.release());
-    wing::Point editFieldsButtonLoc(defaultControlSpacing.Width + column1Width + defaultControlSpacing.Width -
+    wing::Size attributesLabelSize = attributesLabel->GetSize();
+    AddChild(attributesLabel.release());
+    wing::Point editAttributesButtonLoc(defaultControlSpacing.Width + column1Width + defaultControlSpacing.Width -
         (textBoxPadding + borderWidth), line4Top - (textBoxPadding + borderWidth));
-    wing::Size editFieldsButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
-    std::unique_ptr<wing::Button> editFieldsButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(editFieldsButtonLoc).
-        SetSize(editFieldsButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    editFieldsButton = editFieldsButtonPtr.get();
-    editFieldsButton->Click().AddHandler(this, &ClassPropertiesDialog::EditFields);
-    AddChild(editFieldsButtonPtr.release());
+    wing::Size editAttributesButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
+    std::unique_ptr<wing::Button> editAttributesButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(editAttributesButtonLoc).
+        SetSize(editAttributesButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    editAttributesButton = editAttributesButtonPtr.get();
+    editAttributesButton->Click().AddHandler(this, &ClassPropertiesDialog::EditAttributes);
+    AddChild(editAttributesButtonPtr.release());
 
     int x = s.Width - defaultButtonSize.Width - defaultControlSpacing.Width;
     int y = s.Height - defaultButtonSize.Height - defaultControlSpacing.Height;
@@ -107,7 +107,7 @@ ClassPropertiesDialog::ClassPropertiesDialog(ClassElement* classElement_) : wing
     {
         okButton->Disable();
         editOperationsButton->Disable();
-        editFieldsButton->Disable();
+        editAttributesButton->Disable();
     }
     AddChild(okButtonPtr.release());
     AddChild(cancelButtonPtr.release());
@@ -122,13 +122,13 @@ void ClassPropertiesDialog::ClassNameChanged()
     {
         okButton->Disable();
         editOperationsButton->Disable();
-        editFieldsButton->Disable();
+        editAttributesButton->Disable();
     }
     else
     {
         okButton->Enable();
         editOperationsButton->Enable();
-        editFieldsButton->Enable();
+        editAttributesButton->Enable();
         classElement->SetName(classNameTextBox->Text());
     }
 }
@@ -156,12 +156,12 @@ void ClassPropertiesDialog::EditOperations()
     }
 }
 
-void ClassPropertiesDialog::EditFields()
+void ClassPropertiesDialog::EditAttributes()
 {
-    IndexList<FieldElement> clonedFieldElements = classElement->Fields().Clone();
-    if (ExecuteEditFieldsDialog(clonedFieldElements, classElement, *this))
+    IndexList<AttributeElement> clonedAttributeElements = classElement->Attributes().Clone();
+    if (ExecuteEditAttributesDialog(clonedAttributeElements, classElement, *this))
     {
-        classElement->SetFields(std::move(clonedFieldElements));
+        classElement->SetAttributes(std::move(clonedAttributeElements));
     }
 }
 

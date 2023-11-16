@@ -36,7 +36,7 @@ std::string DefaultOperationFontFamily()
     return "Arial";
 }
 
-std::string DefaultFieldFontFamily()
+std::string DefaultAttributeFontFamily()
 {
     return "Arial";
 }
@@ -66,6 +66,11 @@ wing::FontStyle DefaultConcreteClassCaptionFontStyle()
     return wing::FontStyle(Gdiplus::FontStyleBold);
 }
 
+wing::FontStyle DefaultObjectCaptionFontStyle()
+{
+    return wing::FontStyle(Gdiplus::FontStyleBold);
+}
+
 wing::FontStyle DefaultConcreteOperationFontStyle()
 {
     return wing::FontStyle(Gdiplus::FontStyleRegular);
@@ -76,7 +81,7 @@ wing::FontStyle DefaultAbstractOperationFontStyle()
     return wing::FontStyle(Gdiplus::FontStyleItalic);
 }
 
-wing::FontStyle DefaultFieldFontStyle()
+wing::FontStyle DefaultAttributeFontStyle()
 {
     return wing::FontStyle(Gdiplus::FontStyleRegular);
 }
@@ -546,6 +551,78 @@ ConcreteClassLayoutElement::ConcreteClassLayoutElement(Layout* layout_) :
 {
 }
 
+ObjectLayoutElement::ObjectLayoutElement(Layout* layout_) : 
+    LayoutElement(layout_, "object"), 
+    captionElement(new CaptionElement(layout_,
+        new FontElement(layout_, "font", DefaultCaptionFontFamily(), DefaultFontSize(), DefaultObjectCaptionFontStyle()))),
+    paddingElement(new PaddingElement(layout_, "padding", DefaultObjectPadding())),
+    textColorElement(new ColorElement(layout_, "textColor", DefaultTextColor())),
+    frameColorElement(new ColorElement(layout_, "frameColor", DefaultFrameColor())),
+    frameWidth(DefaultFrameWidth(layout_->Graphics())),
+    frameRoundingRadius(DefaultFrameRoundingRadius()),
+    framePen(nullptr)
+{
+}
+
+soul::xml::Element* ObjectLayoutElement::ToXml() const
+{
+    soul::xml::Element* xmlElement = soul::xml::MakeElement(Name());
+    xmlElement->AppendChild(captionElement->ToXml());
+    xmlElement->AppendChild(paddingElement->ToXml());
+    xmlElement->AppendChild(textColorElement->ToXml());
+    xmlElement->AppendChild(frameColorElement->ToXml());
+    xmlElement->SetAttribute("frameWidth", std::to_string(frameWidth));
+    xmlElement->SetAttribute("frameRoundingRadius", std::to_string(frameRoundingRadius));
+    return xmlElement;
+}
+
+void ObjectLayoutElement::Parse(soul::xml::Element* parentXmlElement)
+{
+    std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet(Name(), parentXmlElement);
+    int n = nodeSet->Count();
+    if (n == 1)
+    {
+        soul::xml::Node* node = nodeSet->GetNode(0);
+        if (node->IsElementNode())
+        {
+            soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
+            captionElement->Parse(xmlElement);
+            paddingElement->Parse(xmlElement);
+            textColorElement->Parse(xmlElement);
+            frameColorElement->Parse(xmlElement);
+            std::string frameWidthStr = xmlElement->GetAttribute("frameWidth");
+            if (frameWidthStr.empty())
+            {
+                throw std::runtime_error("XML element '" + Name() + "' has no 'frameWidth' attribute");
+            }
+            frameWidth = std::stof(frameWidthStr);
+            std::string frameRoundingRadiusStr = xmlElement->GetAttribute("frameRoundingRadius");
+            if (frameRoundingRadiusStr.empty())
+            {
+                throw std::runtime_error("XML element '" + Name() + "' has no 'frameRoundingRadiusStr' attribute");
+            }
+            frameRoundingRadius = std::stof(frameRoundingRadiusStr);
+        }
+        else
+        {
+            throw std::runtime_error("XML element node '" + Name() + "' expected in '" + parentXmlElement->Name() + "'");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("XML element '" + Name() + "' not unique in '" + parentXmlElement->Name() + "'");
+    }
+}
+
+wing::Pen* ObjectLayoutElement::FramePen()
+{
+    if (!framePen)
+    {
+        framePen = GetLayout()->GetOrInsertPen(frameColorElement->Color(), frameWidth, Gdiplus::DashStyleSolid);
+    }
+    return framePen;
+}
+
 OperationLayoutElement::OperationLayoutElement(Layout* layout_, const std::string& name_, ColorElement* textColorElement_, FontElement* fontElement_) :
     LayoutElement(layout_, name_), textColorElement(textColorElement_), fontElement(fontElement_)
 {
@@ -599,13 +676,13 @@ AbstractOperationLayoutElement::AbstractOperationLayoutElement(Layout* layout_) 
 {
 }
 
-FieldLayoutElement::FieldLayoutElement(Layout* layout_) : LayoutElement(layout_, "field"), 
+AttributeLayoutElement::AttributeLayoutElement(Layout* layout_) : LayoutElement(layout_, "attribute"), 
     textColorElement(new ColorElement(layout_, "textColor", DefaultTextColor())), 
-    fontElement(new FontElement(layout_, "font", DefaultFieldFontFamily(), DefaultFontSize(), DefaultFieldFontStyle()))
+    fontElement(new FontElement(layout_, "font", DefaultAttributeFontFamily(), DefaultFontSize(), DefaultAttributeFontStyle()))
 {
 }
 
-soul::xml::Element* FieldLayoutElement::ToXml() const
+soul::xml::Element* AttributeLayoutElement::ToXml() const
 {
     soul::xml::Element* xmlElement = soul::xml::MakeElement(Name());
     xmlElement->AppendChild(textColorElement->ToXml());
@@ -613,7 +690,7 @@ soul::xml::Element* FieldLayoutElement::ToXml() const
     return xmlElement;
 }
 
-void FieldLayoutElement::Parse(soul::xml::Element* parentXmlElement)
+void AttributeLayoutElement::Parse(soul::xml::Element* parentXmlElement)
 {
     std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet(Name(), parentXmlElement);
     int n = nodeSet->Count();
@@ -913,9 +990,10 @@ Layout::Layout(wing::Graphics* graphics_, const std::string& xmlFileName_) : gra
     diagramPaddingElement.reset(new PaddingElement(this, "diagramPadding", DefaultDiagramPadding()));
     abstractClassLayoutElement.reset(new AbstractClassLayoutElement(this));
     concreteClassLayoutElement.reset(new ConcreteClassLayoutElement(this));
+    objectLayoutElement.reset(new ObjectLayoutElement(this));
     abstractOperationLayoutElement.reset(new AbstractOperationLayoutElement(this));
     concreteOperationLayoutElement.reset(new ConcreteOperationLayoutElement(this));
-    fieldLayoutElement.reset(new FieldLayoutElement(this));
+    attributeLayoutElement.reset(new AttributeLayoutElement(this));
     resizeHandleLayoutElement.reset(new ResizeHandleLayoutElement(this));
     relationshipLayoutElement.reset(new RelationshipLayoutElement(this));
 }
@@ -927,9 +1005,10 @@ soul::xml::Element* Layout::ToXml() const
     layoutElement->AppendChild(diagramPaddingElement->ToXml());
     layoutElement->AppendChild(abstractClassLayoutElement->ToXml());
     layoutElement->AppendChild(concreteClassLayoutElement->ToXml());
+    layoutElement->AppendChild(objectLayoutElement->ToXml());
     layoutElement->AppendChild(abstractOperationLayoutElement->ToXml());
     layoutElement->AppendChild(concreteOperationLayoutElement->ToXml());
-    layoutElement->AppendChild(fieldLayoutElement->ToXml());
+    layoutElement->AppendChild(attributeLayoutElement->ToXml());
     layoutElement->AppendChild(resizeHandleLayoutElement->ToXml());
     layoutElement->AppendChild(relationshipLayoutElement->ToXml());
     return layoutElement;
@@ -948,9 +1027,10 @@ void Layout::Parse(soul::xml::Document* layoutDoc)
             diagramPaddingElement->Parse(layoutElement);
             abstractClassLayoutElement->Parse(layoutElement);
             concreteClassLayoutElement->Parse(layoutElement);
+            objectLayoutElement->Parse(layoutElement);
             abstractOperationLayoutElement->Parse(layoutElement);
             concreteOperationLayoutElement->Parse(layoutElement);
-            fieldLayoutElement->Parse(layoutElement);
+            attributeLayoutElement->Parse(layoutElement);
             resizeHandleLayoutElement->Parse(layoutElement);
             relationshipLayoutElement->Parse(layoutElement);
         }

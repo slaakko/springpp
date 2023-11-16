@@ -668,34 +668,34 @@ bool ExecuteEditOperationsDialog(IndexList<OperationElement>& operationList, Con
     return false;
 }
 
-class FieldElementListDialog : public EditDiagramElementListDialog
+class AttributeElementListDialog : public EditDiagramElementListDialog
 {
 public:
-    FieldElementListDialog(const EditDiagramElementListDialogParams& dialogParams_, IndexList<FieldElement>& fieldList_, ContainerElement* containerElement_);
+    AttributeElementListDialog(const EditDiagramElementListDialogParams& dialogParams_, IndexList<AttributeElement>& attributeList_, ContainerElement* containerElement_);
 protected:
     void OnGotFocus();
 private:
     void FillListBox();
-    void FieldNameTextBoxGotFocus();
-    void FieldNameTextBoxLostFocus();
-    void FieldNameTextBoxTextChanged();
-    void AddField();
-    void ChangeField();
-    void DeleteField();
-    void MoveUpField();
-    void MoveDownField();
+    void AttributeNameTextBoxGotFocus();
+    void AttributeNameTextBoxLostFocus();
+    void AttributeNameTextBoxTextChanged();
+    void AddAttribute();
+    void ChangeAttribute();
+    void DeleteAttribute();
+    void MoveUpAttribute();
+    void MoveDownAttribute();
     void SelectedIndexChanged();
-    IndexList<FieldElement>& fieldList;
+    IndexList<AttributeElement>& attributeList;
     ContainerElement* containerElement;
-    wing::TextBox* fieldNameTextBox;
+    wing::TextBox* attributeNameTextBox;
     int selectedIndex;
-    FieldElement* selectedField;
+    AttributeElement* selectedAttribute;
 };
 
-FieldElementListDialog::FieldElementListDialog(const EditDiagramElementListDialogParams& dialogParams_,
-    IndexList<FieldElement>& fieldList_, ContainerElement* containerElement_) :
+AttributeElementListDialog::AttributeElementListDialog(const EditDiagramElementListDialogParams& dialogParams_,
+    IndexList<AttributeElement>& attributeList_, ContainerElement* containerElement_) :
     EditDiagramElementListDialog(dialogParams_),
-    fieldList(fieldList_), containerElement(containerElement_), fieldNameTextBox(nullptr), selectedIndex(-1), selectedField(nullptr)
+    attributeList(attributeList_), containerElement(containerElement_), attributeNameTextBox(nullptr), selectedIndex(-1), selectedAttribute(nullptr)
 {
     wing::Size defaultControlSpacing = wing::ScreenMetrics::Get().DefaultControlSpacing();
     wing::Size defaultTextBoxSize = wing::ScreenMetrics::Get().DefaultTextBoxSize();
@@ -716,44 +716,44 @@ FieldElementListDialog::FieldElementListDialog(const EditDiagramElementListDialo
     wing::Rect nameTextBoxRec(nameTextBoxLocation, nameTextBoxSize);
     wing::Rect paddedNameTextBoxRect = nameTextBoxRec;
     paddedNameTextBoxRect.Inflate(textBoxPadding, textBoxPadding);
-    std::unique_ptr<wing::TextBox> fieldNameTextBoxPtr(new wing::TextBox(wing::TextBoxCreateParams().Defaults()));
-    fieldNameTextBox = fieldNameTextBoxPtr.get();
-    fieldNameTextBox->GotFocus().AddHandler(this, &FieldElementListDialog::FieldNameTextBoxGotFocus);
-    fieldNameTextBox->LostFocus().AddHandler(this, &FieldElementListDialog::FieldNameTextBoxLostFocus);
-    fieldNameTextBox->TextChanged().AddHandler(this, &FieldElementListDialog::FieldNameTextBoxTextChanged);
-    std::unique_ptr<wing::Control> paddedFieldNameTextBox(new wing::PaddedControl(wing::PaddedControlCreateParams(fieldNameTextBoxPtr.release()).Defaults()));
-    wing::Rect borderedPaddedFieldNameTextBoxRect = paddedNameTextBoxRect;
-    borderedPaddedFieldNameTextBoxRect.Inflate(borderWidth, borderWidth);
-    std::unique_ptr<wing::Control> borderedPaddedFieldNameTextBox(new wing::BorderedControl(wing::BorderedControlCreateParams(paddedFieldNameTextBox.release()).Defaults().
-        Location(wing::Point(borderedPaddedFieldNameTextBoxRect.X, borderedPaddedFieldNameTextBoxRect.Y)).
-        SetSize(wing::Size(borderedPaddedFieldNameTextBoxRect.Width, borderedPaddedFieldNameTextBoxRect.Height)).
+    std::unique_ptr<wing::TextBox> attributeNameTextBoxPtr(new wing::TextBox(wing::TextBoxCreateParams().Defaults()));
+    attributeNameTextBox = attributeNameTextBoxPtr.get();
+    attributeNameTextBox->GotFocus().AddHandler(this, &AttributeElementListDialog::AttributeNameTextBoxGotFocus);
+    attributeNameTextBox->LostFocus().AddHandler(this, &AttributeElementListDialog::AttributeNameTextBoxLostFocus);
+    attributeNameTextBox->TextChanged().AddHandler(this, &AttributeElementListDialog::AttributeNameTextBoxTextChanged);
+    std::unique_ptr<wing::Control> paddedAttributeNameTextBox(new wing::PaddedControl(wing::PaddedControlCreateParams(attributeNameTextBoxPtr.release()).Defaults()));
+    wing::Rect borderedPaddedAttributeNameTextBoxRect = paddedNameTextBoxRect;
+    borderedPaddedAttributeNameTextBoxRect.Inflate(borderWidth, borderWidth);
+    std::unique_ptr<wing::Control> borderedPaddedAttributeNameTextBox(new wing::BorderedControl(wing::BorderedControlCreateParams(paddedAttributeNameTextBox.release()).Defaults().
+        Location(wing::Point(borderedPaddedAttributeNameTextBoxRect.X, borderedPaddedAttributeNameTextBoxRect.Y)).
+        SetSize(wing::Size(borderedPaddedAttributeNameTextBoxRect.Width, borderedPaddedAttributeNameTextBoxRect.Height)).
         SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    GetGroupBox()->AddChild(borderedPaddedFieldNameTextBox.release());
-    GetAddButton()->Click().AddHandler(this, &FieldElementListDialog::AddField);
-    GetChangeButton()->Click().AddHandler(this, &FieldElementListDialog::ChangeField);
-    GetDeleteButton()->Click().AddHandler(this, &FieldElementListDialog::DeleteField);
-    GetMoveUpButton()->Click().AddHandler(this, &FieldElementListDialog::MoveUpField);
-    GetMoveDownButton()->Click().AddHandler(this, &FieldElementListDialog::MoveDownField);
-    GetListBox()->SelectedIndexChanged().AddHandler(this, &FieldElementListDialog::SelectedIndexChanged);
+    GetGroupBox()->AddChild(borderedPaddedAttributeNameTextBox.release());
+    GetAddButton()->Click().AddHandler(this, &AttributeElementListDialog::AddAttribute);
+    GetChangeButton()->Click().AddHandler(this, &AttributeElementListDialog::ChangeAttribute);
+    GetDeleteButton()->Click().AddHandler(this, &AttributeElementListDialog::DeleteAttribute);
+    GetMoveUpButton()->Click().AddHandler(this, &AttributeElementListDialog::MoveUpAttribute);
+    GetMoveDownButton()->Click().AddHandler(this, &AttributeElementListDialog::MoveDownAttribute);
+    GetListBox()->SelectedIndexChanged().AddHandler(this, &AttributeElementListDialog::SelectedIndexChanged);
     FillListBox();
 }
 
-void FieldElementListDialog::OnGotFocus()
+void AttributeElementListDialog::OnGotFocus()
 {
     EditDiagramElementListDialog::OnGotFocus();
-    fieldNameTextBox->SetFocus();
+    attributeNameTextBox->SetFocus();
 }
 
-void FieldElementListDialog::FillListBox()
+void AttributeElementListDialog::FillListBox()
 {
-    for (const auto& fieldElement : fieldList)
+    for (const auto& attributeElement : attributeList)
     {
-        std::string listBoxItemString = fieldElement->Name();
+        std::string listBoxItemString = attributeElement->Name();
         GetListBox()->AddItem(listBoxItemString);
     }
 }
 
-void FieldElementListDialog::FieldNameTextBoxGotFocus()
+void AttributeElementListDialog::AttributeNameTextBoxGotFocus()
 {
     if (selectedIndex != -1 && GetChangeButton()->IsEnabled())
     {
@@ -765,14 +765,14 @@ void FieldElementListDialog::FieldNameTextBoxGotFocus()
     }
 }
 
-void FieldElementListDialog::FieldNameTextBoxLostFocus()
+void AttributeElementListDialog::AttributeNameTextBoxLostFocus()
 {
     SetDefaultButton(GetOkButton());
 }
 
-void FieldElementListDialog::FieldNameTextBoxTextChanged()
+void AttributeElementListDialog::AttributeNameTextBoxTextChanged()
 {
-    if (fieldNameTextBox->Text().empty())
+    if (attributeNameTextBox->Text().empty())
     {
         GetAddButton()->Disable();
         GetChangeButton()->Disable();
@@ -787,32 +787,32 @@ void FieldElementListDialog::FieldNameTextBoxTextChanged()
     }
 }
 
-void FieldElementListDialog::AddField()
+void AttributeElementListDialog::AddAttribute()
 {
-    std::string fieldName = fieldNameTextBox->Text();
-    FieldElement* fieldElement = new FieldElement();
-    fieldElement->SetName(fieldName);
-    fieldElement->SetContainerElement(containerElement);
-    fieldList.Add(fieldElement);
-    std::string listBoxItemString = fieldName;
+    std::string attributeName = attributeNameTextBox->Text();
+    AttributeElement* attributeElement = new AttributeElement();
+    attributeElement->SetName(attributeName);
+    attributeElement->SetContainerElement(containerElement);
+    attributeList.Add(attributeElement);
+    std::string listBoxItemString = attributeName;
     GetListBox()->AddItem(listBoxItemString);
-    fieldNameTextBox->Clear();
+    attributeNameTextBox->Clear();
     selectedIndex = -1;
     GetDeleteButton()->Disable();
     GetMoveUpButton()->Disable();
     GetMoveDownButton()->Disable();
 }
 
-void FieldElementListDialog::ChangeField()
+void AttributeElementListDialog::ChangeAttribute()
 {
-    if (selectedIndex != -1 && selectedField != nullptr)
+    if (selectedIndex != -1 && selectedAttribute != nullptr)
     {
-        std::string fieldName = fieldNameTextBox->Text();
-        selectedField->SetName(fieldName);
-        std::string listBoxItemString = fieldName;
+        std::string attributeName = attributeNameTextBox->Text();
+        selectedAttribute->SetName(attributeName);
+        std::string listBoxItemString = attributeName;
         GetListBox()->SetItem(selectedIndex, listBoxItemString);
-        fieldNameTextBox->Clear();
-        fieldNameTextBox->SetFocus();
+        attributeNameTextBox->Clear();
+        attributeNameTextBox->SetFocus();
         selectedIndex = -1;
         SetDefaultButton(GetAddButton());
         GetDeleteButton()->Disable();
@@ -821,14 +821,14 @@ void FieldElementListDialog::ChangeField()
     }
 }
 
-void FieldElementListDialog::DeleteField()
+void AttributeElementListDialog::DeleteAttribute()
 {
-    if (selectedIndex != -1 && selectedField!= nullptr)
+    if (selectedIndex != -1 && selectedAttribute != nullptr)
     {
         GetListBox()->DeleteItem(selectedIndex);
-        fieldList.Remove(selectedIndex);
-        fieldNameTextBox->Clear();
-        fieldNameTextBox->SetFocus();
+        attributeList.Remove(selectedIndex);
+        attributeNameTextBox->Clear();
+        attributeNameTextBox->SetFocus();
         selectedIndex = -1;
         SetDefaultButton(GetAddButton());
         GetDeleteButton()->Disable();
@@ -837,33 +837,33 @@ void FieldElementListDialog::DeleteField()
     }
 }
 
-void FieldElementListDialog::MoveUpField()
+void AttributeElementListDialog::MoveUpAttribute()
 {
     if (selectedIndex > 0)
     {
         GetListBox()->DeleteItem(selectedIndex);
-        fieldList.MoveUp(selectedIndex);
+        attributeList.MoveUp(selectedIndex);
         --selectedIndex;
-        selectedField = fieldList.Get(selectedIndex);
-        std::string fieldName = selectedField->Name();
-        std::string listBoxItemString = fieldName;
+        selectedAttribute = attributeList.Get(selectedIndex);
+        std::string attributeName = selectedAttribute->Name();
+        std::string listBoxItemString = attributeName;
         GetListBox()->InsertItem(selectedIndex, listBoxItemString);
         GetListBox()->SetSelectedIndex(selectedIndex);
         SelectedIndexChanged();
     }
 }
 
-void FieldElementListDialog::MoveDownField()
+void AttributeElementListDialog::MoveDownAttribute()
 {
-    if (selectedIndex < fieldList.Count() - 1)
+    if (selectedIndex < attributeList.Count() - 1)
     {
         GetListBox()->DeleteItem(selectedIndex);
-        fieldList.MoveDown(selectedIndex);
+        attributeList.MoveDown(selectedIndex);
         ++selectedIndex;
-        selectedField = fieldList.Get(selectedIndex);
-        std::string fieldName = selectedField->Name();
-        std::string listBoxItemString = fieldName;
-        if (selectedIndex < fieldList.Count())
+        selectedAttribute = attributeList.Get(selectedIndex);
+        std::string attributeName = selectedAttribute->Name();
+        std::string listBoxItemString = attributeName;
+        if (selectedIndex < attributeList.Count())
         {
             GetListBox()->InsertItem(selectedIndex, listBoxItemString);
         }
@@ -876,15 +876,15 @@ void FieldElementListDialog::MoveDownField()
     }
 }
 
-void FieldElementListDialog::SelectedIndexChanged()
+void AttributeElementListDialog::SelectedIndexChanged()
 {
     selectedIndex = GetListBox()->GetSelectedIndex();
     if (selectedIndex != -1)
     {
-        selectedField = fieldList.Get(selectedIndex);
-        fieldNameTextBox->SetText(selectedField->Name());
+        selectedAttribute = attributeList.Get(selectedIndex);
+        attributeNameTextBox->SetText(selectedAttribute->Name());
         GetChangeButton()->Enable();
-        fieldNameTextBox->SetFocus();
+        attributeNameTextBox->SetFocus();
         GetDeleteButton()->Enable();
         if (selectedIndex > 0)
         {
@@ -894,7 +894,7 @@ void FieldElementListDialog::SelectedIndexChanged()
         {
             GetMoveUpButton()->Disable();
         }
-        if (selectedIndex < fieldList.Count() - 1)
+        if (selectedIndex < attributeList.Count() - 1)
         {
             GetMoveDownButton()->Enable();
         }
@@ -905,20 +905,20 @@ void FieldElementListDialog::SelectedIndexChanged()
     }
     else
     {
-        selectedField = nullptr;
+        selectedAttribute = nullptr;
         GetDeleteButton()->Disable();
     }
 }
 
-bool ExecuteEditFieldsDialog(IndexList<FieldElement>& fieldList, ContainerElement* containerElement, wing::Window& parentWindow)
+bool ExecuteEditAttributesDialog(IndexList<AttributeElement>& attributeList, ContainerElement* containerElement, wing::Window& parentWindow)
 {
     EditDiagramElementListDialogParams dialogParams;
     dialogParams.dialogSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(140), wing::ScreenMetrics::Get().MMToVerticalPixels(90));
-    dialogParams.dialogCaption = "Fields";
-    dialogParams.groupBoxCaption = "Field";
+    dialogParams.dialogCaption = "Attributes";
+    dialogParams.groupBoxCaption = "Attribute";
     dialogParams.groupBoxSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(70), wing::ScreenMetrics::Get().MMToVerticalPixels(16));
     dialogParams.listBoxSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(70), wing::ScreenMetrics::Get().MMToVerticalPixels(48));
-    std::unique_ptr<EditDiagramElementListDialog> dialog(new FieldElementListDialog(dialogParams, fieldList, containerElement));
+    std::unique_ptr<EditDiagramElementListDialog> dialog(new AttributeElementListDialog(dialogParams, attributeList, containerElement));
     if (dialog->ShowDialog(parentWindow) == wing::DialogResult::ok)
     {
         return true;

@@ -41,9 +41,9 @@ std::string SnapPointStr(SnapPoint snapPoint)
         {
             return "operation";
         }
-        case SnapPoint::field:
+        case SnapPoint::attribute:
         {
-            return "field";
+            return "attribute";
         }
     }
     return std::string();
@@ -58,7 +58,7 @@ const std::map<std::string, SnapPoint> snapPointMap =
     {"right", SnapPoint::right}, 
     {"center", SnapPoint::center},
     {"operation", SnapPoint::operation},
-    {"field", SnapPoint::field}
+    {"attribute", SnapPoint::attribute}
 };
 
 SnapPoint ParseSnapPoint(const std::string& str)
@@ -85,7 +85,7 @@ Snap::Snap(int x) : primaryPoint(SnapPoint((x >> 8) & 0xFF)), secondaryPoint(Sna
 
 std::string Snap::ToString() const
 {
-    if (primaryPoint == SnapPoint::operation || primaryPoint == SnapPoint::field)
+    if (primaryPoint == SnapPoint::operation || primaryPoint == SnapPoint::attribute)
     {
         return SnapPointStr(primaryPoint) + "." + std::to_string(int(secondaryPoint));
     }
@@ -154,7 +154,7 @@ Snap ParseSnap(const std::string& snapStr)
     if (components.size() == 2)
     {
         SnapPoint primary = ParseSnapPoint(components[0]);
-        if (primary == SnapPoint::operation || primary == SnapPoint::field)
+        if (primary == SnapPoint::operation || primary == SnapPoint::attribute)
         {
             Snap snap(primary, static_cast<SnapPoint>(std::stoi(components[1])));
             return snap;

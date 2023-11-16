@@ -23,11 +23,11 @@ private:
     wing::Button* cancelButton;
     wing::Button* okButton;
     wing::Button* editOperationsButton;
-    wing::Button* editFieldsButton;
+    wing::Button* editAttributesButton;
     void ClassNameChanged();
     void AbstractChanged();
     void EditOperations();
-    void EditFields();
+    void EditAttributes();
 };
 
 } // namespace springpp

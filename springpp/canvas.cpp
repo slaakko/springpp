@@ -101,6 +101,7 @@ Canvas::Canvas(CanvasCreateParams& createParams) :
     operationCreated(false),
     buttonPressed(false)
 {
+    SetDoubleBuffered();
     diagram.reset(new Diagram());
     diagram->SetCanvas(this);
 }

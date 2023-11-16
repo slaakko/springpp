@@ -3,7 +3,7 @@
 // Distributed under the MIT license
 // =================================
 
-export module springpp.field_element;
+export module springpp.attribute_element;
 
 import springpp.diagram_element;
 import wing;
@@ -13,10 +13,10 @@ export namespace springpp {
 
 class RelationshipElement;
 
-class FieldElement : public DiagramElement
+class AttributeElement : public DiagramElement
 {
 public:
-    FieldElement();
+    AttributeElement();
     DiagramElement* Clone() const override;
     ContainerElement* GetContainerElement() const override { return containerElement; }
     void SetContainerElement(ContainerElement* containerElement_);

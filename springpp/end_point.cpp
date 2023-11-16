@@ -8,7 +8,7 @@ module springpp.end_point;
 import springpp.diagram_element;
 import springpp.container_element;
 import springpp.diagram;
-import springpp.field_element;
+import springpp.attribute_element;
 import springpp.operation_element;
 
 namespace springpp {
@@ -42,17 +42,33 @@ void EndPoint::SetIndex(const std::map<ContainerElement*, int>& containerElement
     }
 }
 
+void EndPoint::MapIndex(const std::map<int, int>& indexMap)
+{
+    if (index != -1)
+    {
+        auto it = indexMap.find(index);
+        if (it != indexMap.end())
+        {
+            index = it->second;
+        }
+        else
+        {
+            throw std::runtime_error("EndPoint::MapIndex: index " + std::to_string(index) + " not found from index map");
+        }
+    }
+}
+
 void EndPoint::Resolve(Diagram* diagram)
 {
     if (index != -1)
     {
         element = diagram->GetElementByIndex(index);
-        if (snap.PrimaryPoint() == SnapPoint::field)
+        if (snap.PrimaryPoint() == SnapPoint::attribute)
         {
             if (element->IsContainerElement())
             {
                 ContainerElement* containerElement = static_cast<ContainerElement*>(element);
-                element = containerElement->GetField(static_cast<int>(snap.SecondaryPoint()));
+                element = containerElement->GetAttribute(static_cast<int>(snap.SecondaryPoint()));
             }
             else
             {

@@ -149,6 +149,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="about_dialog.cpp" />
+    <ClCompile Include="about_dialog.cppm" />
     <ClCompile Include="action.cpp" />
     <ClCompile Include="action.cppm" />
     <ClCompile Include="canvas.cpp" />
@@ -173,8 +175,8 @@
     <ClCompile Include="edit_diagram_element_list_dialog.cppm" />
     <ClCompile Include="end_point.cpp" />
     <ClCompile Include="end_point.cppm" />
-    <ClCompile Include="field_element.cpp" />
-    <ClCompile Include="field_element.cppm" />
+    <ClCompile Include="attribute_element.cpp" />
+    <ClCompile Include="attribute_element.cppm" />
     <ClCompile Include="index_list.cppm" />
     <ClCompile Include="layout.cpp" />
     <ClCompile Include="layout.cppm" />
@@ -183,6 +185,14 @@
     <ClCompile Include="main_window.cppm" />
     <ClCompile Include="mouse_args.cpp" />
     <ClCompile Include="mouse_args.cppm" />
+    <ClCompile Include="note_element.cpp" />
+    <ClCompile Include="note_element.cppm" />
+    <ClCompile Include="note_properties_dialog.cpp" />
+    <ClCompile Include="note_properties_dialog.cppm" />
+    <ClCompile Include="object_element.cpp" />
+    <ClCompile Include="object_element.cppm" />
+    <ClCompile Include="object_properties_dialog.cpp" />
+    <ClCompile Include="object_properties_dialog.cppm" />
     <ClCompile Include="operation.cpp" />
     <ClCompile Include="operation.cppm" />
     <ClCompile Include="operation_element.cpp" />

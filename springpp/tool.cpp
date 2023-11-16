@@ -9,6 +9,7 @@ import springpp.mouse_args;
 import springpp.diagram;
 import springpp.canvas;
 import springpp.class_element;
+import springpp.object_element;
 import springpp.container_element;
 import springpp.relationship_element;
 import springpp.action;
@@ -502,7 +503,17 @@ void ObjectTool::Initialize(Diagram* diagram)
 
 void ObjectTool::MouseNormalLeftClick(MouseArgs& args)
 {
-    // todo
+    Diagram* diagram = GetDiagram();
+    diagram->ResetSelection();
+    std::unique_ptr<ObjectElement> objectElement(new ObjectElement("anObject"));
+    objectElement->SetLocation(args.location);
+    std::unique_ptr<AddElementsCommand> addElementsCommand(new AddElementsCommand(diagram));
+    addElementsCommand->AddIndex(diagram->NextIndex());
+    diagram->AddElement(objectElement.release());
+    diagram->SetChanged();
+    diagram->Invalidate();
+    Tools::Instance().SetCurrent(Tools::Instance().GetSelectTool());
+    diagram->GetCommandList().AddCommand(addElementsCommand.release());
 }
 
 NoteTool::NoteTool() : SimpleClickTool(ToolKind::noteTool)
@@ -634,12 +645,77 @@ void RelationshipTool::MouseNormalLeftClick(MouseArgs& args)
 
 void RelationshipTool::MouseControlLeftClick(MouseArgs& args)
 {
-    // todo
+    Diagram* diagram = GetDiagram();
+    diagram->ResetSelection();
+    DiagramElement* element = args.element;
+    Operation* currentOperation = diagram->GetOperation();
+    if (currentOperation->IsAddRelationshipOperation())
+    {
+        AddRelationshipOperation* operation = static_cast<AddRelationshipOperation*>(currentOperation);
+        RelationshipElement* relationshipElement = operation->GetRelationshipElement();
+        wing::PointF lastPoint = relationshipElement->LastPoint();
+        wing::PointF nextPoint = args.location;
+        Line line(lastPoint, nextPoint);
+        Vector v(line.ToVector());
+        switch (MainDirection(v))
+        {
+            case 0:
+            case 180:
+            {
+                nextPoint.Y = lastPoint.Y;
+                break;
+            }
+            case 90:
+            case 270:
+            {
+                nextPoint.X = lastPoint.X;
+                break;
+            }
+        }
+        args.location = nextPoint;
+        MouseNormalLeftClick(args);
+    }
 }
 
 void RelationshipTool::MouseShiftLeftClick(MouseArgs& args)
 {
-    // todo
+    Diagram* diagram = GetDiagram();
+    diagram->ResetSelection();
+    Operation* currentOperation = diagram->GetOperation();
+    if (currentOperation->IsAddRelationshipOperation())
+    {
+        AddRelationshipOperation* operation = static_cast<AddRelationshipOperation*>(currentOperation);
+        RelationshipElement* relationshipElement = operation->GetRelationshipElement();
+        if (relationshipElement->Target().Element() == nullptr)
+        {
+            wing::PointF finalPoint = args.location;
+            if (args.control)
+            {
+                wing::PointF lastPoint = relationshipElement->LastPoint();
+                Line line(lastPoint, finalPoint);
+                Vector v(line.ToVector());
+                switch (MainDirection(v))
+                {
+                    case 0:
+                    case 180:
+                    {
+                        finalPoint.Y = lastPoint.Y;
+                        break;
+                    }
+                    case 90:
+                    case 270:
+                    {
+                        finalPoint.X = lastPoint.X;
+                        break;
+                    }
+                }
+            }
+            relationshipElement->Target() = EndPoint(nullptr, Snap(), finalPoint);
+            relationshipElement->Source().Element()->AddRelationship(relationshipElement);
+            diagram->CommitOperation(args);
+            Tools::Instance().SetCurrent(Tools::Instance().GetSelectTool());
+        }
+    }
 }
 
 ClassRelationshipTool::ClassRelationshipTool(ToolKind kind_) : RelationshipTool(kind_)
@@ -717,7 +793,7 @@ bool ReferenceTool::Accept(DiagramElement* element, DiagramElement* sourceElemen
             return true;
         }
     }
-    else if (sourceElement->IsFieldElement())
+    else if (sourceElement->IsAttributeElement())
     {
         if (element->IsObjectElement())
         {

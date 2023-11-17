@@ -60,36 +60,36 @@ ClassPropertiesDialog::ClassPropertiesDialog(ClassElement* classElement_) : wing
     abstractCheckBox->CheckedChanged().AddHandler(this, &ClassPropertiesDialog::AbstractChanged);
     AddChild(abstractCheckBoxPtr.release());
     wing::Size abstractCheckBoxSize = abstractCheckBox->GetSize();
+
     int line3Top = abstractCheckBoxLoc.Y + abstractCheckBoxSize.Height + defaultControlSpacing.Height;
-    wing::Point operationsLabelLoc(defaultControlSpacing.Width, line3Top);
-
-    std::unique_ptr<wing::Label> operationsLabel(new wing::Label(wing::LabelCreateParams().Defaults().Text("Operations:").Location(operationsLabelLoc).SetSize(defaultLabelSize).
-        SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    wing::Size operationsLabelSize = operationsLabel->GetSize();
-    AddChild(operationsLabel.release());
-    wing::Point editOperationsButtonLoc(defaultControlSpacing.Width + column1Width + defaultControlSpacing.Width -
-        (textBoxPadding + borderWidth), line3Top - (textBoxPadding + borderWidth));
-    wing::Size editOperationsButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
-    std::unique_ptr<wing::Button> editOperationsButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(editOperationsButtonLoc).
-        SetSize(editOperationsButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    editOperationsButton = editOperationsButtonPtr.get();
-    editOperationsButton->Click().AddHandler(this, &ClassPropertiesDialog::EditOperations);
-    AddChild(editOperationsButtonPtr.release());
-
-    int line4Top = operationsLabelLoc.Y + operationsLabelSize.Height + defaultControlSpacing.Height + textBoxPadding + borderWidth;
-    wing::Point attributesLabelLoc(defaultControlSpacing.Width, line4Top);
+    wing::Point attributesLabelLoc(defaultControlSpacing.Width, line3Top);
     std::unique_ptr<wing::Label> attributesLabel(new wing::Label(wing::LabelCreateParams().Defaults().Text("Attributes:").Location(attributesLabelLoc).SetSize(defaultLabelSize).
         SetAnchors(wing::Anchors::top | wing::Anchors::left)));
     wing::Size attributesLabelSize = attributesLabel->GetSize();
     AddChild(attributesLabel.release());
     wing::Point editAttributesButtonLoc(defaultControlSpacing.Width + column1Width + defaultControlSpacing.Width -
-        (textBoxPadding + borderWidth), line4Top - (textBoxPadding + borderWidth));
+        (textBoxPadding + borderWidth), line3Top - (textBoxPadding + borderWidth));
     wing::Size editAttributesButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
     std::unique_ptr<wing::Button> editAttributesButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(editAttributesButtonLoc).
         SetSize(editAttributesButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
     editAttributesButton = editAttributesButtonPtr.get();
     editAttributesButton->Click().AddHandler(this, &ClassPropertiesDialog::EditAttributes);
     AddChild(editAttributesButtonPtr.release());
+
+    int line4Top = attributesLabelLoc.Y + attributesLabelSize.Height + defaultControlSpacing.Height + textBoxPadding + borderWidth;
+    wing::Point operationsLabelLoc(defaultControlSpacing.Width, line4Top);
+    std::unique_ptr<wing::Label> operationsLabel(new wing::Label(wing::LabelCreateParams().Defaults().Text("Operations:").Location(operationsLabelLoc).SetSize(defaultLabelSize).
+        SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    wing::Size operationsLabelSize = operationsLabel->GetSize();
+    AddChild(operationsLabel.release());
+    wing::Point editOperationsButtonLoc(defaultControlSpacing.Width + column1Width + defaultControlSpacing.Width -
+        (textBoxPadding + borderWidth), line4Top - (textBoxPadding + borderWidth));
+    wing::Size editOperationsButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
+    std::unique_ptr<wing::Button> editOperationsButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(editOperationsButtonLoc).
+        SetSize(editOperationsButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    editOperationsButton = editOperationsButtonPtr.get();
+    editOperationsButton->Click().AddHandler(this, &ClassPropertiesDialog::EditOperations);
+    AddChild(editOperationsButtonPtr.release());
 
     int x = s.Width - defaultButtonSize.Width - defaultControlSpacing.Width;
     int y = s.Height - defaultButtonSize.Height - defaultControlSpacing.Height;

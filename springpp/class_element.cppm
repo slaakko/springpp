@@ -28,8 +28,8 @@ public:
     void Draw(wing::Graphics& graphics);
     float MaxChildElementWidth() const { return maxChildElementWidth; }
 private:
-    void MeasureOperations(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship);
     void MeasureAttributes(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship);
+    void MeasureOperations(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship);
     void DrawFrame(wing::Graphics& graphics, ClassLayoutElement* classLayout);
     void DrawCaption(wing::Graphics& graphics, ClassLayoutElement* classLayout);
     void DrawOperations(wing::Graphics& graphics);
@@ -39,8 +39,8 @@ private:
     ClassElement* classElement;
     float captionTextHeight;
     wing::RectF captionRect;
-    wing::RectF operationRect;
     wing::RectF attributeRect;
+    wing::RectF operationRect;
     float maxChildElementWidth;
 };
 

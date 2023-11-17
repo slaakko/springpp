@@ -39,8 +39,8 @@ void ClassElementRep::Measure(wing::Graphics& graphics)
     captionRect = wing::RectF(captionRectX, captionRectY, captionRectWidth, captionRectHeight);
     maxChildElementWidth = 0.0f;
     bool hasRelationship = false;
-    MeasureOperations(graphics, classLayout, hasRelationship);
     MeasureAttributes(graphics, classLayout, hasRelationship);
+    MeasureOperations(graphics, classLayout, hasRelationship);
     if (hasRelationship)
     {
         float w = GetRelationshipSymbolFieldWidth(relationshipLayout->RelationshipSymbolRadius(), relationshipLayout->GetPaddingElement()->GetPadding().Horizontal());
@@ -53,47 +53,14 @@ void ClassElementRep::Measure(wing::Graphics& graphics)
     SetSize();
 }
 
-void ClassElementRep::MeasureOperations(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship)
-{
-    PaddingElement* paddingElement = classLayout->GetPaddingElement();
-    wing::PointF location = classElement->Location();
-    operationRect = wing::RectF();
-    operationRect.X = location.X;
-    operationRect.Y = location.Y + captionRect.Height;
-    operationRect.Width = captionRect.Width;
-    operationRect.Height = paddingElement->GetPadding().top;
-    wing::PointF origin;
-    origin.X = operationRect.X + paddingElement->GetPadding().left;
-    origin.Y = operationRect.Y + paddingElement->GetPadding().top;
-    int n = classElement->Operations().Count();
-    for (int i = 0; i < n; ++i)
-    {
-        OperationElement* operation = classElement->Operations().Get(i);
-        operation->Measure(graphics);
-        wing::SizeF operationSize = operation->Size();
-        float w = operationSize.Width + paddingElement->GetPadding().Horizontal();
-        float h = operationSize.Height;
-        maxChildElementWidth = std::max(maxChildElementWidth, w);
-        if (operation->Relationship() != nullptr)
-        {
-            hasRelationship = true;
-        }
-        operation->SetLocation(origin);
-        operationRect.Width = std::max(operationRect.Width, w);
-        origin.Y += h;
-        operationRect.Height += h;
-    }
-    operationRect.Height += paddingElement->GetPadding().bottom;
-}
-
 void ClassElementRep::MeasureAttributes(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship)
 {
     PaddingElement* paddingElement = classLayout->GetPaddingElement();
     wing::PointF location = classElement->Location();
     attributeRect = wing::RectF();
     attributeRect.X = location.X;
-    attributeRect.Y = operationRect.Y + operationRect.Height;
-    attributeRect.Width = operationRect.Width;
+    attributeRect.Y = location.Y + captionRect.Height;
+    attributeRect.Width = captionRect.Width;
     attributeRect.Height = paddingElement->GetPadding().top;
     wing::PointF origin;
     origin.X = attributeRect.X + paddingElement->GetPadding().left;
@@ -119,6 +86,39 @@ void ClassElementRep::MeasureAttributes(wing::Graphics& graphics, ClassLayoutEle
     attributeRect.Height += paddingElement->GetPadding().bottom;
 }
 
+void ClassElementRep::MeasureOperations(wing::Graphics& graphics, ClassLayoutElement* classLayout, bool& hasRelationship)
+{
+    PaddingElement* paddingElement = classLayout->GetPaddingElement();
+    wing::PointF location = classElement->Location();
+    operationRect = wing::RectF();
+    operationRect.X = location.X;
+    operationRect.Y = attributeRect.Y + attributeRect.Height;
+    operationRect.Width = attributeRect.Width;
+    operationRect.Height = paddingElement->GetPadding().top;
+    wing::PointF origin;
+    origin.X = operationRect.X + paddingElement->GetPadding().left;
+    origin.Y = operationRect.Y + paddingElement->GetPadding().top;
+    int n = classElement->Operations().Count();
+    for (int i = 0; i < n; ++i)
+    {
+        OperationElement* operation = classElement->Operations().Get(i);
+        operation->Measure(graphics);
+        wing::SizeF operationSize = operation->Size();
+        float w = operationSize.Width + paddingElement->GetPadding().Horizontal();
+        float h = operationSize.Height;
+        maxChildElementWidth = std::max(maxChildElementWidth, w);
+        if (operation->Relationship() != nullptr)
+        {
+            hasRelationship = true;
+        }
+        operation->SetLocation(origin);
+        operationRect.Width = std::max(operationRect.Width, w);
+        origin.Y += h;
+        operationRect.Height += h;
+    }
+    operationRect.Height += paddingElement->GetPadding().bottom;
+}
+
 void ClassElementRep::SetSize()
 {
     ClassElement* classElement = GetClassElement();
@@ -127,19 +127,19 @@ void ClassElementRep::SetSize()
     wing::SizeF size(0.0f, 0.0f);
     size.Width = std::max(size.Width, captionRectSize.Width);
     float h = captionRectSize.Height;
-    if (!classElement->Operations().IsEmpty() || !classElement->Attributes().IsEmpty())
-    {
-        wing::SizeF operationRectSize;
-        operationRect.GetSize(&operationRectSize);
-        size.Width = std::max(size.Width, operationRectSize.Width);
-        h = h + operationRectSize.Height;
-    }
-    if (!classElement->Attributes().IsEmpty())
+    if (!classElement->Attributes().IsEmpty() || !classElement->Operations().IsEmpty())
     {
         wing::SizeF attributeRectSize;
         attributeRect.GetSize(&attributeRectSize);
         size.Width = std::max(size.Width, attributeRectSize.Width);
         h = h + attributeRectSize.Height;
+    }
+    if (!classElement->Operations().IsEmpty())
+    {
+        wing::SizeF operationRectSize;
+        operationRect.GetSize(&operationRectSize);
+        size.Width = std::max(size.Width, operationRectSize.Width);
+        h = h + operationRectSize.Height;
     }
     size.Height = std::max(size.Height, h);
     classElement->SetSize(size);
@@ -151,8 +151,8 @@ void ClassElementRep::Draw(wing::Graphics& graphics)
     ClassLayoutElement* classLayout = GetClassLayout(layout);
     DrawFrame(graphics, classLayout);
     DrawCaption(graphics, classLayout);
-    DrawOperations(graphics);
     DrawAttributes(graphics);
+    DrawOperations(graphics);
 }
 
 void ClassElementRep::DrawFrame(wing::Graphics& graphics, ClassLayoutElement* classLayout)
@@ -160,18 +160,18 @@ void ClassElementRep::DrawFrame(wing::Graphics& graphics, ClassLayoutElement* cl
     ClassElement* classElement = GetClassElement();
     PaddingElement* paddingElement = classLayout->GetPaddingElement();
     graphics.DrawRectangle(classLayout->FramePen(), classElement->Bounds());
-    if (!classElement->Operations().IsEmpty() || !classElement->Attributes().IsEmpty())
+    if (!classElement->Attributes().IsEmpty() || !classElement->Operations().IsEmpty())
     {
         float captionLineY = paddingElement->GetPadding().Vertical() + captionTextHeight;
         wing::PointF captionLineStart = wing::PointF(classElement->Location().X, classElement->Location().Y + captionLineY);
         wing::PointF captionLineEnd = wing::PointF(classElement->Location().X + classElement->Size().Width, classElement->Location().Y + captionLineY);
         graphics.DrawLine(classLayout->FramePen(), captionLineStart, captionLineEnd);
     }
-    if (!classElement->Attributes().IsEmpty())
+    if (!classElement->Operations().IsEmpty())
     {
-        wing::PointF attributeLineStart = wing::PointF(classElement->Location().X, attributeRect.Y);
-        wing::PointF attributeLineEnd = wing::PointF(classElement->Location().X + classElement->Size().Width, attributeRect.Y);
-        graphics.DrawLine(classLayout->FramePen(), attributeLineStart, attributeLineEnd);
+        wing::PointF operationLineStart = wing::PointF(classElement->Location().X, operationRect.Y);
+        wing::PointF operationLineEnd = wing::PointF(classElement->Location().X + classElement->Size().Width, operationRect.Y);
+        graphics.DrawLine(classLayout->FramePen(), operationLineStart, operationLineEnd);
     }
 }
 
@@ -187,16 +187,6 @@ void ClassElementRep::DrawCaption(wing::Graphics& graphics, ClassLayoutElement* 
     wing::DrawString(graphics, classElement->Name(), *font, origin, *brush);
 }
 
-void ClassElementRep::DrawOperations(wing::Graphics& graphics)
-{
-    int n = classElement->Operations().Count();
-    for (int i = 0; i < n; ++i)
-    {
-        OperationElement* operation = classElement->Operations().Get(i);
-        operation->Draw(graphics);
-    }
-}
-
 void ClassElementRep::DrawAttributes(wing::Graphics& graphics)
 {
     int n = classElement->Attributes().Count();
@@ -204,6 +194,16 @@ void ClassElementRep::DrawAttributes(wing::Graphics& graphics)
     {
         AttributeElement* attribute = classElement->Attributes().Get(i);
         attribute->Draw(graphics);
+    }
+}
+
+void ClassElementRep::DrawOperations(wing::Graphics& graphics)
+{
+    int n = classElement->Operations().Count();
+    for (int i = 0; i < n; ++i)
+    {
+        OperationElement* operation = classElement->Operations().Get(i);
+        operation->Draw(graphics);
     }
 }
 
@@ -255,15 +255,15 @@ soul::xml::Element* ClassElement::ToXml() const
     xmlElement->AppendChild(boundsElement);
     xmlElement->SetAttribute("name", Name());
     xmlElement->SetAttribute("abstract", isAbstract ? "true" : "false");
-    for (const auto& operation : operations)
-    {
-        soul::xml::Element* operationElement = operation->ToXml();
-        xmlElement->AppendChild(operationElement);
-    }
     for (const auto& attribute : attributes)
     {
         soul::xml::Element* attributeElement = attribute->ToXml();
         xmlElement->AppendChild(attributeElement);
+    }
+    for (const auto& operation : operations)
+    {
+        soul::xml::Element* operationElement = operation->ToXml();
+        xmlElement->AppendChild(operationElement);
     }
     return xmlElement;
 }
@@ -339,24 +339,6 @@ void ClassElement::Parse(soul::xml::Element* xmlElement)
     {
         SetAbstract();
     }
-    std::unique_ptr<soul::xml::xpath::NodeSet> operationNodeSet = soul::xml::xpath::EvaluateToNodeSet("operation", xmlElement);
-    int no = operationNodeSet->Count();
-    for (int i = 0; i < no; ++i)
-    {
-        soul::xml::Node* node = operationNodeSet->GetNode(i);
-        if (node->IsElementNode())
-        {
-            soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
-            OperationElement* operationElement = new OperationElement();
-            operationElement->SetContainerElement(this);
-            operationElement->Parse(xmlElement);
-            operations.Add(operationElement);
-        }
-        else
-        {
-            throw std::runtime_error("XML element node expected in '" + xmlElement->Name() + "'");
-        }
-    }
     std::unique_ptr<soul::xml::xpath::NodeSet> attributeNodeSet = soul::xml::xpath::EvaluateToNodeSet("attribute", xmlElement);
     int nf = attributeNodeSet->Count();
     for (int i = 0; i < nf; ++i)
@@ -369,6 +351,24 @@ void ClassElement::Parse(soul::xml::Element* xmlElement)
             attributeElement->SetContainerElement(this);
             attributeElement->Parse(xmlElement);
             attributes.Add(attributeElement);
+        }
+        else
+        {
+            throw std::runtime_error("XML element node expected in '" + xmlElement->Name() + "'");
+        }
+    }
+    std::unique_ptr<soul::xml::xpath::NodeSet> operationNodeSet = soul::xml::xpath::EvaluateToNodeSet("operation", xmlElement);
+    int no = operationNodeSet->Count();
+    for (int i = 0; i < no; ++i)
+    {
+        soul::xml::Node* node = operationNodeSet->GetNode(i);
+        if (node->IsElementNode())
+        {
+            soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
+            OperationElement* operationElement = new OperationElement();
+            operationElement->SetContainerElement(this);
+            operationElement->Parse(xmlElement);
+            operations.Add(operationElement);
         }
         else
         {

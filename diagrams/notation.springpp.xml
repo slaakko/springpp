@@ -1,12 +1,12 @@
 <diagram>
  <classElement abstract="false" name="ConcreteClass">
   <bounds height="20.831835" width="33.862709" x="30.000000" y="8.000000"/>
-  <operation abstract="false" name="ConcreteOperation()">
-   <bounds height="3.943945" width="30.862709" x="31.500000" y="16.443945"/>
-  </operation>
-  <attribute name="attribute">
-   <bounds height="3.943945" width="12.873114" x="31.500000" y="23.387890"/>
+  <attribute name="attribute : Type">
+   <bounds height="3.943945" width="22.869400" x="31.500000" y="16.443945"/>
   </attribute>
+  <operation abstract="false" name="ConcreteOperation()">
+   <bounds height="3.943945" width="30.862709" x="31.500000" y="23.387890"/>
+  </operation>
  </classElement>
  <objectElement name="anObject">
   <bounds height="13.887890" width="18.051275" x="121.874283" y="11.471972"/>
@@ -55,15 +55,15 @@
  </classElement>
  <classElement abstract="true" name="AbstractClass">
   <bounds height="24.775780" width="33.862709" x="75.937141" y="6.028027"/>
+  <attribute name="attribute : Type">
+   <bounds height="3.943945" width="22.869400" x="77.437141" y="14.471972"/>
+  </attribute>
   <operation abstract="true" name="AbstractOperation()">
-   <bounds height="3.943945" width="29.589918" x="77.437141" y="14.471972"/>
+   <bounds height="3.943945" width="29.589918" x="77.437141" y="21.415916"/>
   </operation>
   <operation abstract="false" name="ConcreteOperation()">
-   <bounds height="3.943945" width="30.862709" x="77.437141" y="18.415916"/>
+   <bounds height="3.943945" width="30.862709" x="77.437141" y="25.359861"/>
   </operation>
-  <attribute name="attribute">
-   <bounds height="3.943945" width="12.873114" x="77.437141" y="25.359861"/>
-  </attribute>
  </classElement>
  <noteElement>
   <bounds height="6.943945" width="15.147698" x="152.000000" y="14.943943"/>
@@ -91,13 +91,13 @@
   <bounds height="6.943945" width="6.419429" x="101.000000" y="76.000000"/>
  </classElement>
  <classElement abstract="false" name="A">
-  <bounds height="13.887890" width="15.007428" x="76.000000" y="91.000000"/>
+  <bounds height="16.887890" width="15.007428" x="76.000000" y="91.000000"/>
   <operation abstract="false" name="+Op()">
-   <bounds height="3.943945" width="9.507428" x="77.500000" y="99.443947"/>
+   <bounds height="3.943945" width="9.507428" x="77.500000" y="102.443947"/>
   </operation>
  </classElement>
  <noteElement>
-  <bounds height="6.943945" width="27.143862" x="101.000000" y="98.415916"/>
+  <bounds height="6.943945" width="27.143862" x="102.000000" y="101.415916"/>
   <line text="Op description"/>
  </noteElement>
  <relationshipElement cardinality="one" rkind="inheritance">
@@ -149,8 +149,8 @@
   <target connector="left.bottom" index="21" text="" x="101.000000" y="79.943947"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="attachNote">
-  <bounds height="0.000000" width="12.242569" x="88.757431" y="101.415916"/>
-  <source connector="operation.0" index="22" text="" x="88.757431" y="101.415916"/>
-  <target connector="left.top" index="23" text="" x="101.000000" y="101.415916"/>
+  <bounds height="0.000000" width="13.242569" x="88.757431" y="104.415916"/>
+  <source connector="operation.0" index="22" text="" x="88.757431" y="104.415916"/>
+  <target connector="left.top" index="23" text="" x="102.000000" y="104.415916"/>
  </relationshipElement>
 </diagram>

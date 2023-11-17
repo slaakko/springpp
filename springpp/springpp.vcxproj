@@ -209,8 +209,8 @@
     <ClCompile Include="save_image_dialog.cppm" />
     <ClCompile Include="selection.cpp" />
     <ClCompile Include="selection.cppm" />
-    <ClCompile Include="snap.cpp" />
-    <ClCompile Include="snap.cppm" />
+    <ClCompile Include="connector.cpp" />
+    <ClCompile Include="connector.cppm" />
     <ClCompile Include="theme.cpp" />
     <ClCompile Include="theme.cppm" />
     <ClCompile Include="tool.cpp" />

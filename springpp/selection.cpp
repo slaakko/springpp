@@ -75,7 +75,7 @@ std::vector<std::unique_ptr<DiagramElement>> CloneElements(Diagram* diagram, con
     std::vector<std::unique_ptr<DiagramElement>> clonedElements;
     std::vector<ContainerElement*> containerElements;
     std::vector<RelationshipElement*> relationshipElements;
-    wing::RectF boundingRect;
+    wing::RectF bounds;
     int n = indeces.size();
     for (int i = 0; i < n; ++i)
     {
@@ -83,13 +83,13 @@ std::vector<std::unique_ptr<DiagramElement>> CloneElements(Diagram* diagram, con
         DiagramElement* element = diagram->GetElementByIndex(index);
         if (element->IsContainerElement())
         {
-            if (boundingRect.IsEmptyArea())
+            if (bounds.IsEmptyArea())
             {
-                boundingRect = element->BoundingRect();
+                bounds = element->Bounds();
             }
             else
             {
-                wing::RectF::Union(boundingRect, boundingRect, element->BoundingRect());
+                wing::RectF::Union(bounds, bounds, element->Bounds());
             }
             containerElements.push_back(static_cast<ContainerElement*>(element));
         }
@@ -137,13 +137,13 @@ std::vector<std::unique_ptr<DiagramElement>> CloneElements(Diagram* diagram, con
             }
             if ((sourceInClosure || sourcesInClosure) && targetInClosure)
             {
-                if (boundingRect.IsEmptyArea())
+                if (bounds.IsEmptyArea())
                 {
-                    boundingRect = relationship->BoundingRect();
+                    bounds = relationship->Bounds();
                 }
                 else
                 {
-                    wing::RectF::Union(boundingRect, boundingRect, relationship->BoundingRect());
+                    wing::RectF::Union(bounds, bounds, relationship->Bounds());
                 }
                 if (std::find(relationshipElements.begin(), relationshipElements.end(), relationship) == relationshipElements.end())
                 {
@@ -173,7 +173,7 @@ std::vector<std::unique_ptr<DiagramElement>> CloneElements(Diagram* diagram, con
     }
     for (auto& clonedElement : clonedElements)
     {
-        clonedElement->Offset(-boundingRect.X, -boundingRect.Y);
+        clonedElement->Offset(-bounds.X, -bounds.Y);
     }
     return clonedElements;
 }
@@ -742,34 +742,34 @@ void ElementSelection::CombineInheritanceRelationships()
     }
 }
 
-ResizeHandle::ResizeHandle(RectangleSelection* selection_, const wing::PointF& location_, const Snap& snap_) :
-    selection(selection_), location(location_), startLocation(location), snap(snap_), width(0.0f)
+ResizeHandle::ResizeHandle(RectangleSelection* selection_, const wing::PointF& location_, const Connector& connector_) :
+    selection(selection_), location(location_), startLocation(location), connector(connector_), width(0.0f)
 {
     Layout* layout = Configuration::Instance().GetLayout();
     ResizeHandleLayoutElement* resizeHandleLayoutElement = layout->GetResizeHandleLayoutElement();
     width = resizeHandleLayoutElement->ResizeHandleWidth();
-    switch (snap.ToInt())
+    switch (connector.ToInt())
     {
-        case Snap::TopLeft():
-        case Snap::BottomRight():
+        case Connector::TopLeft():
+        case Connector::BottomRight():
         {
             cursor = wing::LoadStandardCursor(wing::StandardCursorId::sizeNWSE);
             break;
         }
-        case Snap::TopCenter():
-        case Snap::BottomCenter():
+        case Connector::TopCenter():
+        case Connector::BottomCenter():
         {
             cursor = wing::LoadStandardCursor(wing::StandardCursorId::sizeNS);
             break;
         }
-        case Snap::TopRight():
-        case Snap::BottomLeft():
+        case Connector::TopRight():
+        case Connector::BottomLeft():
         {
             cursor = wing::LoadStandardCursor(wing::StandardCursorId::sizeNewSW);
             break;
         }
-        case Snap::RightCenter():
-        case Snap::LeftCenter():
+        case Connector::RightCenter():
+        case Connector::LeftCenter():
         {
             cursor = wing::LoadStandardCursor(wing::StandardCursorId::sizeWE);
             break;
@@ -800,44 +800,44 @@ void ResizeHandle::Draw(wing::Graphics& graphics)
 
 void ResizeHandle::Locate(const wing::RectF& rect)
 {
-    switch (snap.ToInt())
+    switch (connector.ToInt())
     {
-        case Snap::TopLeft():
+        case Connector::TopLeft():
         {
             location = wing::PointF(rect.X, rect.Y);
             break;
         }
-        case Snap::TopCenter():
+        case Connector::TopCenter():
         {
             location = wing::PointF(rect.X + rect.Width / 2.0f, rect.Y);
             break;
         }
-        case Snap::TopRight():
+        case Connector::TopRight():
         {
             location = wing::PointF(rect.X + rect.Width, rect.Y);
             break;
         }
-        case Snap::RightCenter():
+        case Connector::RightCenter():
         {
             location = wing::PointF(rect.X + rect.Width, rect.Y + rect.Height / 2.0f);
             break;
         }
-        case Snap::BottomRight():
+        case Connector::BottomRight():
         {
             location = wing::PointF(rect.X + rect.Width, rect.Y + rect.Height);
             break;
         }
-        case Snap::BottomCenter():
+        case Connector::BottomCenter():
         {
             location = wing::PointF(rect.X + rect.Width / 2.0f, rect.Y + rect.Height);
             break;
         }
-        case Snap::BottomLeft():
+        case Connector::BottomLeft():
         {
             location = wing::PointF(rect.X, rect.Y + rect.Height);
             break;
         }
-        case Snap::LeftCenter():
+        case Connector::LeftCenter():
         {
             location = wing::PointF(rect.X, rect.Y + rect.Height / 2.0f);
             break;
@@ -848,52 +848,52 @@ void ResizeHandle::Locate(const wing::RectF& rect)
 void ResizeHandle::Move(float dx, float dy)
 {
     wing::RectF selectionRect = selection->StartRect();
-    switch (snap.ToInt())
+    switch (connector.ToInt())
     {
-        case Snap::TopLeft():
+        case Connector::TopLeft():
         {
             selectionRect.Offset(dx, dy);
             selectionRect.Width -= dx;
             selectionRect.Height -= dy;
             break;
         }
-        case Snap::TopCenter():
+        case Connector::TopCenter():
         {
             selectionRect.Offset(0.0f, dy);
             selectionRect.Height -= dy;
             break;
         }
-        case Snap::TopRight():
+        case Connector::TopRight():
         {
             selectionRect.Offset(0.0f, dy);
             selectionRect.Width += dx;
             selectionRect.Height -= dy;
             break;
         }
-        case Snap::RightCenter():
+        case Connector::RightCenter():
         {
             selectionRect.Width += dx;
             break;
         }
-        case Snap::BottomRight():
+        case Connector::BottomRight():
         {
             selectionRect.Width += dx;
             selectionRect.Height += dy;
             break;
         }
-        case Snap::BottomCenter():
+        case Connector::BottomCenter():
         {
             selectionRect.Height += dy;
             break;
         }
-        case Snap::BottomLeft():
+        case Connector::BottomLeft():
         {
             selectionRect.Offset(dx, 0.0f);
             selectionRect.Width -= dx;
             selectionRect.Height += dy;
             break;
         }
-        case Snap::LeftCenter():
+        case Connector::LeftCenter():
         {
             selectionRect.Offset(dx, 0.0f);
             selectionRect.Width -= dx;
@@ -911,21 +911,21 @@ RectangleSelection::RectangleSelection(Diagram* diagram_, const wing::PointF& st
     resizeHandles(),
     arrowCursor(wing::LoadStandardCursor(wing::StandardCursorId::arrow))
 {
-    ResizeHandle* nw = new ResizeHandle(this, startLocation, Snap(Snap::TopLeft()));
+    ResizeHandle* nw = new ResizeHandle(this, startLocation, Connector(Connector::TopLeft()));
     resizeHandles.push_back(std::unique_ptr<ResizeHandle>(nw));
-    ResizeHandle* n = new ResizeHandle(this, startLocation, Snap(Snap::TopCenter()));
+    ResizeHandle* n = new ResizeHandle(this, startLocation, Connector(Connector::TopCenter()));
     resizeHandles.push_back(std::unique_ptr<ResizeHandle>(n));
-    ResizeHandle* ne = new ResizeHandle(this, startLocation, Snap(Snap::TopRight()));
+    ResizeHandle* ne = new ResizeHandle(this, startLocation, Connector(Connector::TopRight()));
     resizeHandles.push_back(std::unique_ptr<ResizeHandle>(ne));
-    ResizeHandle* e = new ResizeHandle(this, startLocation, Snap(Snap::RightCenter()));
+    ResizeHandle* e = new ResizeHandle(this, startLocation, Connector(Connector::RightCenter()));
     resizeHandles.push_back(std::unique_ptr<ResizeHandle>(e));
-    ResizeHandle* se = new ResizeHandle(this, startLocation, Snap(Snap::BottomRight()));
+    ResizeHandle* se = new ResizeHandle(this, startLocation, Connector(Connector::BottomRight()));
     resizeHandles.push_back(std::unique_ptr<ResizeHandle>(se));
-    ResizeHandle* s = new ResizeHandle(this, startLocation, Snap(Snap::BottomCenter()));
+    ResizeHandle* s = new ResizeHandle(this, startLocation, Connector(Connector::BottomCenter()));
     resizeHandles.push_back(std::unique_ptr<ResizeHandle>(s));
-    ResizeHandle* sw = new ResizeHandle(this, startLocation, Snap(Snap::BottomLeft()));
+    ResizeHandle* sw = new ResizeHandle(this, startLocation, Connector(Connector::BottomLeft()));
     resizeHandles.push_back(std::unique_ptr<ResizeHandle>(sw));
-    ResizeHandle* w = new ResizeHandle(this, startLocation, Snap(Snap::LeftCenter()));
+    ResizeHandle* w = new ResizeHandle(this, startLocation, Connector(Connector::LeftCenter()));
     resizeHandles.push_back(std::unique_ptr<ResizeHandle>(w));
 }
 

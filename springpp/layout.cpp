@@ -86,6 +86,11 @@ wing::FontStyle DefaultAttributeFontStyle()
     return wing::FontStyle(Gdiplus::FontStyleRegular);
 }
 
+wing::FontStyle DefaultNoteFontStyle()
+{
+    return wing::FontStyle(Gdiplus::FontStyleRegular);
+}
+
 wing::FontStyle DefaultDefaultRelationshipFontStyle()
 {
     return wing::FontStyle(Gdiplus::FontStyleRegular);
@@ -623,6 +628,69 @@ wing::Pen* ObjectLayoutElement::FramePen()
     return framePen;
 }
 
+NoteLayoutElement::NoteLayoutElement(Layout* layout_) : 
+    LayoutElement(layout_, "note"),
+    paddingElement(new PaddingElement(layout_, "padding", DefaultNotePadding())),
+    fontElement(new FontElement(layout_, "font", DefaultNoteFontFamily(), DefaultFontSize(), DefaultNoteFontStyle())),
+    textColorElement(new ColorElement(layout_, "textColor", DefaultTextColor())),
+    frameColorElement(new ColorElement(layout_, "frameColor", DefaultFrameColor())),
+    frameWidth(DefaultFrameWidth(layout_->Graphics())),
+    framePen(nullptr)
+{
+}
+
+soul::xml::Element* NoteLayoutElement::ToXml() const
+{
+    soul::xml::Element* xmlElement = soul::xml::MakeElement(Name());
+    xmlElement->AppendChild(paddingElement->ToXml());
+    xmlElement->AppendChild(textColorElement->ToXml());
+    xmlElement->AppendChild(frameColorElement->ToXml());
+    xmlElement->AppendChild(fontElement->ToXml());
+    xmlElement->SetAttribute("frameWidth", std::to_string(frameWidth));
+    return xmlElement;
+}
+
+void NoteLayoutElement::Parse(soul::xml::Element* parentXmlElement)
+{
+    std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet(Name(), parentXmlElement);
+    int n = nodeSet->Count();
+    if (n == 1)
+    {
+        soul::xml::Node* node = nodeSet->GetNode(0);
+        if (node->IsElementNode())
+        {
+            soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
+            paddingElement->Parse(xmlElement);
+            textColorElement->Parse(xmlElement);
+            frameColorElement->Parse(xmlElement);
+            fontElement->Parse(xmlElement);
+            std::string frameWidthStr = xmlElement->GetAttribute("frameWidth");
+            if (frameWidthStr.empty())
+            {
+                throw std::runtime_error("XML element '" + Name() + "' has no 'frameWidth' attribute");
+            }
+            frameWidth = std::stof(frameWidthStr);
+        }
+        else
+        {
+            throw std::runtime_error("XML element node '" + Name() + "' expected in '" + parentXmlElement->Name() + "'");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("XML element '" + Name() + "' not unique in '" + parentXmlElement->Name() + "'");
+    }
+}
+
+wing::Pen* NoteLayoutElement::FramePen()
+{
+    if (!framePen)
+    {
+        framePen = GetLayout()->GetOrInsertPen(frameColorElement->Color(), frameWidth, Gdiplus::DashStyleSolid);
+    }
+    return framePen;
+}
+
 OperationLayoutElement::OperationLayoutElement(Layout* layout_, const std::string& name_, ColorElement* textColorElement_, FontElement* fontElement_) :
     LayoutElement(layout_, name_), textColorElement(textColorElement_), fontElement(fontElement_)
 {
@@ -991,6 +1059,7 @@ Layout::Layout(wing::Graphics* graphics_, const std::string& xmlFileName_) : gra
     abstractClassLayoutElement.reset(new AbstractClassLayoutElement(this));
     concreteClassLayoutElement.reset(new ConcreteClassLayoutElement(this));
     objectLayoutElement.reset(new ObjectLayoutElement(this));
+    noteLayoutElement.reset(new NoteLayoutElement(this));
     abstractOperationLayoutElement.reset(new AbstractOperationLayoutElement(this));
     concreteOperationLayoutElement.reset(new ConcreteOperationLayoutElement(this));
     attributeLayoutElement.reset(new AttributeLayoutElement(this));
@@ -1006,6 +1075,7 @@ soul::xml::Element* Layout::ToXml() const
     layoutElement->AppendChild(abstractClassLayoutElement->ToXml());
     layoutElement->AppendChild(concreteClassLayoutElement->ToXml());
     layoutElement->AppendChild(objectLayoutElement->ToXml());
+    layoutElement->AppendChild(noteLayoutElement->ToXml());
     layoutElement->AppendChild(abstractOperationLayoutElement->ToXml());
     layoutElement->AppendChild(concreteOperationLayoutElement->ToXml());
     layoutElement->AppendChild(attributeLayoutElement->ToXml());
@@ -1028,6 +1098,7 @@ void Layout::Parse(soul::xml::Document* layoutDoc)
             abstractClassLayoutElement->Parse(layoutElement);
             concreteClassLayoutElement->Parse(layoutElement);
             objectLayoutElement->Parse(layoutElement);
+            noteLayoutElement->Parse(layoutElement);
             abstractOperationLayoutElement->Parse(layoutElement);
             concreteOperationLayoutElement->Parse(layoutElement);
             attributeLayoutElement->Parse(layoutElement);

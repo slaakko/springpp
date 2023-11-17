@@ -578,7 +578,7 @@ void MainWindow::SelectAllClick()
     try
     {
         Diagram* diagram = canvas->GetDiagram();
-        wing::RectF diagramRect = diagram->CalculateBoundingRect();
+        wing::RectF diagramRect = diagram->CalculateBounds();
         std::unique_ptr<RectangleSelection> selection(new RectangleSelection(diagram, wing::PointF()));
         selection->SetRect(diagramRect);
         diagram->SetSelection(selection.release());

@@ -10,6 +10,7 @@ import springpp.diagram;
 import springpp.canvas;
 import springpp.class_element;
 import springpp.object_element;
+import springpp.note_element;
 import springpp.container_element;
 import springpp.relationship_element;
 import springpp.action;
@@ -528,7 +529,20 @@ void NoteTool::Initialize(Diagram* diagram)
 
 void NoteTool::MouseNormalLeftClick(MouseArgs& args)
 {
-    // todo
+    Diagram* diagram = GetDiagram();
+    diagram->ResetSelection();
+    std::unique_ptr<NoteElement> noteElement(new NoteElement());
+    std::vector<std::string> lines;
+    lines.push_back("note...");
+    noteElement->SetLines(std::move(lines));
+    noteElement->SetLocation(args.location);
+    std::unique_ptr<AddElementsCommand> addElementsCommand(new AddElementsCommand(diagram));
+    addElementsCommand->AddIndex(diagram->NextIndex());
+    diagram->AddElement(noteElement.release());
+    diagram->SetChanged();
+    diagram->Invalidate();
+    Tools::Instance().SetCurrent(Tools::Instance().GetSelectTool());
+    diagram->GetCommandList().AddCommand(addElementsCommand.release());
 }
 
 RelationshipTool::RelationshipTool(ToolKind kind_) : SimpleClickTool(kind_)
@@ -558,7 +572,7 @@ void RelationshipTool::MouseNormalLeftClick(MouseArgs& args)
         {
             AddRelationshipOperation* operation = static_cast<AddRelationshipOperation*>(currentOperation);
             RelationshipElement* relationshipElement = operation->GetRelationshipElement();
-            relationshipElement->IntermediatePoints().push_back(args.location);
+            relationshipElement->RoutingPoints().push_back(args.location);
         }
         return;
     }
@@ -605,7 +619,7 @@ void RelationshipTool::MouseNormalLeftClick(MouseArgs& args)
         {
             AddRelationshipOperation* operation = static_cast<AddRelationshipOperation*>(currentOperation);
             RelationshipElement* relationshipElement = operation->GetRelationshipElement();
-            if (relationshipElement->Source().Element() == element && relationshipElement->IntermediatePoints().empty())
+            if (relationshipElement->Source().Element() == element && relationshipElement->RoutingPoints().empty())
             {
                 relationshipElement->Source() = *nearestEndPoint;
             }
@@ -710,7 +724,7 @@ void RelationshipTool::MouseShiftLeftClick(MouseArgs& args)
                     }
                 }
             }
-            relationshipElement->Target() = EndPoint(nullptr, Snap(), finalPoint);
+            relationshipElement->Target() = EndPoint(nullptr, Connector(), finalPoint);
             relationshipElement->Source().Element()->AddRelationship(relationshipElement);
             diagram->CommitOperation(args);
             Tools::Instance().SetCurrent(Tools::Instance().GetSelectTool());

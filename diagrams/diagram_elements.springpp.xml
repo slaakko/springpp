@@ -1,186 +1,186 @@
 <diagram>
  <classElement abstract="false" name="Diagram">
-  <boundingRect height="6.943945" width="17.144354" x="31.819511" y="11.000000"/>
+  <bounds height="6.943945" width="17.144354" x="31.819511" y="11.000000"/>
  </classElement>
  <classElement abstract="true" name="DiagramElement">
-  <boundingRect height="6.943945" width="29.866055" x="145.000000" y="11.000000"/>
+  <bounds height="6.943945" width="29.866055" x="145.000000" y="11.000000"/>
  </classElement>
  <classElement abstract="false" name="ClassElement">
-  <boundingRect height="6.943945" width="25.505081" x="44.000000" y="57.000000"/>
+  <bounds height="6.943945" width="25.505081" x="44.000000" y="57.000000"/>
  </classElement>
  <classElement abstract="false" name="ObjectElement">
-  <boundingRect height="6.943945" width="26.956154" x="71.543259" y="57.000000"/>
+  <bounds height="6.943945" width="26.956154" x="71.543259" y="57.000000"/>
  </classElement>
  <classElement abstract="true" name="ContainerElement">
-  <boundingRect height="6.943945" width="32.042664" x="69.000000" y="34.000000"/>
+  <bounds height="6.943945" width="32.042664" x="69.000000" y="34.000000"/>
  </classElement>
  <classElement abstract="false" name="OperationElement">
-  <boundingRect height="6.943945" width="32.225601" x="178.334518" y="34.000000"/>
+  <bounds height="6.943945" width="32.225601" x="178.334518" y="34.000000"/>
  </classElement>
  <classElement abstract="false" name="AttributeElement">
-  <boundingRect height="6.943945" width="30.402456" x="127.482536" y="34.000000"/>
+  <bounds height="6.943945" width="30.402456" x="127.482536" y="34.000000"/>
  </classElement>
  <classElement abstract="false" name="RelationshipElement">
-  <boundingRect height="6.943945" width="36.403633" x="237.000000" y="33.000000"/>
+  <bounds height="6.943945" width="36.403633" x="237.000000" y="33.000000"/>
  </classElement>
  <classElement abstract="false" name="NoteElement">
-  <boundingRect height="6.943945" width="24.046255" x="101.000000" y="57.000000"/>
+  <bounds height="6.943945" width="24.046255" x="101.000000" y="57.000000"/>
  </classElement>
  <classElement abstract="true" name="ClassElementRep">
-  <boundingRect height="6.943945" width="31.682997" x="44.000000" y="94.000000"/>
+  <bounds height="6.943945" width="31.682997" x="44.000000" y="94.000000"/>
  </classElement>
  <classElement abstract="false" name="ConcreteClassElementRep">
-  <boundingRect height="6.943945" width="45.857319" x="13.000000" y="117.000000"/>
+  <bounds height="6.943945" width="45.857319" x="13.000000" y="117.000000"/>
  </classElement>
  <classElement abstract="false" name="AbstractClassElementRep">
-  <boundingRect height="6.943945" width="44.947300" x="63.000000" y="117.000000"/>
+  <bounds height="6.943945" width="44.947300" x="63.000000" y="117.000000"/>
  </classElement>
  <classElement abstract="true" name="OperationElementRep">
-  <boundingRect height="6.943945" width="38.403511" x="175.245575" y="57.000000"/>
+  <bounds height="6.943945" width="38.403511" x="175.245575" y="57.000000"/>
  </classElement>
  <classElement abstract="false" name="ConcreteOperationRep">
-  <boundingRect height="6.943945" width="39.856136" x="154.000000" y="76.000000"/>
+  <bounds height="6.943945" width="39.856136" x="154.000000" y="76.000000"/>
  </classElement>
  <classElement abstract="false" name="AbstractOperationRep">
-  <boundingRect height="6.943945" width="38.946114" x="196.000000" y="76.000000"/>
+  <bounds height="6.943945" width="38.946114" x="196.000000" y="76.000000"/>
  </classElement>
  <classElement abstract="true" name="RelationshipElementRep">
-  <boundingRect height="6.943945" width="42.581551" x="233.911041" y="57.000000"/>
+  <bounds height="6.943945" width="42.581551" x="233.911041" y="57.000000"/>
  </classElement>
  <classElement abstract="false" name="Inheritance">
-  <boundingRect height="6.943945" width="21.505325" x="303.000000" y="20.000000"/>
+  <bounds height="6.943945" width="21.505325" x="303.000000" y="20.000000"/>
  </classElement>
  <classElement abstract="false" name="CombinedIneritance">
-  <boundingRect height="6.943945" width="35.496716" x="303.000000" y="32.333332"/>
+  <bounds height="6.943945" width="35.496716" x="303.000000" y="32.333332"/>
  </classElement>
  <classElement abstract="false" name="Composition">
-  <boundingRect height="6.943945" width="24.043154" x="303.000000" y="44.666660"/>
+  <bounds height="6.943945" width="24.043154" x="303.000000" y="44.666660"/>
  </classElement>
  <classElement abstract="false" name="Aggregation">
-  <boundingRect height="6.943945" width="23.317617" x="303.000000" y="56.999989"/>
+  <bounds height="6.943945" width="23.317617" x="303.000000" y="56.999989"/>
  </classElement>
  <classElement abstract="false" name="Reference">
-  <boundingRect height="6.943945" width="19.871317" x="303.000000" y="69.333321"/>
+  <bounds height="6.943945" width="19.871317" x="303.000000" y="69.333321"/>
  </classElement>
  <classElement abstract="false" name="AttachNote">
-  <boundingRect height="6.943945" width="21.497574" x="303.000000" y="94.000000"/>
+  <bounds height="6.943945" width="21.497574" x="303.000000" y="94.000000"/>
  </classElement>
  <classElement abstract="false" name="CreateInstance">
-  <boundingRect height="6.943945" width="27.503408" x="303.000000" y="81.000000"/>
+  <bounds height="6.943945" width="27.503408" x="303.000000" y="81.000000"/>
  </classElement>
  <classElement abstract="false" name="EndPoint">
-  <boundingRect height="6.943945" width="18.410942" x="261.198151" y="11.000000"/>
+  <bounds height="6.943945" width="18.410942" x="261.198151" y="11.000000"/>
  </classElement>
- <classElement abstract="false" name="Snap">
-  <boundingRect height="6.943945" width="12.054743" x="303.000000" y="10.056055"/>
+ <classElement abstract="false" name="Connector">
+  <bounds height="6.943945" width="12.054743" x="303.000000" y="10.056055"/>
  </classElement>
  <relationshipElement cardinality="many" rkind="composition">
-  <boundingRect height="0.000000" width="96.036133" x="48.963867" y="14.000000"/>
-  <source index="0" snap="right.top" text="" x="48.963867" y="14.000000"/>
-  <target index="1" snap="left.top" text="" x="145.000000" y="14.000000"/>
+  <bounds height="0.000000" width="96.036133" x="48.963867" y="14.000000"/>
+  <source index="0" connector="right.top" text="" x="48.963867" y="14.000000"/>
+  <target index="1" connector="left.top" text="" x="145.000000" y="14.000000"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="combinedInheritance">
-  <boundingRect height="56.000000" width="120.023125" x="0.000000" y="0.000000"/>
-  <source snap="none.none" text="" x="0.000000" y="0.000000"/>
-  <sourceEndPoint index="2" snap="top.center" text="" x="50.752541" y="56.000000"/>
-  <sourceEndPoint index="3" snap="top.center" text="" x="85.752533" y="56.000000"/>
-  <sourceEndPoint index="8" snap="top.center" text="" x="120.023125" y="56.000000"/>
-  <target index="4" snap="bottom.center" text="" x="85.021332" y="40.943947"/>
+  <bounds height="56.000000" width="120.023125" x="0.000000" y="0.000000"/>
+  <source connector="none.none" text="" x="0.000000" y="0.000000"/>
+  <sourceEndPoint index="2" connector="top.center" text="" x="50.752541" y="56.000000"/>
+  <sourceEndPoint index="3" connector="top.center" text="" x="85.752533" y="56.000000"/>
+  <sourceEndPoint index="8" connector="top.center" text="" x="120.023125" y="56.000000"/>
+  <target index="4" connector="bottom.center" text="" x="85.021332" y="40.943947"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="combinedInheritance">
-  <boundingRect height="34.000000" width="228.201813" x="0.000000" y="0.000000"/>
-  <source snap="none.none" text="" x="0.000000" y="0.000000"/>
-  <sourceEndPoint index="4" snap="top.center" text="" x="86.021332" y="34.000000"/>
-  <sourceEndPoint index="6" snap="top.center" text="" x="135.928665" y="34.000000"/>
-  <sourceEndPoint index="5" snap="top.center" text="" x="181.020752" y="34.000000"/>
-  <sourceEndPoint index="7" snap="top.center" text="" x="228.201813" y="34.000000"/>
-  <target index="1" snap="bottom.center" text="" x="159.933029" y="17.943945"/>
+  <bounds height="34.000000" width="228.201813" x="0.000000" y="0.000000"/>
+  <source connector="none.none" text="" x="0.000000" y="0.000000"/>
+  <sourceEndPoint index="4" connector="top.center" text="" x="86.021332" y="34.000000"/>
+  <sourceEndPoint index="6" connector="top.center" text="" x="135.928665" y="34.000000"/>
+  <sourceEndPoint index="5" connector="top.center" text="" x="181.020752" y="34.000000"/>
+  <sourceEndPoint index="7" connector="top.center" text="" x="228.201813" y="34.000000"/>
+  <target index="1" connector="bottom.center" text="" x="159.933029" y="17.943945"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="composition">
-  <boundingRect height="30.056053" width="0.000000" x="47.000000" y="63.943947"/>
-  <source index="2" snap="bottom.left" text="" x="47.000000" y="63.943947"/>
-  <target index="9" snap="top.left" text="" x="47.000000" y="94.000000"/>
+  <bounds height="30.056053" width="0.000000" x="47.000000" y="63.943947"/>
+  <source index="2" connector="bottom.left" text="" x="47.000000" y="63.943947"/>
+  <target index="9" connector="top.left" text="" x="47.000000" y="94.000000"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="combinedInheritance">
-  <boundingRect height="106.000000" width="84.473648" x="0.000000" y="0.000000"/>
-  <source snap="none.none" text="" x="0.000000" y="0.000000"/>
-  <sourceEndPoint index="10" snap="top.center" text="" x="34.928658" y="106.000000"/>
-  <sourceEndPoint index="11" snap="top.center" text="" x="84.473648" y="106.000000"/>
-  <target index="9" snap="bottom.center" text="" x="59.841499" y="100.943947"/>
+  <bounds height="106.000000" width="84.473648" x="0.000000" y="0.000000"/>
+  <source connector="none.none" text="" x="0.000000" y="0.000000"/>
+  <sourceEndPoint index="10" connector="top.center" text="" x="34.928658" y="106.000000"/>
+  <sourceEndPoint index="11" connector="top.center" text="" x="84.473648" y="106.000000"/>
+  <target index="9" connector="bottom.center" text="" x="59.841499" y="100.943947"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="composition">
-  <boundingRect height="16.056053" width="0.000000" x="194.447327" y="40.943947"/>
-  <source index="5" snap="bottom.center" text="" x="194.447327" y="40.943947"/>
-  <target index="12" snap="top.center" text="" x="194.447327" y="57.000000"/>
+  <bounds height="16.056053" width="0.000000" x="194.447327" y="40.943947"/>
+  <source index="5" connector="bottom.center" text="" x="194.447327" y="40.943947"/>
+  <target index="12" connector="top.center" text="" x="194.447327" y="57.000000"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="combinedInheritance">
-  <boundingRect height="76.000000" width="211.473053" x="0.000000" y="0.000000"/>
-  <source snap="none.none" text="" x="0.000000" y="0.000000"/>
-  <sourceEndPoint index="13" snap="top.center" text="" x="169.928070" y="76.000000"/>
-  <sourceEndPoint index="14" snap="top.center" text="" x="211.473053" y="76.000000"/>
-  <target index="12" snap="bottom.center" text="" x="194.447327" y="63.943947"/>
+  <bounds height="76.000000" width="211.473053" x="0.000000" y="0.000000"/>
+  <source connector="none.none" text="" x="0.000000" y="0.000000"/>
+  <sourceEndPoint index="13" connector="top.center" text="" x="169.928070" y="76.000000"/>
+  <sourceEndPoint index="14" connector="top.center" text="" x="211.473053" y="76.000000"/>
+  <target index="12" connector="bottom.center" text="" x="194.447327" y="63.943947"/>
  </relationshipElement>
  <relationshipElement cardinality="many" rkind="composition">
-  <boundingRect height="31.056053" width="45.461212" x="85.021332" y="40.943947"/>
-  <source index="3" snap="bottom.center" text="" x="85.021332" y="63.943947"/>
-  <intermediatePoint x="85.021332" y="72.000000"/>
-  <intermediatePoint x="130.482544" y="72.000000"/>
-  <target index="6" snap="bottom.left" text="" x="130.482544" y="40.943947"/>
+  <bounds height="31.056053" width="45.461212" x="85.021332" y="40.943947"/>
+  <source index="3" connector="bottom.center" text="" x="85.021332" y="63.943947"/>
+  <routingPoint x="85.021332" y="72.000000"/>
+  <routingPoint x="130.482544" y="72.000000"/>
+  <target index="6" connector="bottom.left" text="" x="130.482544" y="40.943947"/>
  </relationshipElement>
  <relationshipElement cardinality="many" rkind="composition">
-  <boundingRect height="37.056053" width="76.178680" x="66.505081" y="40.943947"/>
-  <source index="2" snap="bottom.right" text="" x="66.505081" y="63.943947"/>
-  <intermediatePoint x="66.505081" y="78.000000"/>
-  <intermediatePoint x="142.683762" y="78.000000"/>
-  <target index="6" snap="bottom.center" text="" x="142.683762" y="40.943947"/>
+  <bounds height="37.056053" width="76.178680" x="66.505081" y="40.943947"/>
+  <source index="2" connector="bottom.right" text="" x="66.505081" y="63.943947"/>
+  <routingPoint x="66.505081" y="78.000000"/>
+  <routingPoint x="142.683762" y="78.000000"/>
+  <target index="6" connector="bottom.center" text="" x="142.683762" y="40.943947"/>
  </relationshipElement>
  <relationshipElement cardinality="many" rkind="aggregation">
-  <boundingRect height="8.056053" width="141.957336" x="98.042664" y="39.943947"/>
-  <source index="4" snap="bottom.right" text="" x="98.042664" y="40.943947"/>
-  <intermediatePoint x="98.042664" y="48.000000"/>
-  <intermediatePoint x="240.000000" y="48.000000"/>
-  <target index="7" snap="bottom.left" text="" x="240.000000" y="39.943947"/>
+  <bounds height="8.056053" width="141.957336" x="98.042664" y="39.943947"/>
+  <source index="4" connector="bottom.right" text="" x="98.042664" y="40.943947"/>
+  <routingPoint x="98.042664" y="48.000000"/>
+  <routingPoint x="240.000000" y="48.000000"/>
+  <target index="7" connector="bottom.left" text="" x="240.000000" y="39.943947"/>
  </relationshipElement>
  <relationshipElement cardinality="many" rkind="composition">
-  <boundingRect height="50.000000" width="121.581978" x="56.752541" y="37.000000"/>
-  <source index="2" snap="bottom.center" text="" x="56.752541" y="63.943947"/>
-  <intermediatePoint x="56.752541" y="87.000000"/>
-  <intermediatePoint x="147.000000" y="87.000000"/>
-  <intermediatePoint x="147.000000" y="53.000000"/>
-  <intermediatePoint x="166.000000" y="53.000000"/>
-  <intermediatePoint x="166.000000" y="37.000000"/>
-  <target index="5" snap="left.top" text="" x="178.334518" y="37.000000"/>
+  <bounds height="50.000000" width="121.581978" x="56.752541" y="37.000000"/>
+  <source index="2" connector="bottom.center" text="" x="56.752541" y="63.943947"/>
+  <routingPoint x="56.752541" y="87.000000"/>
+  <routingPoint x="147.000000" y="87.000000"/>
+  <routingPoint x="147.000000" y="53.000000"/>
+  <routingPoint x="166.000000" y="53.000000"/>
+  <routingPoint x="166.000000" y="37.000000"/>
+  <target index="5" connector="left.top" text="" x="178.334518" y="37.000000"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="composition">
-  <boundingRect height="17.056053" width="0.000000" x="255.201813" y="39.943947"/>
-  <source index="7" snap="bottom.center" text="" x="255.201813" y="39.943947"/>
-  <target index="15" snap="top.center" text="" x="255.201813" y="57.000000"/>
+  <bounds height="17.056053" width="0.000000" x="255.201813" y="39.943947"/>
+  <source index="7" connector="bottom.center" text="" x="255.201813" y="39.943947"/>
+  <target index="15" connector="top.center" text="" x="255.201813" y="57.000000"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="combinedInheritance">
-  <boundingRect height="97.000000" width="303.000000" x="0.000000" y="0.000000"/>
-  <source snap="none.none" text="" x="0.000000" y="0.000000"/>
-  <sourceEndPoint index="16" snap="left.top" text="" x="303.000000" y="23.000000"/>
-  <sourceEndPoint index="17" snap="left.top" text="" x="303.000000" y="35.333332"/>
-  <sourceEndPoint index="18" snap="left.top" text="" x="303.000000" y="47.666660"/>
-  <sourceEndPoint index="19" snap="left.top" text="" x="303.000000" y="59.999989"/>
-  <sourceEndPoint index="20" snap="left.center" text="" x="303.000000" y="72.805290"/>
-  <sourceEndPoint index="22" snap="left.top" text="" x="303.000000" y="84.000000"/>
-  <sourceEndPoint index="21" snap="left.top" text="" x="303.000000" y="97.000000"/>
-  <target index="15" snap="right.bottom" text="" x="276.492584" y="60.471973"/>
+  <bounds height="97.000000" width="303.000000" x="0.000000" y="0.000000"/>
+  <source connector="none.none" text="" x="0.000000" y="0.000000"/>
+  <sourceEndPoint index="16" connector="left.top" text="" x="303.000000" y="23.000000"/>
+  <sourceEndPoint index="17" connector="left.top" text="" x="303.000000" y="35.333332"/>
+  <sourceEndPoint index="18" connector="left.top" text="" x="303.000000" y="47.666660"/>
+  <sourceEndPoint index="19" connector="left.top" text="" x="303.000000" y="59.999989"/>
+  <sourceEndPoint index="20" connector="left.center" text="" x="303.000000" y="72.805290"/>
+  <sourceEndPoint index="22" connector="left.top" text="" x="303.000000" y="84.000000"/>
+  <sourceEndPoint index="21" connector="left.top" text="" x="303.000000" y="97.000000"/>
+  <target index="15" connector="right.bottom" text="" x="276.492584" y="60.471973"/>
  </relationshipElement>
  <relationshipElement cardinality="many" rkind="composition">
-  <boundingRect height="15.056055" width="0.000000" x="270.403625" y="17.943945"/>
-  <source index="7" snap="top.right" text="" x="270.403625" y="33.000000"/>
-  <target index="23" snap="bottom.center" text="" x="270.403625" y="17.943945"/>
+  <bounds height="15.056055" width="0.000000" x="270.403625" y="17.943945"/>
+  <source index="7" connector="top.right" text="" x="270.403625" y="33.000000"/>
+  <target index="23" connector="bottom.center" text="" x="270.403625" y="17.943945"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="aggregation">
-  <boundingRect height="0.000000" width="86.332092" x="174.866058" y="14.000000"/>
-  <source index="23" snap="left.top" text="" x="261.198151" y="14.000000"/>
-  <target index="1" snap="right.top" text="" x="174.866058" y="14.000000"/>
+  <bounds height="0.000000" width="86.332092" x="174.866058" y="14.000000"/>
+  <source index="23" connector="left.top" text="" x="261.198151" y="14.000000"/>
+  <target index="1" connector="right.top" text="" x="174.866058" y="14.000000"/>
  </relationshipElement>
  <relationshipElement cardinality="one" rkind="composition">
-  <boundingRect height="0.000000" width="23.390900" x="279.609100" y="14.000000"/>
-  <source index="23" snap="right.top" text="" x="279.609100" y="14.000000"/>
-  <target index="24" snap="left.bottom" text="" x="303.000000" y="14.000000"/>
+  <bounds height="0.000000" width="23.390900" x="279.609100" y="14.000000"/>
+  <source index="23" connector="right.top" text="" x="279.609100" y="14.000000"/>
+  <target index="24" connector="left.bottom" text="" x="303.000000" y="14.000000"/>
  </relationshipElement>
 </diagram>

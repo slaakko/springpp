@@ -24,13 +24,13 @@ ObjectElement::ObjectElement(const std::string& name_) : ContainerElement(Diagra
 soul::xml::Element* ObjectElement::ToXml() const
 {
     soul::xml::Element* xmlElement = soul::xml::MakeElement("objectElement");
-    soul::xml::Element* boundingRectElement = soul::xml::MakeElement("boundingRect");
-    wing::RectF boundingRect = BoundingRect();
-    boundingRectElement->SetAttribute("x", std::to_string(boundingRect.X));
-    boundingRectElement->SetAttribute("y", std::to_string(boundingRect.Y));
-    boundingRectElement->SetAttribute("width", std::to_string(boundingRect.Width));
-    boundingRectElement->SetAttribute("height", std::to_string(boundingRect.Height));
-    xmlElement->AppendChild(boundingRectElement);
+    soul::xml::Element* boundsElement = soul::xml::MakeElement("bounds");
+    wing::RectF bounds = Bounds();
+    boundsElement->SetAttribute("x", std::to_string(bounds.X));
+    boundsElement->SetAttribute("y", std::to_string(bounds.Y));
+    boundsElement->SetAttribute("width", std::to_string(bounds.Width));
+    boundsElement->SetAttribute("height", std::to_string(bounds.Height));
+    xmlElement->AppendChild(boundsElement);
     xmlElement->SetAttribute("name", Name());
     for (const auto& attribute : attributes)
     {
@@ -42,51 +42,51 @@ soul::xml::Element* ObjectElement::ToXml() const
 
 void ObjectElement::Parse(soul::xml::Element* xmlElement)
 {
-    std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet("boundingRect", xmlElement);
+    std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet("bounds", xmlElement);
     if (nodeSet->Count() == 1)
     {
         soul::xml::Node* node = nodeSet->GetNode(0);
         if (node->IsElementNode())
         {
-            wing::RectF boundingRect;
-            soul::xml::Element* boundingRectElement = static_cast<soul::xml::Element*>(node);
-            std::string xStr = boundingRectElement->GetAttribute("x");
+            wing::RectF bounds;
+            soul::xml::Element* boundsElement = static_cast<soul::xml::Element*>(node);
+            std::string xStr = boundsElement->GetAttribute("x");
             if (!xStr.empty())
             {
-                boundingRect.X = std::stof(xStr);
+                bounds.X = std::stof(xStr);
             }
             else
             {
                 throw std::runtime_error("XML element 'objectElement' has no 'x' attribute");
             }
-            std::string yStr = boundingRectElement->GetAttribute("y");
+            std::string yStr = boundsElement->GetAttribute("y");
             if (!yStr.empty())
             {
-                boundingRect.Y = std::stof(yStr);
+                bounds.Y = std::stof(yStr);
             }
             else
             {
                 throw std::runtime_error("XML element 'objectElement' has no 'y' attribute");
             }
-            std::string widthStr = boundingRectElement->GetAttribute("width");
+            std::string widthStr = boundsElement->GetAttribute("width");
             if (!widthStr.empty())
             {
-                boundingRect.Width = std::stof(widthStr);
+                bounds.Width = std::stof(widthStr);
             }
             else
             {
                 throw std::runtime_error("XML element 'objectElement' has no 'width' attribute");
             }
-            std::string heightStr = boundingRectElement->GetAttribute("height");
+            std::string heightStr = boundsElement->GetAttribute("height");
             if (!heightStr.empty())
             {
-                boundingRect.Height = std::stof(heightStr);
+                bounds.Height = std::stof(heightStr);
             }
             else
             {
                 throw std::runtime_error("XML element 'objectElement' has no 'height' attribute");
             }
-            SetBoundingRect(boundingRect);
+            SetBounds(bounds);
         }
         else
         {
@@ -95,7 +95,7 @@ void ObjectElement::Parse(soul::xml::Element* xmlElement)
     }
     else
     {
-        throw std::runtime_error("XML element 'boundingRect' not unique in '" + xmlElement->Name() + "'");
+        throw std::runtime_error("XML element 'bounds' not unique in '" + xmlElement->Name() + "'");
     }
     std::string nameStr = xmlElement->GetAttribute("name");
     if (!nameStr.empty())
@@ -289,7 +289,7 @@ DiagramElement* ObjectElement::Clone() const
 {
     ObjectElement* clone = new ObjectElement();
     clone->SetName(Name());
-    clone->SetBoundingRect(BoundingRect());
+    clone->SetBounds(Bounds());
     int nf = attributes.Count();
     for (int i = 0; i < nf; ++i)
     {
@@ -363,7 +363,7 @@ std::vector<EndPoint> ObjectElement::GetEndPoints(EndPointKind endPointKind, Too
         for (int i = 0; i < nf; ++i)
         {
             AttributeElement* attribute = attributes.Get(i);
-            endPoints.push_back(attribute->GetEndPoint(Snap(Snap::Attribute(i))));
+            endPoints.push_back(attribute->GetEndPoint(Connector(Connector::Attribute(i))));
         }
         return endPoints;
     }

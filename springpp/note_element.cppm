@@ -23,8 +23,10 @@ public:
     void AddActions(Diagram* diagram, int elementIndex, wing::ContextMenu* contextMenu) const override;
     std::vector<RelationshipElement*> GetAllRelationships() const override;
     const std::vector<std::string>& Lines() const { return lines; }
+    void SetLines(std::vector<std::string>&& lines_);
 private:
     std::vector<std::string> lines;
+    wing::SizeF lineSize;
 };
 
 } // namespace springpp

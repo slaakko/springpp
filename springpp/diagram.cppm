@@ -91,7 +91,7 @@ public:
     int GetNumberOfIntersectingContainerElements(const wing::RectF& rect) const;
     std::vector<int> GetIntersectingContainerElementIndeces(const wing::RectF& rect) const;
     void Offset(float dx, float dy);
-    wing::RectF CalculateBoundingRect() const;
+    wing::RectF CalculateBounds() const;
     void SaveImage(const std::string& fileName, const Padding& margins, wing::ImageFormat format);
     void Paste(const std::u32string& clipboardData);
 private:

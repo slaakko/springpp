@@ -5,7 +5,7 @@
 
 export module springpp.end_point;
 
-import springpp.snap;
+import springpp.connector;
 import soul.xml.dom;
 import wing;
 import std.core;
@@ -20,11 +20,11 @@ class EndPoint
 {
 public:
     EndPoint();
-    EndPoint(DiagramElement* element_, const Snap& snap_, const wing::PointF& point_);
+    EndPoint(DiagramElement* element_, const Connector& connector_, const wing::PointF& point_);
     DiagramElement* Element() const { return element; }
     void SetElement(DiagramElement* element_) { element = element_; }
-    const Snap& GetSnap() const { return snap; }
-    void SetSnap(const Snap& snap_);
+    const Connector& GetConnector() const { return connector; }
+    void SetConnector(const Connector& connector_);
     const wing::PointF& Point() const { return point; }
     wing::PointF& Point() { return point; }
     void SetPoint(const wing::PointF& point_);
@@ -38,7 +38,7 @@ public:
     void Parse(soul::xml::Element* xmlElement);
 private:
     DiagramElement* element;
-    Snap snap;
+    Connector connector;
     wing::PointF point;
     std::string text;
     int index;

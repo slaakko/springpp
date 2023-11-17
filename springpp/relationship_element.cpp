@@ -89,12 +89,12 @@ Line RelationshipElementRep::GetSourceTextLine(const Line& firstLine, float& lea
         }
         return textLine;
     }
-    if (!relationshipElement->IntermediatePoints().empty())
+    if (!relationshipElement->RoutingPoints().empty())
     {
         wing::PointF prev = firstLine.end;
-        for (int i = 1; i < relationshipElement->IntermediatePoints().size(); ++i)
+        for (int i = 1; i < relationshipElement->RoutingPoints().size(); ++i)
         {
-            wing::PointF next = relationshipElement->IntermediatePoints()[i];
+            wing::PointF next = relationshipElement->RoutingPoints()[i];
             if (IsHorizontalLine(prev, next, textLine))
             {
                 leadingWidth = padding;
@@ -178,7 +178,7 @@ void RelationshipElementRep::DrawSelected(wing::Graphics& graphics)
     RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
     wing::Pen* selectedLinePen = relationshipLayoutElement->SelectedLinePen();
     wing::PointF prev = relationshipElement->Source().Point();
-    for (const auto& next : relationshipElement->IntermediatePoints())
+    for (const auto& next : relationshipElement->RoutingPoints())
     {
         graphics.DrawLine(selectedLinePen, prev, next);
         prev = next;
@@ -206,7 +206,7 @@ bool RelationshipElementRep::Contains(const wing::PointF& location) const
     RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
     float selectedLineWidth = relationshipLayoutElement->SelectedLineWidth();
     wing::PointF from = relationshipElement->Source().Point();
-    for (wing::PointF to : relationshipElement->IntermediatePoints())
+    for (wing::PointF to : relationshipElement->RoutingPoints())
     {
         if (springpp::Contains(from, to, location, selectedLineWidth))
         {
@@ -233,13 +233,13 @@ bool RelationshipElementRep::Contains(const wing::PointF& location) const
 soul::xml::Element* RelationshipElement::ToXml() const
 {
     soul::xml::Element* xmlElement = soul::xml::MakeElement("relationshipElement");
-    soul::xml::Element* boundingRectElement = soul::xml::MakeElement("boundingRect");
-    wing::RectF boundingRect = BoundingRect();
-    boundingRectElement->SetAttribute("x", std::to_string(boundingRect.X));
-    boundingRectElement->SetAttribute("y", std::to_string(boundingRect.Y));
-    boundingRectElement->SetAttribute("width", std::to_string(boundingRect.Width));
-    boundingRectElement->SetAttribute("height", std::to_string(boundingRect.Height));
-    xmlElement->AppendChild(boundingRectElement);
+    soul::xml::Element* boundsElement = soul::xml::MakeElement("bounds");
+    wing::RectF bounds = Bounds();
+    boundsElement->SetAttribute("x", std::to_string(bounds.X));
+    boundsElement->SetAttribute("y", std::to_string(bounds.Y));
+    boundsElement->SetAttribute("width", std::to_string(bounds.Width));
+    boundsElement->SetAttribute("height", std::to_string(bounds.Height));
+    xmlElement->AppendChild(boundsElement);
     xmlElement->SetAttribute("rkind", RelationshipKindStr(rkind));
     xmlElement->SetAttribute("cardinality", CardinalityStr(cardinality));
     xmlElement->AppendChild(source.ToXml("source"));
@@ -247,12 +247,12 @@ soul::xml::Element* RelationshipElement::ToXml() const
     {
         xmlElement->AppendChild(sourceEndPoint.ToXml("sourceEndPoint"));
     }
-    for (const auto& point : intermediatePoints)
+    for (const auto& point : routingPoints)
     {
-        soul::xml::Element* intermediatePointElement = soul::xml::MakeElement("intermediatePoint");
-        intermediatePointElement->SetAttribute("x", std::to_string(point.X));
-        intermediatePointElement->SetAttribute("y", std::to_string(point.Y));
-        xmlElement->AppendChild(intermediatePointElement);
+        soul::xml::Element* routingPointElement = soul::xml::MakeElement("routingPoint");
+        routingPointElement->SetAttribute("x", std::to_string(point.X));
+        routingPointElement->SetAttribute("y", std::to_string(point.Y));
+        xmlElement->AppendChild(routingPointElement);
     }
     xmlElement->AppendChild(target.ToXml("target"));
     return xmlElement;
@@ -260,51 +260,51 @@ soul::xml::Element* RelationshipElement::ToXml() const
 
 void RelationshipElement::Parse(soul::xml::Element* xmlElement)
 {
-    std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet("boundingRect", xmlElement);
+    std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet("bounds", xmlElement);
     if (nodeSet->Count() == 1)
     {
         soul::xml::Node* node = nodeSet->GetNode(0);
         if (node->IsElementNode())
         {
-            wing::RectF boundingRect;
-            soul::xml::Element* boundingRectElement = static_cast<soul::xml::Element*>(node);
-            std::string xStr = boundingRectElement->GetAttribute("x");
+            wing::RectF bounds;
+            soul::xml::Element* boundsElement = static_cast<soul::xml::Element*>(node);
+            std::string xStr = boundsElement->GetAttribute("x");
             if (!xStr.empty())
             {
-                boundingRect.X = std::stof(xStr);
+                bounds.X = std::stof(xStr);
             }
             else
             {
                 throw std::runtime_error("XML element 'relationshipElement' has no 'x' attribute");
             }
-            std::string yStr = boundingRectElement->GetAttribute("y");
+            std::string yStr = boundsElement->GetAttribute("y");
             if (!yStr.empty())
             {
-                boundingRect.Y = std::stof(yStr);
+                bounds.Y = std::stof(yStr);
             }
             else
             {
                 throw std::runtime_error("XML element 'relationshipElement' has no 'y' attribute");
             }
-            std::string widthStr = boundingRectElement->GetAttribute("width");
+            std::string widthStr = boundsElement->GetAttribute("width");
             if (!widthStr.empty())
             {
-                boundingRect.Width = std::stof(widthStr);
+                bounds.Width = std::stof(widthStr);
             }
             else
             {
                 throw std::runtime_error("XML element 'relationshipElement' has no 'width' attribute");
             }
-            std::string heightStr = boundingRectElement->GetAttribute("height");
+            std::string heightStr = boundsElement->GetAttribute("height");
             if (!heightStr.empty())
             {
-                boundingRect.Height = std::stof(heightStr);
+                bounds.Height = std::stof(heightStr);
             }
             else
             {
                 throw std::runtime_error("XML element 'relationshipElement' has no 'height' attribute");
             }
-            SetBoundingRect(boundingRect);
+            SetBounds(bounds);
         }
         else
         {
@@ -313,7 +313,7 @@ void RelationshipElement::Parse(soul::xml::Element* xmlElement)
     }
     else
     {
-        throw std::runtime_error("XML element 'boundingRect' not unique in '" + xmlElement->Name() + "'");
+        throw std::runtime_error("XML element 'bounds' not unique in '" + xmlElement->Name() + "'");
     }
     rkind = ParseRelationshipKindStr(xmlElement->GetAttribute("rkind"));
     SetRep();
@@ -371,18 +371,18 @@ void RelationshipElement::Parse(soul::xml::Element* xmlElement)
             throw std::runtime_error("XML element node expected in '" + xmlElement->Name() + "'");
         }
     }
-    std::unique_ptr<soul::xml::xpath::NodeSet> intermediatePointNodeSet = soul::xml::xpath::EvaluateToNodeSet("intermediatePoint", xmlElement);
-    int nip = intermediatePointNodeSet->Count();
+    std::unique_ptr<soul::xml::xpath::NodeSet> routingPointNodeSet = soul::xml::xpath::EvaluateToNodeSet("routingPoint", xmlElement);
+    int nip = routingPointNodeSet->Count();
     for (int i = 0; i < nip; ++i)
     {
-        soul::xml::Node* node = intermediatePointNodeSet->GetNode(i);
+        soul::xml::Node* node = routingPointNodeSet->GetNode(i);
         if (node->IsElementNode())
         {
             soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
             wing::PointF point;
             point.X = std::stof(xmlElement->GetAttribute("x"));
             point.Y = std::stof(xmlElement->GetAttribute("y"));
-            intermediatePoints.push_back(point);
+            routingPoints.push_back(point);
         }
         else
         {
@@ -431,6 +431,11 @@ void RelationshipElement::SetRep()
             rep.reset(new CreateInstance(this));
             break;
         }
+        case RelationshipKind::attachNote:
+        {
+            rep.reset(new AttachNote(this));
+            break;
+        }
     }
 }
 
@@ -438,12 +443,12 @@ DiagramElement* RelationshipElement::Clone() const
 {
     RelationshipElement* clone = new RelationshipElement(rkind);
     clone->SetName(Name());
-    clone->SetBoundingRect(BoundingRect());
+    clone->SetBounds(Bounds());
     clone->cardinality = cardinality;
     clone->source = source;
     clone->target = target;
     clone->sourceEndPoints = sourceEndPoints;
-    clone->intermediatePoints = intermediatePoints;
+    clone->routingPoints = routingPoints;
     clone->sourceTextSize = sourceTextSize;
     clone->targetTextSize = targetTextSize;
     clone->rep.reset(rep->Clone(clone));
@@ -452,31 +457,31 @@ DiagramElement* RelationshipElement::Clone() const
 
 wing::PointF RelationshipElement::LastPoint() const
 {
-    if (intermediatePoints.empty())
+    if (routingPoints.empty())
     {
         return source.Point();
     }
     else
     {
-        return intermediatePoints.back();
+        return routingPoints.back();
     }
 }
 
 void RelationshipElement::SetLastPoint(const wing::PointF& lastPoint)
 {
-    if (intermediatePoints.empty())
+    if (routingPoints.empty())
     {
         source.Point() = lastPoint;
     }
     else
     {
-        intermediatePoints.back() = lastPoint;
+        routingPoints.back() = lastPoint;
     }
 }
 
-wing::RectF RelationshipElement::BoundingRect() const
+wing::RectF RelationshipElement::Bounds() const
 {
-    wing::RectF boundingRect;
+    wing::RectF bounds;
     wing::PointF minPoint(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
     wing::PointF maxPoint(-1, -1);
     minPoint.X = std::min(source.Point().X, minPoint.X);
@@ -494,18 +499,18 @@ wing::RectF RelationshipElement::BoundingRect() const
     maxPoint.Y = std::max(source.Point().Y, maxPoint.Y);
     maxPoint.X = std::max(target.Point().X, maxPoint.X);
     maxPoint.Y = std::max(target.Point().Y, maxPoint.Y);
-    for (const wing::PointF& intermediatePoint : intermediatePoints)
+    for (const wing::PointF& routingPoint : routingPoints)
     {
-        minPoint.X = std::min(intermediatePoint.X, minPoint.X);
-        minPoint.Y = std::min(intermediatePoint.Y, minPoint.Y);
-        maxPoint.X = std::max(intermediatePoint.X, maxPoint.X);
-        maxPoint.Y = std::max(intermediatePoint.Y, maxPoint.Y);
+        minPoint.X = std::min(routingPoint.X, minPoint.X);
+        minPoint.Y = std::min(routingPoint.Y, minPoint.Y);
+        maxPoint.X = std::max(routingPoint.X, maxPoint.X);
+        maxPoint.Y = std::max(routingPoint.Y, maxPoint.Y);
     }
-    boundingRect.X = minPoint.X;
-    boundingRect.Y = minPoint.Y;
-    boundingRect.Width = maxPoint.X - minPoint.X;
-    boundingRect.Height = maxPoint.Y - minPoint.Y;
-    return boundingRect;
+    bounds.X = minPoint.X;
+    bounds.Y = minPoint.Y;
+    bounds.Width = maxPoint.X - minPoint.X;
+    bounds.Height = maxPoint.Y - minPoint.Y;
+    return bounds;
 }
 
 void RelationshipElement::Measure(wing::Graphics& graphics)
@@ -551,9 +556,9 @@ void RelationshipElement::Offset(float dx, float dy)
     {
         springpp::Offset(sourceEndPoint.Point(), dx, dy);
     }
-    for (auto& intermediatePoint : intermediatePoints)
+    for (auto& routingPoint : routingPoints)
     {
-        springpp::Offset(intermediatePoint, dx, dy);
+        springpp::Offset(routingPoint, dx, dy);
     }
     springpp::Offset(target.Point(), dx, dy);
 }
@@ -566,11 +571,11 @@ bool RelationshipElement::IntersectsWith(const wing::RectF& rect) const
         if (rect.Contains(sourceEndPoint.Point())) return true;
     }
     if (rect.Contains(target.Point())) return true;
-    for (const auto& intermediatePoint : intermediatePoints)
+    for (const auto& routingPoint : routingPoints)
     {
-        if (rect.Contains(intermediatePoint)) return true;
+        if (rect.Contains(routingPoint)) return true;
     }
-    return BoundingRect().IntersectsWith(rect);
+    return Bounds().IntersectsWith(rect);
 }
 
 bool RelationshipElement::Contains(const wing::PointF& location) const
@@ -617,7 +622,7 @@ int RelationshipElement::MainDirection() const
 void RelationshipElement::SetCompoundLocation(const CompoundLocation& compoundLocation)
 {
     SetLocation(compoundLocation.Location());
-    intermediatePoints = compoundLocation.Points();
+    routingPoints = compoundLocation.Points();
     if (IsReference() && cardinality == Cardinality::zero)
     {
         target.Point() = compoundLocation.TargetPoint();
@@ -626,7 +631,7 @@ void RelationshipElement::SetCompoundLocation(const CompoundLocation& compoundLo
 
 CompoundLocation RelationshipElement::GetCompoundLocation() const
 {
-    CompoundLocation compoundLocation(Location(), intermediatePoints);
+    CompoundLocation compoundLocation(Location(), routingPoints);
     if (IsReference() && cardinality == Cardinality::zero)
     {
         compoundLocation.SetTargetPoint(target.Point());
@@ -772,25 +777,25 @@ void RelationshipElement::Resolve(Diagram* diagram)
     }
 }
 
-void RelationshipElement::Calculate(const Snap& snap, DiagramElement* element, float w, int index, int count)
+void RelationshipElement::Calculate(const Connector& connector, DiagramElement* element, float w, int index, int count)
 {
-    EndPoint endPoint = element->GetEndPoint(snap);
-    if (source.Element() == element && source.GetSnap() == snap)
+    EndPoint endPoint = element->GetEndPoint(connector);
+    if (source.Element() == element && source.GetConnector() == connector)
     {
-        source.Point() = snap.Calculate(endPoint.Point(), w, index, count);
+        source.Point() = connector.Calculate(endPoint.Point(), w, index, count);
     }
-    if (target.Element() == element && target.GetSnap() == snap)
+    if (target.Element() == element && target.GetConnector() == connector)
     {
-        target.Point() = snap.Calculate(endPoint.Point(), w, index, count);
+        target.Point() = connector.Calculate(endPoint.Point(), w, index, count);
     }
 }
 
 void RelationshipElement::Straighten()
 {
-    if (!intermediatePoints.empty())
+    if (!routingPoints.empty())
     {
         wing::PointF prev = source.Point();
-        for (wing::PointF& next : intermediatePoints)
+        for (wing::PointF& next : routingPoints)
         {
             Line line(prev, next);
             Vector v(line.ToVector());
@@ -811,7 +816,7 @@ void RelationshipElement::Straighten()
             }
             prev = next;
         }
-        wing::PointF& last = intermediatePoints.back();
+        wing::PointF& last = routingPoints.back();
         Line line(last, target.Point());
         Vector v(line.ToVector());
         switch (springpp::MainDirection(v))

@@ -59,8 +59,8 @@ public:
     EndPoint& Target() { return target; }
     std::vector<EndPoint>& SourceEndPoints() { return sourceEndPoints; }
     const std::vector<EndPoint>& SourceEndPoints() const { return sourceEndPoints; }
-    const std::vector<wing::PointF>& IntermediatePoints() const { return intermediatePoints; }
-    std::vector<wing::PointF>& IntermediatePoints() { return intermediatePoints; }
+    const std::vector<wing::PointF>& RoutingPoints() const { return routingPoints; }
+    std::vector<wing::PointF>& RoutingPoints() { return routingPoints; }
     wing::PointF LastPoint() const;
     void SetLastPoint(const wing::PointF& lastPoint);
     const wing::SizeF& SourceTextSize() const { return sourceTextSize; }
@@ -68,7 +68,7 @@ public:
     void Measure(wing::Graphics& graphics) override;
     void Draw(wing::Graphics& graphics) override;
     void DrawSelected(wing::Graphics& graphics) override;
-    wing::RectF BoundingRect() const override;
+    wing::RectF Bounds() const override;
     void Offset(float dx, float dy) override;
     bool IntersectsWith(const wing::RectF& rect) const override;
     bool Contains(const wing::PointF& location) const override;
@@ -88,7 +88,7 @@ public:
     void SetContainerElementIndeces(const std::map<ContainerElement*, int>& containerElementIndexMap);
     void MapContainerElements(const std::map<DiagramElement*, DiagramElement*>& cloneMap);
     void Resolve(Diagram* diagram);
-    void Calculate(const Snap& snap, DiagramElement* element, float w, int index, int count);
+    void Calculate(const Connector& connector, DiagramElement* element, float w, int index, int count);
     void Straighten();
     int MainDirection() const;
     void MapIndeces(const std::map<int, int>& indexMap);
@@ -99,7 +99,7 @@ private:
     EndPoint source;
     EndPoint target;
     std::vector<EndPoint> sourceEndPoints;
-    std::vector<wing::PointF> intermediatePoints;
+    std::vector<wing::PointF> routingPoints;
     wing::SizeF sourceTextSize;
     wing::SizeF targetTextSize;
     std::unique_ptr<RelationshipElementRep> rep;

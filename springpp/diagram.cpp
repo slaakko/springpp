@@ -440,14 +440,14 @@ void Diagram::Offset(float dx, float dy)
     }
 }
 
-wing::RectF Diagram::CalculateBoundingRect() const
+wing::RectF Diagram::CalculateBounds() const
 {
     std::vector<DiagramElement*> diagramElements;
     for (const auto& element : elements)
     {
         diagramElements.push_back(element.get());
     }
-    return springpp::CalculateBoundingRect(diagramElements);
+    return springpp::CalculateBounds(diagramElements);
 }
 
 void Diagram::SaveImage(const std::string& fileName, const Padding& margins, wing::ImageFormat format)

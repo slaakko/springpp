@@ -6,7 +6,7 @@
 export module springpp.selection;
 
 import springpp.diagram_element;
-import springpp.snap;
+import springpp.connector;
 import springpp.layout;
 import wing;
 import std.core;
@@ -96,7 +96,7 @@ class RectangleSelection;
 class ResizeHandle
 {
 public:
-    ResizeHandle(RectangleSelection* selection_, const wing::PointF& location_, const Snap& snap_);
+    ResizeHandle(RectangleSelection* selection_, const wing::PointF& location_, const Connector& connector_);
     wing::Cursor* GetCursor() { return &cursor; }
     RectangleSelection* GetSelection() const { return selection; }
     bool Contains(const wing::PointF& loc) const;
@@ -107,7 +107,7 @@ private:
     RectangleSelection* selection;
     wing::PointF location;
     wing::PointF startLocation;
-    Snap snap;
+    Connector connector;
     wing::Cursor cursor;
     float width;
 };

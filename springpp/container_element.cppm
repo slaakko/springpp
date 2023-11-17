@@ -32,12 +32,12 @@ public:
     void AddRelationship(RelationshipElement* relationship_) override;
     void RemoveRelationship(RelationshipElement* relationship_) override;
     const std::vector<RelationshipElement*>& Relationships() const { return relationships; }
-    EndPoint GetEndPoint(const Snap& snap) const override;
+    EndPoint GetEndPoint(const Connector& connector) const override;
     std::vector<EndPoint> GetEndPoints(EndPointKind endPointKind, Tool* tool) const override;
     void Measure(wing::Graphics& graphics) override;
 private:
-    void MeasureRelationships(const Snap& snap, float w);
-    std::vector<RelationshipElement*> PickRelationships(const Snap& snap) const;
+    void MeasureRelationships(const Connector& connector, float w);
+    std::vector<RelationshipElement*> PickRelationships(const Connector& connector) const;
     std::vector<RelationshipElement*> relationships;
 };
 

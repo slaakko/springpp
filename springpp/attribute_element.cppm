@@ -20,7 +20,7 @@ public:
     DiagramElement* Clone() const override;
     ContainerElement* GetContainerElement() const override { return containerElement; }
     void SetContainerElement(ContainerElement* containerElement_);
-    EndPoint GetEndPoint(const Snap& snap) const override;
+    EndPoint GetEndPoint(const Connector& connector) const override;
     RelationshipElement* Relationship() const { return relationship; }
     void AddRelationship(RelationshipElement* relationship_) override;
     void RemoveRelationship(RelationshipElement* relationship_) override;

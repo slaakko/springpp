@@ -82,7 +82,7 @@ RelationshipKind ParseRelationshipKindStr(const std::string& relationshipKindStr
     }
 }
 
-DiagramElement::DiagramElement(DiagramElementKind kind_) : kind(kind_), flags(DiagramElementFlags::none), boundingRect()
+DiagramElement::DiagramElement(DiagramElementKind kind_) : kind(kind_), flags(DiagramElementFlags::none), bounds()
 {
 }
 
@@ -102,36 +102,36 @@ void DiagramElement::DrawSelected(wing::Graphics& graphics)
 {
     Layout* layout = Configuration::Instance().GetLayout();
     wing::Brush* brush = layout->GetSelectionColorElement()->GetBrush();
-    graphics.FillRectangle(brush, boundingRect);
+    graphics.FillRectangle(brush, bounds);
 }
 
 void DiagramElement::Offset(float dx, float dy)
 {
-    boundingRect.Offset(dx, dy);
+    bounds.Offset(dx, dy);
 }
 
 wing::PointF DiagramElement::Location() const
 {
     wing::PointF location;
-    boundingRect.GetLocation(&location);
+    bounds.GetLocation(&location);
     return location;
 }
 
 wing::SizeF DiagramElement::Size() const
 {
     wing::SizeF size;
-    boundingRect.GetSize(&size);
+    bounds.GetSize(&size);
     return size;
 }
 
 void DiagramElement::SetLocation(const wing::PointF& location)
 {
-    boundingRect = wing::RectF(location, Size());
+    bounds = wing::RectF(location, Size());
 }
 
 void DiagramElement::SetSize(const wing::SizeF& size)
 {
-    boundingRect = wing::RectF(Location(), size);
+    bounds = wing::RectF(Location(), size);
 }
 
 void DiagramElement::SetCompoundLocation(const CompoundLocation& compoundLocation)
@@ -149,9 +149,9 @@ void DiagramElement::SetName(const std::string& name_)
     name = name_;
 }
 
-void DiagramElement::SetBoundingRect(const wing::RectF& boundingRect_)
+void DiagramElement::SetBounds(const wing::RectF& bounds_)
 {
-    boundingRect = boundingRect_;
+    bounds = bounds_;
 }
 
 wing::PointF DiagramElement::Center() const
@@ -181,12 +181,12 @@ void DiagramElement::ResetSelected()
 
 bool DiagramElement::Contains(const wing::PointF& location) const
 {
-    return boundingRect.Contains(location);
+    return bounds.Contains(location);
 }
 
 bool DiagramElement::IntersectsWith(const wing::RectF& rect) const
 {
-    return boundingRect.IntersectsWith(rect);
+    return bounds.IntersectsWith(rect);
 }
 
 void DiagramElement::AddActions(Diagram* diagram, int elementIndex, wing::ContextMenu* contextMenu) const

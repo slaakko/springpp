@@ -5,13 +5,12 @@
 
 export module springpp.canvas;
 
+import springpp.diagram;
 import springpp.mouse_args;
 import wing;
 import std.core;
 
 export namespace springpp {
-
-class Diagram;
 
 struct CanvasCreateParams
 {

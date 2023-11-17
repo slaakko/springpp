@@ -32,19 +32,19 @@ void Inheritance::Draw(wing::Graphics& graphics)
     float inheritanceArrowWidth = relationshipLayoutElement->InheritanceArrowWidth();
     float inheritanceArrowHeight = std::sqrt(3.0) / 2.0 * inheritanceArrowWidth;
     wing::PointF lastPoint;
-    if (relationshipElement->IntermediatePoints().empty())
+    if (relationshipElement->RoutingPoints().empty())
     {
         lastPoint = relationshipElement->Source().Point();
     }
     else
     {
         wing::PointF prevPoint = relationshipElement->Source().Point();
-        for (const auto& intermediatePoint : relationshipElement->IntermediatePoints())
+        for (const auto& routingPoint : relationshipElement->RoutingPoints())
         {
-            graphics.DrawLine(linePen, prevPoint, intermediatePoint);
-            prevPoint = intermediatePoint;
+            graphics.DrawLine(linePen, prevPoint, routingPoint);
+            prevPoint = routingPoint;
         }
-        lastPoint = relationshipElement->IntermediatePoints().back();
+        lastPoint = relationshipElement->RoutingPoints().back();
     }
     Line line(lastPoint, relationshipElement->Target().Point());
     Vector v = line.ToVector();
@@ -169,7 +169,7 @@ void CombinedInheritance::DrawCombinedInheritance0(wing::Graphics& graphics, Rel
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return;
-    EndPoint leftCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::LeftCenter()));
+    EndPoint leftCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::LeftCenter()));
     wing::PointF targetPoint = leftCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -208,14 +208,14 @@ void CombinedInheritance::DrawCombinedInheritance0(wing::Graphics& graphics, Rel
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* rightElement = horizontalOrder.back();
-    EndPoint rightEndPoint = rightElement->GetEndPoint(Snap(Snap::RightCenter()));
+    EndPoint rightEndPoint = rightElement->GetEndPoint(Connector(Connector::RightCenter()));
     wing::PointF rightPoint = rightEndPoint.Point();
     float dx = (targetPoint.X - inheritanceArrowHeight) - rightPoint.X;
     float w = dx / 2;
     wing::PointF crossPoint(targetPoint.X - inheritanceArrowHeight - w, targetPoint.Y);
     for (ClassElement* sourceElement : verticalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::RightCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::RightCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(crossPoint.X, sourcePoint.Y);
         graphics.DrawLine(linePen, sourcePoint, vpoint);
@@ -250,7 +250,7 @@ void CombinedInheritance::DrawCombinedInheritance90(wing::Graphics& graphics, Re
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return;
-    EndPoint topCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::TopCenter()));
+    EndPoint topCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::TopCenter()));
     wing::PointF targetPoint = topCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -289,14 +289,14 @@ void CombinedInheritance::DrawCombinedInheritance90(wing::Graphics& graphics, Re
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* bottomElement = verticalOrder.back();
-    EndPoint bottomEndPoint = bottomElement->GetEndPoint(Snap(Snap::BottomCenter()));
+    EndPoint bottomEndPoint = bottomElement->GetEndPoint(Connector(Connector::BottomCenter()));
     wing::PointF bottomPoint = bottomEndPoint.Point();
     float dy = (targetPoint.Y - inheritanceArrowHeight) - bottomPoint.Y;
     float h = dy / 2;
     wing::PointF crossPoint(targetPoint.X, targetPoint.Y - inheritanceArrowHeight - h);
     for (ClassElement* sourceElement : horizontalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::BottomCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::BottomCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(sourcePoint.X, crossPoint.Y);
         graphics.DrawLine(linePen, sourcePoint, vpoint);
@@ -331,7 +331,7 @@ void CombinedInheritance::DrawCombinedInheritance180(wing::Graphics& graphics, R
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return;
-    EndPoint rightCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::RightCenter()));
+    EndPoint rightCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::RightCenter()));
     wing::PointF targetPoint = rightCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -370,14 +370,14 @@ void CombinedInheritance::DrawCombinedInheritance180(wing::Graphics& graphics, R
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* leftElement = horizontalOrder.front();
-    EndPoint leftEndPoint = leftElement->GetEndPoint(Snap(Snap::LeftCenter()));
+    EndPoint leftEndPoint = leftElement->GetEndPoint(Connector(Connector::LeftCenter()));
     wing::PointF leftPoint = leftEndPoint.Point();
     float dx = leftPoint.X - (targetPoint.X + inheritanceArrowHeight);
     float w = dx / 2;
     wing::PointF crossPoint(targetPoint.X + inheritanceArrowHeight + w, targetPoint.Y);
     for (ClassElement* sourceElement : verticalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::LeftCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::LeftCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(crossPoint.X, sourcePoint.Y);
         graphics.DrawLine(linePen, sourcePoint, vpoint);
@@ -412,7 +412,7 @@ void CombinedInheritance::DrawCombinedInheritance270(wing::Graphics& graphics, R
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return;
-    EndPoint bottomCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::BottomCenter()));
+    EndPoint bottomCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::BottomCenter()));
     wing::PointF targetPoint = bottomCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -451,14 +451,14 @@ void CombinedInheritance::DrawCombinedInheritance270(wing::Graphics& graphics, R
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* topElement = verticalOrder.front();
-    EndPoint topEndPoint = topElement->GetEndPoint(Snap(Snap::TopCenter()));
+    EndPoint topEndPoint = topElement->GetEndPoint(Connector(Connector::TopCenter()));
     wing::PointF topPoint = topEndPoint.Point();
     float dy = topPoint.Y - (targetPoint.Y + inheritanceArrowHeight);
     float h = dy / 2;
     wing::PointF crossPoint(targetPoint.X, targetPoint.Y + inheritanceArrowHeight + h);
     for (ClassElement* sourceElement : horizontalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::TopCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::TopCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(sourcePoint.X, crossPoint.Y);
         graphics.DrawLine(linePen, sourcePoint, vpoint);
@@ -493,7 +493,7 @@ void CombinedInheritance::DrawCombinedInheritance0Selected(wing::Graphics& graph
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return;
-    EndPoint leftCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::LeftCenter()));
+    EndPoint leftCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::LeftCenter()));
     wing::PointF targetPoint = leftCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -532,14 +532,14 @@ void CombinedInheritance::DrawCombinedInheritance0Selected(wing::Graphics& graph
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* rightElement = horizontalOrder.back();
-    EndPoint rightEndPoint = rightElement->GetEndPoint(Snap(Snap::RightCenter()));
+    EndPoint rightEndPoint = rightElement->GetEndPoint(Connector(Connector::RightCenter()));
     wing::PointF rightPoint = rightEndPoint.Point();
     float dx = (targetPoint.X - inheritanceArrowHeight) - rightPoint.X;
     float w = dx / 2;
     wing::PointF crossPoint(targetPoint.X - inheritanceArrowHeight - w, targetPoint.Y);
     for (ClassElement* sourceElement : verticalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::RightCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::RightCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(crossPoint.X, sourcePoint.Y);
         graphics.DrawLine(selectedLinePen, sourcePoint, vpoint);
@@ -564,7 +564,7 @@ void CombinedInheritance::DrawCombinedInheritance90Selected(wing::Graphics& grap
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return;
-    EndPoint topCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::TopCenter()));
+    EndPoint topCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::TopCenter()));
     wing::PointF targetPoint = topCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -603,14 +603,14 @@ void CombinedInheritance::DrawCombinedInheritance90Selected(wing::Graphics& grap
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* bottomElement = verticalOrder.back();
-    EndPoint bottomEndPoint = bottomElement->GetEndPoint(Snap(Snap::BottomCenter()));
+    EndPoint bottomEndPoint = bottomElement->GetEndPoint(Connector(Connector::BottomCenter()));
     wing::PointF bottomPoint = bottomEndPoint.Point();
     float dy = (targetPoint.Y - inheritanceArrowHeight) - bottomPoint.Y;
     float h = dy / 2;
     wing::PointF crossPoint(targetPoint.X, targetPoint.Y - inheritanceArrowHeight - h);
     for (ClassElement* sourceElement : horizontalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::BottomCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::BottomCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(sourcePoint.X, crossPoint.Y);
         graphics.DrawLine(selectedLinePen, sourcePoint, vpoint);
@@ -635,7 +635,7 @@ void CombinedInheritance::DrawCombinedInheritance180Selected(wing::Graphics& gra
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return;
-    EndPoint rightCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::RightCenter()));
+    EndPoint rightCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::RightCenter()));
     wing::PointF targetPoint = rightCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -674,14 +674,14 @@ void CombinedInheritance::DrawCombinedInheritance180Selected(wing::Graphics& gra
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* leftElement = horizontalOrder.front();
-    EndPoint leftEndPoint = leftElement->GetEndPoint(Snap(Snap::LeftCenter()));
+    EndPoint leftEndPoint = leftElement->GetEndPoint(Connector(Connector::LeftCenter()));
     wing::PointF leftPoint = leftEndPoint.Point();
     float dx = leftPoint.X - (targetPoint.X + inheritanceArrowHeight);
     float w = dx / 2;
     wing::PointF crossPoint(targetPoint.X + inheritanceArrowHeight + w, targetPoint.Y);
     for (ClassElement* sourceElement : verticalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::LeftCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::LeftCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(crossPoint.X, sourcePoint.Y);
         graphics.DrawLine(selectedLinePen, sourcePoint, vpoint);
@@ -706,7 +706,7 @@ void CombinedInheritance::DrawCombinedInheritance270Selected(wing::Graphics& gra
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return;
-    EndPoint bottomCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::BottomCenter()));
+    EndPoint bottomCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::BottomCenter()));
     wing::PointF targetPoint = bottomCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -745,14 +745,14 @@ void CombinedInheritance::DrawCombinedInheritance270Selected(wing::Graphics& gra
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* topElement = verticalOrder.front();
-    EndPoint topEndPoint = topElement->GetEndPoint(Snap(Snap::TopCenter()));
+    EndPoint topEndPoint = topElement->GetEndPoint(Connector(Connector::TopCenter()));
     wing::PointF topPoint = topEndPoint.Point();
     float dy = topPoint.Y - (targetPoint.Y + inheritanceArrowHeight);
     float h = dy / 2;
     wing::PointF crossPoint(targetPoint.X, targetPoint.Y + inheritanceArrowHeight + h);
     for (ClassElement* sourceElement : horizontalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::TopCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::TopCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(sourcePoint.X, crossPoint.Y);
         graphics.DrawLine(selectedLinePen, sourcePoint, vpoint);
@@ -777,7 +777,7 @@ bool CombinedInheritance::Contains0(const wing::PointF& location, RelationshipEl
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return false;
-    EndPoint leftCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::LeftCenter()));
+    EndPoint leftCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::LeftCenter()));
     wing::PointF targetPoint = leftCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -816,14 +816,14 @@ bool CombinedInheritance::Contains0(const wing::PointF& location, RelationshipEl
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* rightElement = horizontalOrder.back();
-    EndPoint rightEndPoint = rightElement->GetEndPoint(Snap(Snap::RightCenter()));
+    EndPoint rightEndPoint = rightElement->GetEndPoint(Connector(Connector::RightCenter()));
     wing::PointF rightPoint = rightEndPoint.Point();
     float dx = (targetPoint.X - inheritanceArrowHeight) - rightPoint.X;
     float w = dx / 2;
     wing::PointF crossPoint(targetPoint.X - inheritanceArrowHeight - w, targetPoint.Y);
     for (ClassElement* sourceElement : verticalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::RightCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::RightCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(crossPoint.X, sourcePoint.Y);
         if (springpp::LineContains(sourcePoint, vpoint, location, selectedLineWidth)) return true;
@@ -849,7 +849,7 @@ bool CombinedInheritance::Contains90(const wing::PointF& location, RelationshipE
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return false;
-    EndPoint topCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::TopCenter()));
+    EndPoint topCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::TopCenter()));
     wing::PointF targetPoint = topCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -888,14 +888,14 @@ bool CombinedInheritance::Contains90(const wing::PointF& location, RelationshipE
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* bottomElement = verticalOrder.back();
-    EndPoint bottomEndPoint = bottomElement->GetEndPoint(Snap(Snap::BottomCenter()));
+    EndPoint bottomEndPoint = bottomElement->GetEndPoint(Connector(Connector::BottomCenter()));
     wing::PointF bottomPoint = bottomEndPoint.Point();
     float dy = (targetPoint.Y - inheritanceArrowHeight) - bottomPoint.Y;
     float h = dy / 2;
     wing::PointF crossPoint(targetPoint.X, targetPoint.Y - inheritanceArrowHeight - h);
     for (ClassElement* sourceElement : horizontalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::BottomCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::BottomCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(sourcePoint.X, crossPoint.Y);
         if (springpp::LineContains(sourcePoint, vpoint, location, selectedLineWidth)) return true;
@@ -921,7 +921,7 @@ bool CombinedInheritance::Contains180(const wing::PointF& location, Relationship
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return false;
-    EndPoint rightCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::RightCenter()));
+    EndPoint rightCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::RightCenter()));
     wing::PointF targetPoint = rightCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -960,14 +960,14 @@ bool CombinedInheritance::Contains180(const wing::PointF& location, Relationship
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* leftElement = horizontalOrder.front();
-    EndPoint leftEndPoint = leftElement->GetEndPoint(Snap(Snap::LeftCenter()));
+    EndPoint leftEndPoint = leftElement->GetEndPoint(Connector(Connector::LeftCenter()));
     wing::PointF leftPoint = leftEndPoint.Point();
     float dx = leftPoint.X - (targetPoint.X + inheritanceArrowHeight);
     float w = dx / 2;
     wing::PointF crossPoint(targetPoint.X + inheritanceArrowHeight + w, targetPoint.Y);
     for (ClassElement* sourceElement : verticalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::LeftCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::LeftCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(crossPoint.X, sourcePoint.Y);
         if (springpp::LineContains(sourcePoint, vpoint, location, selectedLineWidth)) return true;
@@ -993,7 +993,7 @@ bool CombinedInheritance::Contains270(const wing::PointF& location, Relationship
         targetClassElement = static_cast<ClassElement*>(targetEndPoint.Element());
     }
     if (!targetClassElement) return false;
-    EndPoint bottomCenterEndPoint = targetClassElement->GetEndPoint(Snap(Snap::BottomCenter()));
+    EndPoint bottomCenterEndPoint = targetClassElement->GetEndPoint(Connector(Connector::BottomCenter()));
     wing::PointF targetPoint = bottomCenterEndPoint.Point();
     targetEndPoint.SetPoint(targetPoint);
     std::vector<int> indeces;
@@ -1032,14 +1032,14 @@ bool CombinedInheritance::Contains270(const wing::PointF& location, Relationship
         verticalOrder.push_back(static_cast<ClassElement*>(diagram->GetElementByIndex(index)));
     }
     ClassElement* topElement = verticalOrder.front();
-    EndPoint topEndPoint = topElement->GetEndPoint(Snap(Snap::TopCenter()));
+    EndPoint topEndPoint = topElement->GetEndPoint(Connector(Connector::TopCenter()));
     wing::PointF topPoint = topEndPoint.Point();
     float dy = topPoint.Y - (targetPoint.Y + inheritanceArrowHeight);
     float h = dy / 2;
     wing::PointF crossPoint(targetPoint.X, targetPoint.Y + inheritanceArrowHeight + h);
     for (ClassElement* sourceElement : horizontalOrder)
     {
-        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Snap(Snap::TopCenter()));
+        EndPoint sourceEndPoint = sourceElement->GetEndPoint(Connector(Connector::TopCenter()));
         wing::PointF sourcePoint = sourceEndPoint.Point();
         wing::PointF vpoint(sourcePoint.X, crossPoint.Y);
         if (springpp::LineContains(sourcePoint, vpoint, location, selectedLineWidth)) return true;
@@ -1083,13 +1083,13 @@ void Composition::Draw(wing::Graphics& graphics)
     wing::Pen* linePen = relationshipLayoutElement->LinePen();
     wing::PointF start = relationshipElement->Source().Point();
     wing::PointF end;
-    if (relationshipElement->IntermediatePoints().empty())
+    if (relationshipElement->RoutingPoints().empty())
     {
         end = relationshipElement->Target().Point();
     }
     else
     {
-        end = relationshipElement->IntermediatePoints().front();
+        end = relationshipElement->RoutingPoints().front();
     }
     Line compositionLine(start, end);
     if (!relationshipElement->Source().Text().empty())
@@ -1120,10 +1120,10 @@ void Composition::Draw(wing::Graphics& graphics)
     graphics.DrawLine(linePen, compositionSymbolLine.start, rightCompositionSymbolLine.end);
     graphics.DrawLine(linePen, rightCompositionSymbolLine.end, compositionSymbolLine.end);
     wing::PointF prevPoint = compositionSymbolLine.end;
-    for (const wing::PointF& intermediatePoint : relationshipElement->IntermediatePoints())
+    for (const wing::PointF& routingPoint : relationshipElement->RoutingPoints())
     {
-        graphics.DrawLine(linePen, prevPoint, intermediatePoint);
-        prevPoint = intermediatePoint;
+        graphics.DrawLine(linePen, prevPoint, routingPoint);
+        prevPoint = routingPoint;
     }
     Line arrowLine(relationshipElement->Target().Point(), prevPoint);
     Vector av(arrowLine.ToVector());
@@ -1212,13 +1212,13 @@ void Aggregation::Draw(wing::Graphics& graphics)
     wing::Pen* linePen = relationshipLayoutElement->LinePen();
     wing::PointF start = relationshipElement->Source().Point();
     wing::PointF end;
-    if (relationshipElement->IntermediatePoints().empty())
+    if (relationshipElement->RoutingPoints().empty())
     {
         end = relationshipElement->Target().Point();
     }
     else
     {
-        end = relationshipElement->IntermediatePoints().front();
+        end = relationshipElement->RoutingPoints().front();
     }
     Line aggregateLine(start, end);
     if (!relationshipElement->Source().Text().empty())
@@ -1241,10 +1241,10 @@ void Aggregation::Draw(wing::Graphics& graphics)
     graphics.DrawLine(linePen, aggregateSymbolLine.start, rightAggregateSymbolLine.end);
     graphics.DrawLine(linePen, rightAggregateSymbolLine.end, aggregateSymbolLine.end);
     wing::PointF prevPoint = aggregateSymbolLine.end;
-    for (const wing::PointF& intermediatePoint : relationshipElement->IntermediatePoints())
+    for (const wing::PointF& routingPoint : relationshipElement->RoutingPoints())
     {
-        graphics.DrawLine(linePen, prevPoint, intermediatePoint);
-        prevPoint = intermediatePoint;
+        graphics.DrawLine(linePen, prevPoint, routingPoint);
+        prevPoint = routingPoint;
     }
     Line arrowLine(relationshipElement->Target().Point(), prevPoint);
     Vector av(arrowLine.ToVector());
@@ -1345,13 +1345,13 @@ void Reference::Draw(wing::Graphics& graphics)
         wing::RectF r(u.end, wing::SizeF(2.0f * relationshipSymbolRadius, 2.0f * relationshipSymbolRadius));
         graphics.FillEllipse(arrowBrush, r);
         wing::PointF next;
-        if (relationshipElement->IntermediatePoints().empty())
+        if (relationshipElement->RoutingPoints().empty())
         {
             next = relationshipElement->Target().Point();
         }
         else
         {
-            next = relationshipElement->IntermediatePoints().front();
+            next = relationshipElement->RoutingPoints().front();
         }
         Line line(start, next);
         Vector v = line.ToVector();
@@ -1360,13 +1360,13 @@ void Reference::Draw(wing::Graphics& graphics)
         first = f.end;
     }
     wing::PointF end;
-    if (relationshipElement->IntermediatePoints().empty())
+    if (relationshipElement->RoutingPoints().empty())
     {
         end = relationshipElement->Target().Point();
     }
     else
     {
-        end = relationshipElement->IntermediatePoints().front();
+        end = relationshipElement->RoutingPoints().front();
     }
     Line referenceLine(first, end);
     if (!relationshipElement->Source().Text().empty())
@@ -1376,10 +1376,10 @@ void Reference::Draw(wing::Graphics& graphics)
         DrawSourceText(graphics, font, textBrush, textLine, leadingWidth);
     }
     wing::PointF prevPoint = referenceLine.start;
-    for (const wing::PointF& intermediatePoint : relationshipElement->IntermediatePoints())
+    for (const wing::PointF& routingPoint : relationshipElement->RoutingPoints())
     {
-        graphics.DrawLine(linePen, prevPoint, intermediatePoint);
-        prevPoint = intermediatePoint;
+        graphics.DrawLine(linePen, prevPoint, routingPoint);
+        prevPoint = routingPoint;
     }
     Line arrowLine(relationshipElement->Target().Point(), prevPoint);
     Vector av(arrowLine.ToVector());
@@ -1486,13 +1486,13 @@ void CreateInstance::Draw(wing::Graphics& graphics)
     wing::Pen* dashPen = relationshipLayoutElement->DashLinePen();
     wing::PointF start = relationshipElement->Source().Point();
     wing::PointF end;
-    if (relationshipElement->IntermediatePoints().empty())
+    if (relationshipElement->RoutingPoints().empty())
     {
         end = relationshipElement->Target().Point();
     }
     else
     {
-        end = relationshipElement->IntermediatePoints().front();
+        end = relationshipElement->RoutingPoints().front();
     }
     Line instanceLine(start, end);
     if (!relationshipElement->Source().Text().empty())
@@ -1503,9 +1503,9 @@ void CreateInstance::Draw(wing::Graphics& graphics)
     }
     Vector v(instanceLine.ToVector());
     wing::PointF prevPoint = instanceLine.start;
-    if (!relationshipElement->IntermediatePoints().empty())
+    if (!relationshipElement->RoutingPoints().empty())
     {
-        prevPoint = relationshipElement->IntermediatePoints().back();
+        prevPoint = relationshipElement->RoutingPoints().back();
     }
     wing::PointF finalPoint;
     Line arrowLine(relationshipElement->Target().Point(), prevPoint);
@@ -1569,12 +1569,70 @@ void CreateInstance::Draw(wing::Graphics& graphics)
     }
     std::vector<wing::PointF> points;
     points.push_back(relationshipElement->Source().Point());
-    for (const wing::PointF& intermediatePoint : relationshipElement->IntermediatePoints())
+    for (const wing::PointF& routingPoint : relationshipElement->RoutingPoints())
     {
-        points.push_back(intermediatePoint);
+        points.push_back(routingPoint);
     }
     points.push_back(finalPoint);
     graphics.DrawLines(dashPen, points.data(), static_cast<int>(points.size()));
+}
+
+AttachNote::AttachNote(RelationshipElement* relationshipElement_) : RelationshipElementRep(relationshipElement_)
+{
+}
+
+RelationshipElementRep* AttachNote::Clone(RelationshipElement* relationshipElement_) const
+{
+    AttachNote* clone = new AttachNote(relationshipElement_);
+    return clone;
+}
+
+void AttachNote::Draw(wing::Graphics& graphics)
+{
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    wing::Pen* linePen = relationshipLayoutElement->LinePen();
+    wing::Pen* dotPen = relationshipLayoutElement->DotLinePen();
+    float radius = relationshipLayoutElement->RelationshipSymbolRadius();
+    wing::PointF start = relationshipElement->Source().Point();
+    Vector left(-1, 0);
+    Vector ul(UnitVector(left) * radius);
+    Line l(start, ul);
+    Vector up(0, -1);
+    Vector uu(UnitVector(up) * radius);
+    Line u(l.end, uu);
+    wing::RectF r(u.end, wing::SizeF(2.0f * radius, 2.0f * radius));
+    graphics.DrawEllipse(linePen, r);
+    wing::PointF next;
+    if (relationshipElement->RoutingPoints().empty())
+    {
+        next = relationshipElement->Target().Point();
+    }
+    else
+    {
+        next = relationshipElement->RoutingPoints().front();
+    }
+    Line line(start, next);
+    Vector v = line.ToVector();
+    Vector n = UnitVector(v) * radius;
+    Line f(start, n);
+    wing::PointF first = f.end;
+    std::vector<wing::PointF> points;
+    points.push_back(first);
+    if (relationshipElement->RoutingPoints().empty())
+    {
+        points.push_back(next);
+    }
+    else
+    {
+        for (const wing::PointF& routingPoint : relationshipElement->RoutingPoints())
+        {
+            points.push_back(routingPoint);
+        }
+        points.push_back(relationshipElement->Target().Point());
+    }
+    graphics.DrawLines(dotPen, points.data(), static_cast<int>(points.size()));
 }
 
 } // namespace springpp

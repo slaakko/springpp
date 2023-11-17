@@ -35,6 +35,7 @@ wing::FontStyle DefaultConcreteOperationFontStyle();
 wing::FontStyle DefaultAbstractOperationFontStyle();
 wing::FontStyle DefaultObjectCaptionFontStyle();
 wing::FontStyle DefaultAttributeFontStyle();
+wing::FontStyle DefaultNoteFontStyle();
 wing::FontStyle DefaultDefaultRelationshipFontStyle();
 
 float DefaultFrameWidth(wing::Graphics* graphics);
@@ -195,6 +196,27 @@ private:
     wing::Pen* framePen;
 };
 
+class NoteLayoutElement : public LayoutElement
+{
+public:
+    NoteLayoutElement(Layout* layout_);
+    PaddingElement* GetPaddingElement() const { return paddingElement.get(); }
+    ColorElement* TextColorElement() const { return textColorElement.get(); }
+    ColorElement* FrameColorElement() const { return frameColorElement.get(); }
+    FontElement* GetFontElement() const { return fontElement.get(); }
+    float FrameWidth() const { return frameWidth; }
+    soul::xml::Element* ToXml() const override;
+    void Parse(soul::xml::Element* parentXmlElement) override;
+    wing::Pen* FramePen();
+private:
+    std::unique_ptr<PaddingElement> paddingElement;
+    std::unique_ptr<ColorElement> textColorElement;
+    std::unique_ptr<ColorElement> frameColorElement;
+    std::unique_ptr<FontElement> fontElement;
+    float frameWidth;
+    wing::Pen* framePen;
+};
+
 class OperationLayoutElement : public LayoutElement
 {
 public:
@@ -323,6 +345,7 @@ public:
     ClassLayoutElement* GetAbstractClassLayoutElement() const { return abstractClassLayoutElement.get(); }
     ClassLayoutElement* GetConcreteClassLayoutElement() const { return concreteClassLayoutElement.get(); }
     ObjectLayoutElement* GetObjectLayoutElement() const { return objectLayoutElement.get(); }
+    NoteLayoutElement* GetNoteLayoutElement() const { return noteLayoutElement.get(); }
     OperationLayoutElement* GetAbstractOperationLayoutElement() const { return abstractOperationLayoutElement.get(); }
     OperationLayoutElement* GetConcreteOperationLayoutElement() const { return concreteOperationLayoutElement.get(); }
     AttributeLayoutElement* GetAttributeLayoutElement() const { return attributeLayoutElement.get(); }
@@ -340,6 +363,7 @@ private:
     std::unique_ptr<ClassLayoutElement> abstractClassLayoutElement;
     std::unique_ptr<ClassLayoutElement> concreteClassLayoutElement;
     std::unique_ptr<ObjectLayoutElement> objectLayoutElement;
+    std::unique_ptr<NoteLayoutElement> noteLayoutElement;
     std::unique_ptr<OperationLayoutElement> abstractOperationLayoutElement;
     std::unique_ptr<OperationLayoutElement> concreteOperationLayoutElement;
     std::unique_ptr<AttributeLayoutElement> attributeLayoutElement;

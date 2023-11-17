@@ -12,21 +12,21 @@ import util;
 
 namespace springpp {
 
-wing::RectF CalculateBoundingRect(const std::vector<DiagramElement*>& diagramElements)
+wing::RectF CalculateBounds(const std::vector<DiagramElement*>& diagramElements)
 {
-    wing::RectF boundingRect;
+    wing::RectF bounds;
     for (DiagramElement* diagramElement : diagramElements)
     {
-        if (boundingRect.IsEmptyArea())
+        if (bounds.IsEmptyArea())
         {
-            boundingRect = diagramElement->BoundingRect();
+            bounds = diagramElement->Bounds();
         }
         else
         {
-            wing::RectF::Union(boundingRect, boundingRect, diagramElement->BoundingRect());
+            wing::RectF::Union(bounds, bounds, diagramElement->Bounds());
         }
     }
-    return boundingRect;
+    return bounds;
 }
 
 void SaveImage(const std::string& imageFileName, const Padding& margins, Canvas* canvas, const std::vector<DiagramElement*>& diagramElements, wing::Graphics* graphics,
@@ -56,12 +56,12 @@ void SaveImage(const std::string& imageFileName, const Padding& margins, Canvas*
         relationship->MapContainerElements(cloneMap);
         relationship->AddToElements();
     }
-    wing::RectF boundingRect = diagram.CalculateBoundingRect();
-    diagram.Offset(-boundingRect.X + margins.left, -boundingRect.Y + margins.top);
-    boundingRect.Width += margins.Horizontal();
-    boundingRect.Height += margins.Vertical();
-    int width = wing::ScreenMetrics::Get().MMToHorizontalPixels(boundingRect.Width);
-    int height = wing::ScreenMetrics::Get().MMToVerticalPixels(boundingRect.Height);
+    wing::RectF bounds = diagram.CalculateBounds();
+    diagram.Offset(-bounds.X + margins.left, -bounds.Y + margins.top);
+    bounds.Width += margins.Horizontal();
+    bounds.Height += margins.Vertical();
+    int width = wing::ScreenMetrics::Get().MMToHorizontalPixels(bounds.Width);
+    int height = wing::ScreenMetrics::Get().MMToVerticalPixels(bounds.Height);
     wing::Bitmap bitmap(width, height, graphics);
     wing::Graphics* bitmapGraphics = wing::Graphics::FromImage(&bitmap);
     bitmapGraphics->SetTextRenderingHint(Gdiplus::TextRenderingHintClearTypeGridFit);

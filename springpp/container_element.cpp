@@ -61,62 +61,62 @@ int ContainerElement::GetIndexOfOperationElement(OperationElement* operationElem
     throw std::runtime_error("container element '" + Name() + "' has no operations");
 }
 
-EndPoint ContainerElement::GetEndPoint(const Snap& snap) const
+EndPoint ContainerElement::GetEndPoint(const Connector& connector) const
 {
     Layout* layout = Configuration::Instance().GetLayout();
     RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
     float w = relationshipLayoutElement->LineArrowWidth();
     wing::PointF loc = Location();
     wing::SizeF size = Size();
-    switch (snap.ToInt())
+    switch (connector.ToInt())
     {
-        case Snap::TopLeft():
+        case Connector::TopLeft():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::TopLeft()), wing::PointF(loc.X + w, loc.Y));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::TopLeft()), wing::PointF(loc.X + w, loc.Y));
         }
-        case Snap::TopCenter():
+        case Connector::TopCenter():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::TopCenter()), wing::PointF(loc.X + size.Width / 2, loc.Y));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::TopCenter()), wing::PointF(loc.X + size.Width / 2, loc.Y));
         }
-        case Snap::TopRight():
+        case Connector::TopRight():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::TopRight()), wing::PointF(loc.X + size.Width - w, loc.Y));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::TopRight()), wing::PointF(loc.X + size.Width - w, loc.Y));
         }
-        case Snap::RightTop():
+        case Connector::RightTop():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::RightTop()), wing::PointF(loc.X + size.Width, loc.Y + w));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::RightTop()), wing::PointF(loc.X + size.Width, loc.Y + w));
         }
-        case Snap::RightCenter():
+        case Connector::RightCenter():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::RightCenter()), wing::PointF(loc.X + size.Width, loc.Y + size.Height / 2));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::RightCenter()), wing::PointF(loc.X + size.Width, loc.Y + size.Height / 2));
         }
-        case Snap::RightBottom():
+        case Connector::RightBottom():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::RightBottom()), wing::PointF(loc.X + size.Width, loc.Y + size.Height - w));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::RightBottom()), wing::PointF(loc.X + size.Width, loc.Y + size.Height - w));
         }
-        case Snap::BottomRight():
+        case Connector::BottomRight():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::BottomRight()), wing::PointF(loc.X + size.Width - w, loc.Y + size.Height));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::BottomRight()), wing::PointF(loc.X + size.Width - w, loc.Y + size.Height));
         }
-        case Snap::BottomCenter():
+        case Connector::BottomCenter():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::BottomCenter()), wing::PointF(loc.X + size.Width / 2, loc.Y + size.Height));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::BottomCenter()), wing::PointF(loc.X + size.Width / 2, loc.Y + size.Height));
         }
-        case Snap::BottomLeft():
+        case Connector::BottomLeft():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::BottomLeft()), wing::PointF(loc.X + w, loc.Y + size.Height));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::BottomLeft()), wing::PointF(loc.X + w, loc.Y + size.Height));
         }
-        case Snap::LeftBottom():
+        case Connector::LeftBottom():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::LeftBottom()), wing::PointF(loc.X, loc.Y + size.Height - w));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::LeftBottom()), wing::PointF(loc.X, loc.Y + size.Height - w));
         }
-        case Snap::LeftCenter():
+        case Connector::LeftCenter():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::LeftCenter()), wing::PointF(loc.X, loc.Y + size.Height / 2));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::LeftCenter()), wing::PointF(loc.X, loc.Y + size.Height / 2));
         }
-        case Snap::LeftTop():
+        case Connector::LeftTop():
         {
-            return EndPoint(const_cast<ContainerElement*>(this), Snap(Snap::LeftTop()), wing::PointF(loc.X, loc.Y + w));
+            return EndPoint(const_cast<ContainerElement*>(this), Connector(Connector::LeftTop()), wing::PointF(loc.X, loc.Y + w));
         }
     }
     return EndPoint();
@@ -125,18 +125,18 @@ EndPoint ContainerElement::GetEndPoint(const Snap& snap) const
 std::vector<EndPoint> ContainerElement::GetEndPoints(EndPointKind endPointKind, Tool* tool) const
 {
     std::vector<EndPoint> endPoints;
-    endPoints.push_back(GetEndPoint(Snap(Snap::TopLeft())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::TopCenter())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::TopRight())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::RightTop())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::RightCenter())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::RightBottom())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::BottomRight())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::BottomCenter())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::BottomLeft())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::LeftBottom())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::LeftCenter())));
-    endPoints.push_back(GetEndPoint(Snap(Snap::LeftTop())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::TopLeft())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::TopCenter())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::TopRight())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::RightTop())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::RightCenter())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::RightBottom())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::BottomRight())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::BottomCenter())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::BottomLeft())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::LeftBottom())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::LeftCenter())));
+    endPoints.push_back(GetEndPoint(Connector(Connector::LeftTop())));
     return endPoints;
 }
 
@@ -145,39 +145,39 @@ void ContainerElement::Measure(wing::Graphics& graphics)
     Layout* layout = Configuration::Instance().GetLayout();
     RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
     float w = relationshipLayoutElement->LineWidth();
-    MeasureRelationships(Snap(Snap::TopLeft()), w);
-    MeasureRelationships(Snap(Snap::TopCenter()), w);
-    MeasureRelationships(Snap(Snap::TopRight()), w);
-    MeasureRelationships(Snap(Snap::BottomLeft()), w);
-    MeasureRelationships(Snap(Snap::BottomCenter()), w);
-    MeasureRelationships(Snap(Snap::BottomRight()), w);
-    MeasureRelationships(Snap(Snap::LeftTop()), w);
-    MeasureRelationships(Snap(Snap::LeftCenter()), w);
-    MeasureRelationships(Snap(Snap::LeftBottom()), w);
-    MeasureRelationships(Snap(Snap::RightTop()), w);
-    MeasureRelationships(Snap(Snap::RightCenter()), w);
-    MeasureRelationships(Snap(Snap::RightBottom()), w);
+    MeasureRelationships(Connector(Connector::TopLeft()), w);
+    MeasureRelationships(Connector(Connector::TopCenter()), w);
+    MeasureRelationships(Connector(Connector::TopRight()), w);
+    MeasureRelationships(Connector(Connector::BottomLeft()), w);
+    MeasureRelationships(Connector(Connector::BottomCenter()), w);
+    MeasureRelationships(Connector(Connector::BottomRight()), w);
+    MeasureRelationships(Connector(Connector::LeftTop()), w);
+    MeasureRelationships(Connector(Connector::LeftCenter()), w);
+    MeasureRelationships(Connector(Connector::LeftBottom()), w);
+    MeasureRelationships(Connector(Connector::RightTop()), w);
+    MeasureRelationships(Connector(Connector::RightCenter()), w);
+    MeasureRelationships(Connector(Connector::RightBottom()), w);
 }
 
-void ContainerElement::MeasureRelationships(const Snap& snap, float w)
+void ContainerElement::MeasureRelationships(const Connector& connector, float w)
 {
-    std::vector<RelationshipElement*> pickedRelationships = PickRelationships(snap);
+    std::vector<RelationshipElement*> pickedRelationships = PickRelationships(connector);
     int n = pickedRelationships.size();
     for (int i = 0; i < n; ++i)
     {
         RelationshipElement* relationship = pickedRelationships[i];
-        relationship->Calculate(snap, this, w, i, n);
+        relationship->Calculate(connector, this, w, i, n);
     }
 }
 
-std::vector<RelationshipElement*> ContainerElement::PickRelationships(const Snap& snap) const
+std::vector<RelationshipElement*> ContainerElement::PickRelationships(const Connector& connector) const
 {
     std::vector<RelationshipElement*> pickedRelationships;
     for (auto relationship : relationships)
     {
         if (relationship->Source().Element() == this)
         {
-            if (relationship->Source().GetSnap() == snap)
+            if (relationship->Source().GetConnector() == connector)
             {
                 if (std::find(pickedRelationships.begin(), pickedRelationships.end(), relationship) == pickedRelationships.end())
                 {
@@ -189,7 +189,7 @@ std::vector<RelationshipElement*> ContainerElement::PickRelationships(const Snap
         {
             if (sourceEndPoint.Element() == this)
             {
-                if (sourceEndPoint.GetSnap() == snap)
+                if (sourceEndPoint.GetConnector() == connector)
                 {
                     if (std::find(pickedRelationships.begin(), pickedRelationships.end(), relationship) == pickedRelationships.end())
                     {
@@ -200,7 +200,7 @@ std::vector<RelationshipElement*> ContainerElement::PickRelationships(const Snap
         }
         if (relationship->Target().Element() == this)
         {
-            if (relationship->Target().GetSnap() == snap)
+            if (relationship->Target().GetConnector() == connector)
             {
                 if (std::find(pickedRelationships.begin(), pickedRelationships.end(), relationship) == pickedRelationships.end())
                 {

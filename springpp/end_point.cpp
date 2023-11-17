@@ -13,11 +13,11 @@ import springpp.operation_element;
 
 namespace springpp {
 
-EndPoint::EndPoint() : element(nullptr), snap(), point(), text(), index(-1)
+EndPoint::EndPoint() : element(nullptr), connector(), point(), text(), index(-1)
 {
 }
 
-EndPoint::EndPoint(DiagramElement* element_, const Snap& snap_, const wing::PointF& point_) : element(element_), snap(snap_), point(point_), text(), index(-1)
+EndPoint::EndPoint(DiagramElement* element_, const Connector& connector_, const wing::PointF& point_) : element(element_), connector(connector_), point(point_), text(), index(-1)
 {
 }
 
@@ -63,24 +63,24 @@ void EndPoint::Resolve(Diagram* diagram)
     if (index != -1)
     {
         element = diagram->GetElementByIndex(index);
-        if (snap.PrimaryPoint() == SnapPoint::attribute)
+        if (connector.PrimaryPoint() == ConnectorPoint::attribute)
         {
             if (element->IsContainerElement())
             {
                 ContainerElement* containerElement = static_cast<ContainerElement*>(element);
-                element = containerElement->GetAttribute(static_cast<int>(snap.SecondaryPoint()));
+                element = containerElement->GetAttribute(static_cast<int>(connector.SecondaryPoint()));
             }
             else
             {
                 throw std::runtime_error("EndPoint::Resolve: container element expected");
             }
         }
-        else if (snap.PrimaryPoint() == SnapPoint::operation)
+        else if (connector.PrimaryPoint() == ConnectorPoint::operation)
         {
             if (element->IsContainerElement())
             {
                 ContainerElement* containerElement = static_cast<ContainerElement*>(element);
-                element = containerElement->GetOperation(static_cast<int>(snap.SecondaryPoint()));
+                element = containerElement->GetOperation(static_cast<int>(connector.SecondaryPoint()));
             }
             else
             {
@@ -94,9 +94,9 @@ void EndPoint::Resolve(Diagram* diagram)
     }
 }
 
-void EndPoint::SetSnap(const Snap& snap_)
+void EndPoint::SetConnector(const Connector& connector_)
 {
-    snap = snap_;
+    connector = connector_;
 }
 
 void EndPoint::SetPoint(const wing::PointF& point_)
@@ -111,7 +111,7 @@ soul::xml::Element* EndPoint::ToXml(const std::string& elementName) const
     {
         xmlElement->SetAttribute("index", std::to_string(index));
     }
-    xmlElement->SetAttribute("snap", snap.ToString());
+    xmlElement->SetAttribute("connector", connector.ToString());
     xmlElement->SetAttribute("x", std::to_string(point.X));
     xmlElement->SetAttribute("y", std::to_string(point.Y));
     xmlElement->SetAttribute("text", text);
@@ -129,8 +129,8 @@ void EndPoint::Parse(soul::xml::Element* xmlElement)
     {
         index = std::stoi(indexStr);
     }
-    std::string snapStr = xmlElement->GetAttribute("snap");
-    snap = ParseSnap(snapStr);
+    std::string connectorStr = xmlElement->GetAttribute("connector");
+    connector = ParseConnector(connectorStr);
     std::string xStr = xmlElement->GetAttribute("x");
     std::string yStr = xmlElement->GetAttribute("y");
     point.X = std::stof(xStr);

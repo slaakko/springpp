@@ -18,7 +18,9 @@ class NotePropertiesDialog : public wing::Window
 public:
     NotePropertiesDialog(NoteElement* noteElement_);
 private:
+    void NoteTextChanged();
     NoteElement* noteElement;
+    wing::TextBox* textBox;
     wing::Button* cancelButton;
     wing::Button* okButton;
 };

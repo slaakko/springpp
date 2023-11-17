@@ -7,7 +7,7 @@ export module springpp.diagram_element;
 
 import springpp.primitive;
 import springpp.end_point;
-import springpp.snap;
+import springpp.connector;
 import soul.xml.dom;
 import wing;
 import std.core;
@@ -70,11 +70,11 @@ public:
     virtual void Offset(float dx, float dy);
     virtual void SetCompoundLocation(const CompoundLocation& compoundLocation);
     virtual CompoundLocation GetCompoundLocation() const;
-    virtual wing::RectF BoundingRect() const { return boundingRect; }
+    virtual wing::RectF Bounds() const { return bounds; }
     virtual ContainerElement* GetContainerElement() const { return nullptr; }
     virtual void AddRelationship(RelationshipElement* relationship) {}
     virtual void RemoveRelationship(RelationshipElement* relationship) {}
-    virtual EndPoint GetEndPoint(const Snap& snap) const { return EndPoint(); }
+    virtual EndPoint GetEndPoint(const Connector& connector) const { return EndPoint(); }
     virtual std::vector<EndPoint> GetEndPoints(EndPointKind endPointKind, Tool* tool) const { return std::vector<EndPoint>(); }
     virtual void AddActions(Diagram* diagram, int elementIndex, wing::ContextMenu* contextMenu) const;
     virtual bool IntersectsWith(const wing::RectF& rect) const;
@@ -83,7 +83,7 @@ public:
     void SetLocation(const wing::PointF& location);
     wing::SizeF Size() const;
     void SetSize(const wing::SizeF& size);
-    void SetBoundingRect(const wing::RectF& boundingRect_);
+    void SetBounds(const wing::RectF& bounds_);
     wing::PointF Center() const;
     void SetName(const std::string& name_);
     const std::string& Name() const { return name; }
@@ -101,7 +101,7 @@ public:
 private:
     DiagramElementKind kind;
     DiagramElementFlags flags;
-    wing::RectF boundingRect;
+    wing::RectF bounds;
     std::string name;
 };
 

@@ -7,7 +7,7 @@ export module springpp.operation_element;
 
 import springpp.diagram_element;
 import springpp.end_point;
-import springpp.snap;
+import springpp.connector;
 import wing;
 import std.core;
 
@@ -41,7 +41,7 @@ public:
     ContainerElement* GetContainerElement() const override { return containerElement; }
     void AddRelationship(RelationshipElement* relationship_) override;
     void RemoveRelationship(RelationshipElement* relationship_) override;
-    EndPoint GetEndPoint(const Snap& snap) const override;
+    EndPoint GetEndPoint(const Connector& connector) const override;
     RelationshipElement* Relationship() const { return relationship; }
     bool IsAbstract() const { return isAbstract; }
     void SetAbstract();

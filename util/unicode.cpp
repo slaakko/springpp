@@ -23,7 +23,7 @@ void SetEx()
 
 std::string SpringPPVersionStr()
 {
-    return "1.0.0";
+    return "0.1.0";
 }
 
 std::string SpringPPRoot()
@@ -37,7 +37,7 @@ std::string SpringPPRoot()
     }
     if (springPPRoot.empty())
     {
-        throw UnicodeException("please set 'SPRINGPP_ROOT' environment variable to contain /path/to/spring++ directory.");
+        throw UnicodeException("please set 'SPRINGPP_ROOT' environment variable to contain /path/to/springpp directory.");
     }
     return springPPRoot;
 }

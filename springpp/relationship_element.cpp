@@ -17,6 +17,7 @@ import springpp.configuration;
 import springpp.diagram_util;
 import springpp.action;
 import springpp.relationships;
+import springpp.text_element;
 import soul.xml.xpath;
 
 namespace springpp {
@@ -77,100 +78,6 @@ RelationshipElementRep::~RelationshipElementRep()
 {
 }
 
-Line RelationshipElementRep::GetSourceTextLine(const Line& firstLine, float& leadingWidth, float padding) const
-{
-    RelationshipElement* relationshipElement = GetRelationshipElement();
-    Line textLine = firstLine;
-    if (IsHorizontalLine(firstLine.start, firstLine.end, textLine))
-    {
-        if (textLine != firstLine)
-        {
-            leadingWidth = padding;
-        }
-        return textLine;
-    }
-    if (!relationshipElement->RoutingPoints().empty())
-    {
-        wing::PointF prev = firstLine.end;
-        for (int i = 1; i < relationshipElement->RoutingPoints().size(); ++i)
-        {
-            wing::PointF next = relationshipElement->RoutingPoints()[i];
-            if (IsHorizontalLine(prev, next, textLine))
-            {
-                leadingWidth = padding;
-                return textLine;
-            }
-            prev = next;
-        }
-        if (IsHorizontalLine(prev, relationshipElement->Target().Point(), textLine))
-        {
-            leadingWidth = padding;
-            return textLine;
-        }
-    }
-    return textLine;
-}
-
-void RelationshipElementRep::DrawSourceText(wing::Graphics& graphics, wing::Font* font, wing::Brush* textBrush, const Line& line, float leadingWidth)
-{
-    RelationshipElement* relationshipElement = GetRelationshipElement();
-    wing::GraphicsState state = graphics.Save();
-    float dx = line.end.X - line.start.X;
-    float dy = line.end.Y - line.start.Y;
-    double epsilon = std::numeric_limits<double>::epsilon();
-    if (std::abs(dx) >= 1.0f)
-    {
-        float angle = static_cast<float>(180.0 * std::atan2(dy, dx) / std::numbers::pi_v<double>);
-        graphics.RotateTransform(angle, Gdiplus::MatrixOrder::MatrixOrderAppend);
-    }
-    else
-    {
-        float angle = 0;
-        if (dy >= 0)
-        {
-            angle = 90.0f;
-        }
-        else
-        {
-            angle = -90.0f;
-        }
-        graphics.RotateTransform(angle, Gdiplus::MatrixOrder::MatrixOrderAppend);
-    }
-    graphics.TranslateTransform(line.start.X + leadingWidth, line.start.Y - relationshipElement->SourceTextSize().Height, Gdiplus::MatrixOrder::MatrixOrderAppend);
-    DrawString(graphics, relationshipElement->Source().Text(), *font, wing::PointF(0, 0), *textBrush);
-    graphics.Restore(state);
-}
-
-void RelationshipElementRep::DrawTargetText(wing::Graphics& graphics, wing::Font* font, wing::Brush* textBrush, const Line& line, float symbolWidth)
-{
-    RelationshipElement* relationshipElement = GetRelationshipElement();
-    wing::GraphicsState state = graphics.Save();
-    float dx = line.end.X - line.start.X;
-    float dy = line.end.Y - line.start.Y;
-    if (std::abs(dx) >= 1.0f)
-    {
-        float angle = static_cast<float>(180.0 * std::atan2(dy, dx) / std::numbers::pi_v<double>);
-        graphics.RotateTransform(angle, Gdiplus::MatrixOrder::MatrixOrderAppend);
-    }
-    else
-    {
-        float angle = 0;
-        if (dy >= 0)
-        {
-            angle = 90.0f;
-        }
-        else
-        {
-            angle = -90.0f;
-        }
-        graphics.RotateTransform(angle, Gdiplus::MatrixOrder::MatrixOrderAppend);
-    }
-    graphics.TranslateTransform(line.end.X - symbolWidth - relationshipElement->TargetTextSize().Width, line.start.Y - relationshipElement->TargetTextSize().Height, 
-        Gdiplus::MatrixOrder::MatrixOrderAppend);
-    DrawString(graphics, relationshipElement->Target().Text(), *font, wing::PointF(0, 0), *textBrush);
-    graphics.Restore(state);
-}
-
 void RelationshipElementRep::DrawSelected(wing::Graphics& graphics)
 {
     RelationshipElement* relationshipElement = GetRelationshipElement();
@@ -184,18 +91,6 @@ void RelationshipElementRep::DrawSelected(wing::Graphics& graphics)
         prev = next;
     }
     graphics.DrawLine(selectedLinePen, prev, relationshipElement->Target().Point());
-}
-
-RelationshipElement::RelationshipElement() : 
-    DiagramElement(DiagramElementKind::relationshipElement), rkind(RelationshipKind::none), cardinality(Cardinality::one), sourceTextSize(), targetTextSize()
-{
-    SetRep();
-}
-
-RelationshipElement::RelationshipElement(RelationshipKind rkind_) : 
-    DiagramElement(DiagramElementKind::relationshipElement), rkind(rkind_), cardinality(Cardinality::one), sourceTextSize(), targetTextSize()
-{
-    SetRep();
 }
 
 bool RelationshipElementRep::Contains(const wing::PointF& location) const
@@ -228,6 +123,16 @@ bool RelationshipElementRep::Contains(const wing::PointF& location) const
         return true;
     }
     return false;
+}
+
+RelationshipElement::RelationshipElement() : DiagramElement(DiagramElementKind::relationshipElement), rkind(RelationshipKind::none), cardinality(Cardinality::one)
+{
+    SetRep();
+}
+
+RelationshipElement::RelationshipElement(RelationshipKind rkind_) : DiagramElement(DiagramElementKind::relationshipElement), rkind(rkind_), cardinality(Cardinality::one) 
+{
+    SetRep();
 }
 
 soul::xml::Element* RelationshipElement::ToXml() const
@@ -449,8 +354,6 @@ DiagramElement* RelationshipElement::Clone() const
     clone->target = target;
     clone->sourceEndPoints = sourceEndPoints;
     clone->routingPoints = routingPoints;
-    clone->sourceTextSize = sourceTextSize;
-    clone->targetTextSize = targetTextSize;
     clone->rep.reset(rep->Clone(clone));
     return clone;
 }
@@ -479,24 +382,60 @@ void RelationshipElement::SetLastPoint(const wing::PointF& lastPoint)
     }
 }
 
+Line RelationshipElement::StartLine() const
+{
+    wing::PointF nextPoint;
+    if (routingPoints.empty())
+    {
+        nextPoint = target.Point();
+    }
+    else
+    {
+        nextPoint = routingPoints.front();
+    }
+    Line startLine(source.Point(), nextPoint);
+    return startLine;
+}
+
+Line RelationshipElement::EndLine() const
+{
+    wing::PointF prevPoint;
+    if (routingPoints.empty())
+    {
+        prevPoint = source.Point();
+    }
+    else
+    {
+        prevPoint = routingPoints.back();
+    }
+    Line endLine(prevPoint, target.Point());
+    return endLine;
+}
+
 wing::RectF RelationshipElement::Bounds() const
 {
     wing::RectF bounds;
     wing::PointF minPoint(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
     wing::PointF maxPoint(-1, -1);
-    minPoint.X = std::min(source.Point().X, minPoint.X);
-    minPoint.Y = std::min(source.Point().Y, minPoint.Y);
-    for (const auto& endPoint : sourceEndPoints)
+    if (!IsCombinedInheritance())
     {
-        minPoint.X = std::min(endPoint.Point().X, minPoint.X);
-        minPoint.Y = std::min(endPoint.Point().Y, minPoint.Y);
-        maxPoint.X = std::max(endPoint.Point().X, maxPoint.X);
-        maxPoint.Y = std::max(endPoint.Point().Y, maxPoint.Y);
+        minPoint.X = std::min(source.Point().X, minPoint.X);
+        minPoint.Y = std::min(source.Point().Y, minPoint.Y);
+        maxPoint.X = std::max(source.Point().X, maxPoint.X);
+        maxPoint.Y = std::max(source.Point().Y, maxPoint.Y);
+    }
+    else
+    {
+        for (const auto& endPoint : sourceEndPoints)
+        {
+            minPoint.X = std::min(endPoint.Point().X, minPoint.X);
+            minPoint.Y = std::min(endPoint.Point().Y, minPoint.Y);
+            maxPoint.X = std::max(endPoint.Point().X, maxPoint.X);
+            maxPoint.Y = std::max(endPoint.Point().Y, maxPoint.Y);
+        }
     }
     minPoint.X = std::min(target.Point().X, minPoint.X);
     minPoint.Y = std::min(target.Point().Y, minPoint.Y);
-    maxPoint.X = std::max(source.Point().X, maxPoint.X);
-    maxPoint.Y = std::max(source.Point().Y, maxPoint.Y);
     maxPoint.X = std::max(target.Point().X, maxPoint.X);
     maxPoint.Y = std::max(target.Point().Y, maxPoint.Y);
     for (const wing::PointF& routingPoint : routingPoints)
@@ -515,26 +454,39 @@ wing::RectF RelationshipElement::Bounds() const
 
 void RelationshipElement::Measure(wing::Graphics& graphics)
 {
-    Layout* layout = Configuration::Instance().GetLayout();
-    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
-    wing::Font* font = relationshipLayoutElement->GetFontElement()->GetFont();
-    if (!source.Text().empty())
+    source.MeasureTexts(graphics);
+    target.MeasureTexts(graphics);
+    SetTextLocations();
+}
+
+void RelationshipElement::SetTextLocations()
+{
+    if (IsCombinedInheritance()) return;
+    if (source.PrimaryTextElement() && !source.PrimaryTextElement()->IsEmpty() || source.SecondaryTextElement() && !source.SecondaryTextElement()->IsEmpty())
     {
-        wing::RectF r = wing::MeasureString(graphics, source.Text(), *font, wing::PointF(0, 0), layout->GetStringFormat());
-        r.GetSize(&sourceTextSize);
+        Line startLine = StartLine();
+        float symbolWidth = rep->SourceSymbolWidth();
+        if (source.PrimaryTextElement() && !source.PrimaryTextElement()->IsEmpty())
+        {
+            source.PrimaryTextElement()->SetSourceLocation(startLine, symbolWidth);
+        }
+        if (source.SecondaryTextElement() && !source.SecondaryTextElement()->IsEmpty())
+        {
+            source.SecondaryTextElement()->SetSourceLocation(startLine, symbolWidth);
+        }
     }
-    else
+    if (target.PrimaryTextElement() && !target.PrimaryTextElement()->IsEmpty() || target.SecondaryTextElement() && !target.SecondaryTextElement()->IsEmpty())
     {
-        sourceTextSize = wing::SizeF();
-    }
-    if (!target.Text().empty())
-    {
-        wing::RectF r = wing::MeasureString(graphics, target.Text(), *font, wing::PointF(0, 0), layout->GetStringFormat());
-        r.GetSize(&targetTextSize);
-    }
-    else
-    {
-        targetTextSize = wing::SizeF();
+        Line endLine = EndLine();
+        float symbolWidth = rep->TargetSymbolWidth();
+        if (target.PrimaryTextElement() && !target.PrimaryTextElement()->IsEmpty())
+        {
+            target.PrimaryTextElement()->SetTargetLocation(endLine, symbolWidth);
+        }
+        if (target.SecondaryTextElement() && !target.SecondaryTextElement()->IsEmpty())
+        {
+            target.SecondaryTextElement()->SetTargetLocation(endLine, symbolWidth);
+        }
     }
 }
 
@@ -542,6 +494,22 @@ void RelationshipElement::Draw(wing::Graphics& graphics)
 {
     DiagramElement::Draw(graphics);
     rep->Draw(graphics);
+    if (source.PrimaryTextElement() && !source.PrimaryTextElement()->IsEmpty())
+    {
+        source.PrimaryTextElement()->Draw(graphics);
+    }
+    if (source.SecondaryTextElement() && !source.SecondaryTextElement()->IsEmpty())
+    {
+        source.SecondaryTextElement()->Draw(graphics);
+    }
+    if (target.PrimaryTextElement() && !target.PrimaryTextElement()->IsEmpty())
+    {
+        target.PrimaryTextElement()->Draw(graphics);
+    }
+    if (target.SecondaryTextElement() && !target.SecondaryTextElement()->IsEmpty())
+    {
+        target.SecondaryTextElement()->Draw(graphics);
+    }
 }
 
 void RelationshipElement::DrawSelected(wing::Graphics& graphics)

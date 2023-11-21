@@ -37,6 +37,8 @@ private:
     void SetSize();
     virtual ClassLayoutElement* GetClassLayout(Layout* layout) const = 0;
     ClassElement* classElement;
+    wing::SizeF keywordTextSize;
+    wing::SizeF nameTextSize;
     float captionTextHeight;
     wing::RectF captionRect;
     wing::RectF attributeRect;
@@ -57,6 +59,8 @@ public:
     void SetAbstract();
     void ResetAbstract();
     void ResetAbstractOperations();
+    const std::string& Keyword() const { return keyword; }
+    void SetKeyword(const std::string& keyword_);
     const IndexList<OperationElement>& Operations() const { return operations; }
     IndexList<OperationElement>& Operations() { return operations; }
     void SetOperations(IndexList<OperationElement>&& operations_);
@@ -75,6 +79,7 @@ public:
     void SetRelationshipPoints();
 private:
     bool isAbstract;
+    std::string keyword;
     std::unique_ptr<ClassElementRep> rep;
     IndexList<OperationElement> operations;
     IndexList<AttributeElement> attributes;

@@ -33,7 +33,7 @@ RelationshipKind ParseRelationshipKindStr(const std::string& relationshipKindStr
 
 enum class DiagramElementKind
 {
-    classElement, objectElement, noteElement, operationElement, attributeElement, relationshipElement
+    classElement, objectElement, noteElement, operationElement, attributeElement, textElement, relationshipElement
 };
 
 enum class DiagramElementFlags
@@ -98,11 +98,14 @@ public:
     bool IsOperationElement() const { return kind == DiagramElementKind::operationElement; }
     bool IsAttributeElement() const { return kind == DiagramElementKind::attributeElement; }
     bool IsRelationshipElement() const { return kind == DiagramElementKind::relationshipElement; }
+    Diagram* GetDiagram() const { return diagram; }
+    void SetDiagram(Diagram* diagram_) { diagram = diagram_; }
 private:
     DiagramElementKind kind;
     DiagramElementFlags flags;
     wing::RectF bounds;
     std::string name;
+    Diagram* diagram;
 };
 
 DiagramElement* CreateDiagramElement(const std::string& xmlElementName);

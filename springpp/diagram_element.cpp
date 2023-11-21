@@ -82,7 +82,7 @@ RelationshipKind ParseRelationshipKindStr(const std::string& relationshipKindStr
     }
 }
 
-DiagramElement::DiagramElement(DiagramElementKind kind_) : kind(kind_), flags(DiagramElementFlags::none), bounds()
+DiagramElement::DiagramElement(DiagramElementKind kind_) : kind(kind_), flags(DiagramElementFlags::none), bounds(), diagram(nullptr)
 {
 }
 
@@ -166,7 +166,7 @@ void DiagramElement::Select()
     if (!IsSelected())
     {
         SetSelected();
-        GetDiagram()->Invalidate();
+        springpp::GetDiagram()->Invalidate();
     }
 }
 
@@ -175,7 +175,7 @@ void DiagramElement::ResetSelected()
     if (IsSelected())
     {
         flags = flags & ~DiagramElementFlags::selected;
-        GetDiagram()->Invalidate();
+        springpp::GetDiagram()->Invalidate();
     }
 }
 

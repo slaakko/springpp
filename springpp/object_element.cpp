@@ -133,8 +133,8 @@ void ObjectElement::Measure(wing::Graphics& graphics)
     ObjectLayoutElement* objectLayout = layout->GetObjectLayoutElement();
     RelationshipLayoutElement* relationshipLayout = layout->GetRelationshipLayoutElement();
     PaddingElement* paddingElement = objectLayout->GetPaddingElement();
-    wing::Font* font = objectLayout->GetCaptionElement()->GetFontElement()->GetFont();
-    wing::RectF r = wing::MeasureString(graphics, Name(), *font, wing::PointF(0, 0), layout->GetStringFormat());
+    wing::Font* nameFont = objectLayout->GetCaptionElement()->GetNameFontElement()->GetFont();
+    wing::RectF r = wing::MeasureString(graphics, Name(), *nameFont, wing::PointF(0, 0), layout->GetStringFormat());
     wing::SizeF sz;
     r.GetSize(&sz);
     captionTextHeight = sz.Height;
@@ -259,12 +259,12 @@ void ObjectElement::DrawCaption(wing::Graphics& graphics, ObjectLayoutElement* o
 {
     PaddingElement* paddingElement = objectLayout->GetPaddingElement();
     CaptionElement* captionElement = objectLayout->GetCaptionElement();
-    FontElement* fontElement = captionElement->GetFontElement();
+    FontElement* nameFontElement = captionElement->GetNameFontElement();
     wing::PointF location = Location();
     wing::PointF origin(location.X + paddingElement->GetPadding().left, location.Y + paddingElement->GetPadding().top);
-    wing::Font* font = fontElement->GetFont();
+    wing::Font* nameFont = nameFontElement->GetFont();
     wing::Brush* brush = objectLayout->GetTextColorElement()->GetBrush();
-    wing::DrawString(graphics, Name(), *font, origin, *brush);
+    wing::DrawString(graphics, Name(), *nameFont, origin, *brush);
 }
 
 void ObjectElement::DrawAttributes(wing::Graphics& graphics, ObjectLayoutElement* objectLayout)

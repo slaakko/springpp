@@ -23,12 +23,15 @@ struct Padding
     float bottom;
 };
 
+std::string DefaultKeywordFontFamily();
 std::string DefaultCaptionFontFamily();
 std::string DefaultOperationFontFamily();
 std::string DefaultAttributeFontFamily();
 std::string DefaultRelationshipFontFamily();
 std::string DefaultNoteFontFamily();
+std::string DefaultTextFontFamily();
 float DefaultFontSize();
+wing::FontStyle DefaultKeywordFontStyle();
 wing::FontStyle DefaultAbstractClassCaptionFontStyle();
 wing::FontStyle DefaultConcreteClassCaptionFontStyle();
 wing::FontStyle DefaultConcreteOperationFontStyle();
@@ -36,6 +39,7 @@ wing::FontStyle DefaultAbstractOperationFontStyle();
 wing::FontStyle DefaultObjectCaptionFontStyle();
 wing::FontStyle DefaultAttributeFontStyle();
 wing::FontStyle DefaultNoteFontStyle();
+wing::FontStyle DefaultTextFontStyle();
 wing::FontStyle DefaultDefaultRelationshipFontStyle();
 
 float DefaultFrameWidth(wing::Graphics* graphics);
@@ -46,6 +50,7 @@ Padding DefaultClassPadding();
 Padding DefaultObjectPadding();
 Padding DefaultNotePadding();
 Padding DefaultRelationshipSymbolPadding();
+Padding DefaultTextPadding();
 float DefaultInheritanceArrowWidth();
 float DefaultCompositeSymbolWidth();
 float DefaultCompositeSymbolHeight();
@@ -132,12 +137,14 @@ private:
 class CaptionElement : public LayoutElement
 {
 public:
-    CaptionElement(Layout* layout_, FontElement* fontElement_);
-    FontElement* GetFontElement() const { return fontElement.get(); }
+    CaptionElement(Layout* layout_, FontElement* keywordFontElement_, FontElement* nameFontElement_);
+    FontElement* GetKeywordFontElement() const { return keywordFontElement.get(); }
+    FontElement* GetNameFontElement() const { return nameFontElement.get(); }
     soul::xml::Element* ToXml() const override;
     void Parse(soul::xml::Element* parentXmlElement) override;
 private:
-    std::unique_ptr<FontElement> fontElement;
+    std::unique_ptr<FontElement> keywordFontElement;
+    std::unique_ptr<FontElement> nameFontElement;
 };
 
 class ClassLayoutElement : public LayoutElement
@@ -255,6 +262,21 @@ private:
     std::unique_ptr<FontElement> fontElement;
 };
 
+class TextLayoutElement : public LayoutElement
+{
+public:
+    TextLayoutElement(Layout* layout_);
+    PaddingElement* GetPaddingElement() const { return paddingElement.get(); }
+    ColorElement* GetTextColorElement() const { return textColorElement.get(); }
+    FontElement* GetFontElement() const { return fontElement.get(); }
+    soul::xml::Element* ToXml() const override;
+    void Parse(soul::xml::Element* parentXmlElement) override;
+private:
+    std::unique_ptr<PaddingElement> paddingElement;
+    std::unique_ptr<ColorElement> textColorElement;
+    std::unique_ptr<FontElement> fontElement;
+};
+
 class ResizeHandleLayoutElement : public LayoutElement
 {
 public:
@@ -346,6 +368,7 @@ public:
     ClassLayoutElement* GetConcreteClassLayoutElement() const { return concreteClassLayoutElement.get(); }
     ObjectLayoutElement* GetObjectLayoutElement() const { return objectLayoutElement.get(); }
     NoteLayoutElement* GetNoteLayoutElement() const { return noteLayoutElement.get(); }
+    TextLayoutElement* GetTextLayoutElement() const { return textLayoutElement.get(); }
     OperationLayoutElement* GetAbstractOperationLayoutElement() const { return abstractOperationLayoutElement.get(); }
     OperationLayoutElement* GetConcreteOperationLayoutElement() const { return concreteOperationLayoutElement.get(); }
     AttributeLayoutElement* GetAttributeLayoutElement() const { return attributeLayoutElement.get(); }
@@ -364,6 +387,7 @@ private:
     std::unique_ptr<ClassLayoutElement> concreteClassLayoutElement;
     std::unique_ptr<ObjectLayoutElement> objectLayoutElement;
     std::unique_ptr<NoteLayoutElement> noteLayoutElement;
+    std::unique_ptr<TextLayoutElement> textLayoutElement;
     std::unique_ptr<OperationLayoutElement> abstractOperationLayoutElement;
     std::unique_ptr<OperationLayoutElement> concreteOperationLayoutElement;
     std::unique_ptr<AttributeLayoutElement> attributeLayoutElement;

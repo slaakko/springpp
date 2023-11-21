@@ -26,6 +26,11 @@ Padding::Padding(float left_, float top_, float right_, float bottom_) : left(le
 {
 }
 
+std::string DefaultKeywordFontFamily()
+{
+    return "Arial";
+}
+
 std::string DefaultCaptionFontFamily()
 {
     return "Arial";
@@ -51,9 +56,19 @@ std::string DefaultNoteFontFamily()
     return "Arial";
 }
 
+std::string DefaultTextFontFamily()
+{
+    return "Arial";
+}
+
 float DefaultFontSize()
 {
     return 9.0f;
+}
+
+wing::FontStyle DefaultKeywordFontStyle()
+{
+    return wing::FontStyle(Gdiplus::FontStyleRegular);
 }
 
 wing::FontStyle DefaultAbstractClassCaptionFontStyle()
@@ -87,6 +102,11 @@ wing::FontStyle DefaultAttributeFontStyle()
 }
 
 wing::FontStyle DefaultNoteFontStyle()
+{
+    return wing::FontStyle(Gdiplus::FontStyleRegular);
+}
+
+wing::FontStyle DefaultTextFontStyle()
 {
     return wing::FontStyle(Gdiplus::FontStyleRegular);
 }
@@ -132,6 +152,11 @@ Padding DefaultNotePadding()
 }
 
 Padding DefaultRelationshipSymbolPadding()
+{
+    return Padding(0.5f, 0.5f, 0.5f, 0.5f);
+}
+
+Padding DefaultTextPadding()
 {
     return Padding(0.5f, 0.5f, 0.5f, 0.5f);
 }
@@ -441,14 +466,16 @@ void PaddingElement::Parse(soul::xml::Element* parentXmlElement)
     }
 }
 
-CaptionElement::CaptionElement(Layout* layout_, FontElement* fontElement_) : LayoutElement(layout_, "caption"), fontElement(fontElement_)
+CaptionElement::CaptionElement(Layout* layout_, FontElement* keywordFontElement_, FontElement* nameFontElement_) : 
+    LayoutElement(layout_, "caption"), keywordFontElement(keywordFontElement_), nameFontElement(nameFontElement_)
 {
 }
 
 soul::xml::Element* CaptionElement::ToXml() const
 {
     soul::xml::Element* xmlElement = soul::xml::MakeElement(Name());
-    xmlElement->AppendChild(fontElement->ToXml());
+    xmlElement->AppendChild(keywordFontElement->ToXml());
+    xmlElement->AppendChild(nameFontElement->ToXml());
     return xmlElement;
 }
 
@@ -462,7 +489,8 @@ void CaptionElement::Parse(soul::xml::Element* parentXmlElement)
         if (node->IsElementNode())
         {
             soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
-            fontElement->Parse(xmlElement);
+            keywordFontElement->Parse(xmlElement);
+            nameFontElement->Parse(xmlElement);
         }
         else
         {
@@ -537,7 +565,8 @@ wing::Pen* ClassLayoutElement::FramePen()
 AbstractClassLayoutElement::AbstractClassLayoutElement(Layout* layout_) : 
     ClassLayoutElement(layout_, "abstractClass", 
         new CaptionElement(layout_, 
-            new FontElement(layout_, "font", DefaultCaptionFontFamily(), DefaultFontSize(), DefaultAbstractClassCaptionFontStyle())),
+            new FontElement(layout_, "keywordFont", DefaultKeywordFontFamily(), DefaultFontSize(), DefaultKeywordFontStyle()),
+            new FontElement(layout_, "nameFont", DefaultCaptionFontFamily(), DefaultFontSize(), DefaultAbstractClassCaptionFontStyle())),
         new PaddingElement(layout_, "padding", DefaultClassPadding()),
         new ColorElement(layout_, "textColor", DefaultTextColor()),
         new ColorElement(layout_, "frameColor", DefaultFrameColor()),
@@ -548,7 +577,8 @@ AbstractClassLayoutElement::AbstractClassLayoutElement(Layout* layout_) :
 ConcreteClassLayoutElement::ConcreteClassLayoutElement(Layout* layout_) : 
     ClassLayoutElement(layout_, "concreteClass",
         new CaptionElement(layout_,
-            new FontElement(layout_, "font", DefaultCaptionFontFamily(), DefaultFontSize(), DefaultConcreteClassCaptionFontStyle())),
+            new FontElement(layout_, "keywordFont", DefaultKeywordFontFamily(), DefaultFontSize(), DefaultKeywordFontStyle()),
+            new FontElement(layout_, "nameFont", DefaultCaptionFontFamily(), DefaultFontSize(), DefaultConcreteClassCaptionFontStyle())),
         new PaddingElement(layout_, "padding", DefaultClassPadding()),
         new ColorElement(layout_, "textColor", DefaultTextColor()),
         new ColorElement(layout_, "frameColor", DefaultFrameColor()),
@@ -559,7 +589,8 @@ ConcreteClassLayoutElement::ConcreteClassLayoutElement(Layout* layout_) :
 ObjectLayoutElement::ObjectLayoutElement(Layout* layout_) : 
     LayoutElement(layout_, "object"), 
     captionElement(new CaptionElement(layout_,
-        new FontElement(layout_, "font", DefaultCaptionFontFamily(), DefaultFontSize(), DefaultObjectCaptionFontStyle()))),
+        new FontElement(layout_, "keywordFont", DefaultKeywordFontFamily(), DefaultFontSize(), DefaultKeywordFontStyle()),
+        new FontElement(layout_, "nameFont", DefaultCaptionFontFamily(), DefaultFontSize(), DefaultObjectCaptionFontStyle()))),
     paddingElement(new PaddingElement(layout_, "padding", DefaultObjectPadding())),
     textColorElement(new ColorElement(layout_, "textColor", DefaultTextColor())),
     frameColorElement(new ColorElement(layout_, "frameColor", DefaultFrameColor())),
@@ -768,6 +799,48 @@ void AttributeLayoutElement::Parse(soul::xml::Element* parentXmlElement)
         if (node->IsElementNode())
         {
             soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
+            textColorElement->Parse(xmlElement);
+            fontElement->Parse(xmlElement);
+        }
+        else
+        {
+            throw std::runtime_error("XML element node '" + Name() + "' expected in '" + parentXmlElement->Name() + "'");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("XML element '" + Name() + "' not unique in '" + parentXmlElement->Name() + "'");
+    }
+}
+
+TextLayoutElement::TextLayoutElement(Layout* layout_) : 
+    LayoutElement(layout_, "text"), 
+    paddingElement(new PaddingElement(layout_, "padding", DefaultTextPadding())), 
+    textColorElement(new ColorElement(layout_, "textColor", DefaultTextColor())),
+    fontElement(new FontElement(layout_, "font", DefaultTextFontFamily(), DefaultFontSize(), DefaultTextFontStyle()))
+{
+}
+
+soul::xml::Element* TextLayoutElement::ToXml() const
+{
+    soul::xml::Element* xmlElement = soul::xml::MakeElement(Name());
+    xmlElement->AppendChild(paddingElement->ToXml());
+    xmlElement->AppendChild(textColorElement->ToXml());
+    xmlElement->AppendChild(fontElement->ToXml());
+    return xmlElement;
+}
+
+void TextLayoutElement::Parse(soul::xml::Element* parentXmlElement)
+{
+    std::unique_ptr<soul::xml::xpath::NodeSet> nodeSet = soul::xml::xpath::EvaluateToNodeSet(Name(), parentXmlElement);
+    int n = nodeSet->Count();
+    if (n == 1)
+    {
+        soul::xml::Node* node = nodeSet->GetNode(0);
+        if (node->IsElementNode())
+        {
+            soul::xml::Element* xmlElement = static_cast<soul::xml::Element*>(node);
+            paddingElement->Parse(xmlElement);
             textColorElement->Parse(xmlElement);
             fontElement->Parse(xmlElement);
         }
@@ -1060,6 +1133,7 @@ Layout::Layout(wing::Graphics* graphics_, const std::string& xmlFileName_) : gra
     concreteClassLayoutElement.reset(new ConcreteClassLayoutElement(this));
     objectLayoutElement.reset(new ObjectLayoutElement(this));
     noteLayoutElement.reset(new NoteLayoutElement(this));
+    textLayoutElement.reset(new TextLayoutElement(this));
     abstractOperationLayoutElement.reset(new AbstractOperationLayoutElement(this));
     concreteOperationLayoutElement.reset(new ConcreteOperationLayoutElement(this));
     attributeLayoutElement.reset(new AttributeLayoutElement(this));
@@ -1076,6 +1150,7 @@ soul::xml::Element* Layout::ToXml() const
     layoutElement->AppendChild(concreteClassLayoutElement->ToXml());
     layoutElement->AppendChild(objectLayoutElement->ToXml());
     layoutElement->AppendChild(noteLayoutElement->ToXml());
+    layoutElement->AppendChild(textLayoutElement->ToXml());
     layoutElement->AppendChild(abstractOperationLayoutElement->ToXml());
     layoutElement->AppendChild(concreteOperationLayoutElement->ToXml());
     layoutElement->AppendChild(attributeLayoutElement->ToXml());

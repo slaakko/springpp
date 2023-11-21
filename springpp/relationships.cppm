@@ -17,6 +17,7 @@ public:
     Inheritance(RelationshipElement* relationshipElement_);
     RelationshipElementRep* Clone(RelationshipElement* relationshipElement_) const override;
     void Draw(wing::Graphics& graphics) override;
+    float TargetSymbolWidth() const override;
 };
 
 class CombinedInheritance : public RelationshipElementRep
@@ -27,6 +28,7 @@ public:
     void Draw(wing::Graphics& graphics) override;
     void DrawSelected(wing::Graphics& graphics) override;
     bool Contains(const wing::PointF& location) const override;
+    float TargetSymbolWidth() const override;
 private:
     void DrawCombinedInheritance0(wing::Graphics& graphics, RelationshipElement* relationshipElement);
     void DrawCombinedInheritance90(wing::Graphics& graphics, RelationshipElement* relationshipElement);
@@ -48,6 +50,8 @@ public:
     Composition(RelationshipElement* relationshipElement_);
     RelationshipElementRep* Clone(RelationshipElement* relationshipElement_) const override;
     void Draw(wing::Graphics& graphics) override;
+    float SourceSymbolWidth() const override;
+    float TargetSymbolWidth() const override;
 };
 
 class Aggregation : public RelationshipElementRep
@@ -56,6 +60,8 @@ public:
     Aggregation(RelationshipElement* relationshipElement_);
     RelationshipElementRep* Clone(RelationshipElement* relationshipElement_) const override;
     void Draw(wing::Graphics& graphics) override;
+    float SourceSymbolWidth() const override;
+    float TargetSymbolWidth() const override;
 };
 
 class Reference : public RelationshipElementRep
@@ -64,6 +70,7 @@ public:
     Reference(RelationshipElement* relationshipElement_);
     RelationshipElementRep* Clone(RelationshipElement* relationshipElement_) const override;
     void Draw(wing::Graphics& graphics) override;
+    float TargetSymbolWidth() const override;
 };
 
 class CreateInstance : public RelationshipElementRep
@@ -72,6 +79,7 @@ public:
     CreateInstance(RelationshipElement* relationshipElement_);
     RelationshipElementRep* Clone(RelationshipElement* relationshipElement_) const override;
     void Draw(wing::Graphics& graphics) override;
+    float TargetSymbolWidth() const override;
 };
 
 class AttachNote : public RelationshipElementRep

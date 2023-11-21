@@ -9,6 +9,7 @@ import springpp.configuration;
 import springpp.action;
 import springpp.tool;
 import soul.xml.xpath;
+import util;
 
 namespace springpp {
 
@@ -27,15 +28,24 @@ void ClassElementRep::Measure(wing::Graphics& graphics)
     ClassLayoutElement* classLayout = GetClassLayout(layout);
     RelationshipLayoutElement* relationshipLayout = layout->GetRelationshipLayoutElement();
     PaddingElement* paddingElement = classLayout->GetPaddingElement();
-    wing::Font* font = classLayout->GetCaptionElement()->GetFontElement()->GetFont();
-    wing::RectF r = wing::MeasureString(graphics, classElement->Name(), *font, wing::PointF(0, 0), layout->GetStringFormat());
-    wing::SizeF sz;
-    r.GetSize(&sz);
-    captionTextHeight = sz.Height;
+    keywordTextSize = wing::SizeF(0.0f, 0.0f);
+    if (!classElement->Keyword().empty())
+    {
+        std::u32string keywordU32Text = std::u32string(1, char32_t(0x00AB)) + util::ToUtf32(classElement->Keyword()) + std::u32string(1, char32_t(0x00BB));
+        std::string keywordText = util::ToUtf8(keywordU32Text);
+        wing::Font* keywordFont = classLayout->GetCaptionElement()->GetKeywordFontElement()->GetFont();
+        wing::RectF r = wing::MeasureString(graphics, keywordText, *keywordFont, wing::PointF(0, 0), layout->GetStringFormat());
+        r.GetSize(&keywordTextSize);
+    }
+    wing::Font* nameFont = classLayout->GetCaptionElement()->GetNameFontElement()->GetFont();
+    wing::RectF r = wing::MeasureString(graphics, classElement->Name(), *nameFont, wing::PointF(0, 0), layout->GetStringFormat());
+    nameTextSize = wing::SizeF(0.0f, 0.0f);
+    r.GetSize(&nameTextSize);
+    captionTextHeight = nameTextSize.Height + keywordTextSize.Height;
     float captionRectX = classElement->Location().X;
     float captionRectY = classElement->Location().Y;
-    float captionRectWidth = paddingElement->GetPadding().Horizontal() + sz.Width;
-    float captionRectHeight = paddingElement->GetPadding().Vertical() + sz.Height;
+    float captionRectWidth = paddingElement->GetPadding().Horizontal() + std::max(nameTextSize.Width, keywordTextSize.Width);
+    float captionRectHeight = paddingElement->GetPadding().Vertical() + captionTextHeight;
     captionRect = wing::RectF(captionRectX, captionRectY, captionRectWidth, captionRectHeight);
     maxChildElementWidth = 0.0f;
     bool hasRelationship = false;
@@ -132,14 +142,14 @@ void ClassElementRep::SetSize()
         wing::SizeF attributeRectSize;
         attributeRect.GetSize(&attributeRectSize);
         size.Width = std::max(size.Width, attributeRectSize.Width);
-        h = h + attributeRectSize.Height;
+        h += attributeRectSize.Height;
     }
     if (!classElement->Operations().IsEmpty())
     {
         wing::SizeF operationRectSize;
         operationRect.GetSize(&operationRectSize);
         size.Width = std::max(size.Width, operationRectSize.Width);
-        h = h + operationRectSize.Height;
+        h += operationRectSize.Height;
     }
     size.Height = std::max(size.Height, h);
     classElement->SetSize(size);
@@ -181,10 +191,22 @@ void ClassElementRep::DrawCaption(wing::Graphics& graphics, ClassLayoutElement* 
     PaddingElement* paddingElement = classLayout->GetPaddingElement();
     CaptionElement* captionElement = classLayout->GetCaptionElement();
     wing::PointF location = classElement->Location();
-    wing::PointF origin(location.X + paddingElement->GetPadding().left, location.Y + paddingElement->GetPadding().top);
-    wing::Font* font = captionElement->GetFontElement()->GetFont();
     wing::Brush* brush = classLayout->GetTextColorElement()->GetBrush();
-    wing::DrawString(graphics, classElement->Name(), *font, origin, *brush);
+    float top = location.Y + paddingElement->GetPadding().top;
+    if (!classElement->Keyword().empty())
+    {
+        std::u32string keywordU32Text = std::u32string(1, char32_t(0x00AB)) + util::ToUtf32(classElement->Keyword()) + std::u32string(1, char32_t(0x00BB));
+        std::string keywordText = util::ToUtf8(keywordU32Text);
+        wing::Font* keywordFont = classLayout->GetCaptionElement()->GetKeywordFontElement()->GetFont();
+        float keywordXOffset = (classElement->Bounds().Width - (keywordTextSize.Width + paddingElement->GetPadding().Horizontal())) / 2.0f;
+        wing::PointF keywordOrigin(location.X + paddingElement->GetPadding().left + keywordXOffset, top);
+        wing::DrawString(graphics, keywordText, *keywordFont, keywordOrigin, *brush);
+        top += keywordTextSize.Height;
+    }
+    float nameXOffset = (classElement->Bounds().Width - (nameTextSize.Width + paddingElement->GetPadding().Horizontal())) / 2.0f;
+    wing::PointF nameOrigin(location.X + paddingElement->GetPadding().left + nameXOffset, top);
+    wing::Font* nameFont = captionElement->GetNameFontElement()->GetFont();
+    wing::DrawString(graphics, classElement->Name(), *nameFont, nameOrigin, *brush);
 }
 
 void ClassElementRep::DrawAttributes(wing::Graphics& graphics)
@@ -255,6 +277,7 @@ soul::xml::Element* ClassElement::ToXml() const
     xmlElement->AppendChild(boundsElement);
     xmlElement->SetAttribute("name", Name());
     xmlElement->SetAttribute("abstract", isAbstract ? "true" : "false");
+    xmlElement->SetAttribute("keyword", keyword);
     for (const auto& attribute : attributes)
     {
         soul::xml::Element* attributeElement = attribute->ToXml();
@@ -339,6 +362,7 @@ void ClassElement::Parse(soul::xml::Element* xmlElement)
     {
         SetAbstract();
     }
+    keyword = xmlElement->GetAttribute("keyword");
     std::unique_ptr<soul::xml::xpath::NodeSet> attributeNodeSet = soul::xml::xpath::EvaluateToNodeSet("attribute", xmlElement);
     int nf = attributeNodeSet->Count();
     for (int i = 0; i < nf; ++i)
@@ -375,6 +399,11 @@ void ClassElement::Parse(soul::xml::Element* xmlElement)
             throw std::runtime_error("XML element node expected in '" + xmlElement->Name() + "'");
         }
     }
+}
+
+void ClassElement::SetKeyword(const std::string& keyword_)
+{
+    keyword = keyword_;
 }
 
 AttributeElement* ClassElement::GetAttribute(int attributeIndex) const
@@ -424,6 +453,7 @@ DiagramElement* ClassElement::Clone() const
     ClassElement* clone = new ClassElement();
     clone->SetName(Name());
     clone->SetBounds(Bounds());
+    clone->SetKeyword(Keyword());
     if (isAbstract)
     {
         clone->SetAbstract();

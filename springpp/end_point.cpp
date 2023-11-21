@@ -10,15 +10,90 @@ import springpp.container_element;
 import springpp.diagram;
 import springpp.attribute_element;
 import springpp.operation_element;
+import springpp.text_element;
+import soul.xml.xpath;
 
 namespace springpp {
 
-EndPoint::EndPoint() : element(nullptr), connector(), point(), text(), index(-1)
+EndPoint::EndPoint() : element(nullptr), connector(), point(), primaryTextElement(new TextElement("primaryText")), secondaryTextElement(new TextElement("secondaryText")), index(-1)
 {
 }
 
-EndPoint::EndPoint(DiagramElement* element_, const Connector& connector_, const wing::PointF& point_) : element(element_), connector(connector_), point(point_), text(), index(-1)
+EndPoint::EndPoint(DiagramElement* element_, const Connector& connector_, const wing::PointF& point_) : 
+    element(element_), connector(connector_), point(point_), primaryTextElement(new TextElement("primaryText")), secondaryTextElement(new TextElement("secondaryText")), index(-1)
 {
+}
+
+EndPoint::EndPoint(const EndPoint& that) : 
+    element(that.element), connector(that.connector), point(that.point), primaryTextElement(nullptr), secondaryTextElement(nullptr), index(that.index)
+{
+    if (that.primaryTextElement)
+    {
+        primaryTextElement = static_cast<TextElement*>(that.primaryTextElement->Clone());
+    }
+    if (that.secondaryTextElement)
+    {
+        secondaryTextElement = static_cast<TextElement*>(that.secondaryTextElement->Clone());
+    }
+}
+
+EndPoint& EndPoint::operator=(const EndPoint& that) 
+{
+    element = that.element;
+    connector = that.connector;
+    point = that.point;
+    primaryTextElement = nullptr;
+    if (that.primaryTextElement)
+    {
+        primaryTextElement = static_cast<TextElement*>(that.primaryTextElement->Clone());
+    }
+    secondaryTextElement = nullptr;
+    if (that.secondaryTextElement)
+    {
+        secondaryTextElement = static_cast<TextElement*>(that.secondaryTextElement->Clone());
+    }
+    return *this;
+}
+
+EndPoint::EndPoint(EndPoint&& that) : 
+    element(that.element), 
+    connector(std::move(that.connector)), 
+    point(std::move(that.point)), 
+    primaryTextElement(nullptr),
+    secondaryTextElement(nullptr)
+{
+    if (that.primaryTextElement)
+    {
+        primaryTextElement = static_cast<TextElement*>(that.primaryTextElement->Clone());
+    }
+    secondaryTextElement = nullptr;
+    if (that.secondaryTextElement)
+    {
+        secondaryTextElement = static_cast<TextElement*>(that.secondaryTextElement->Clone());
+    }
+}
+
+EndPoint& EndPoint::operator=(EndPoint&& that)
+{
+    std::swap(element, that.element);
+    std::swap(connector, that.connector);
+    std::swap(point, that.point);
+    std::swap(primaryTextElement, that.primaryTextElement);
+    std::swap(secondaryTextElement, that.secondaryTextElement);
+    std::swap(index, that.index);
+    return *this;
+}
+
+EndPoint::~EndPoint()
+{
+    if (primaryTextElement)
+    {
+        delete primaryTextElement;
+    }
+    if (secondaryTextElement)
+    {
+        delete secondaryTextElement;
+    }
 }
 
 void EndPoint::SetIndex(const std::map<ContainerElement*, int>& containerElementIndexMap)
@@ -114,7 +189,8 @@ soul::xml::Element* EndPoint::ToXml(const std::string& elementName) const
     xmlElement->SetAttribute("connector", connector.ToString());
     xmlElement->SetAttribute("x", std::to_string(point.X));
     xmlElement->SetAttribute("y", std::to_string(point.Y));
-    xmlElement->SetAttribute("text", text);
+    xmlElement->AppendChild(primaryTextElement->ToXml());
+    xmlElement->AppendChild(secondaryTextElement->ToXml());
     return xmlElement;
 }
 
@@ -135,7 +211,54 @@ void EndPoint::Parse(soul::xml::Element* xmlElement)
     std::string yStr = xmlElement->GetAttribute("y");
     point.X = std::stof(xStr);
     point.Y = std::stof(yStr);
-    text = xmlElement->GetAttribute("text");
+    std::unique_ptr<soul::xml::xpath::NodeSet> primaryNodeSet = soul::xml::xpath::EvaluateToNodeSet(primaryTextElement->XmlElementName(), xmlElement);
+    if (primaryNodeSet->Count() == 1)
+    {
+        soul::xml::Node* node = primaryNodeSet->GetNode(0);
+        if (node->IsElementNode())
+        {
+            soul::xml::Element* primaryXmlElement = static_cast<soul::xml::Element*>(node);
+            primaryTextElement->Parse(primaryXmlElement);
+        }
+        else
+        {
+            throw std::runtime_error("XML element node expected in '" + xmlElement->Name() + "'");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("XML element '" + primaryTextElement->XmlElementName() + "' not unique in '" + xmlElement->Name() + "'");
+    }
+    std::unique_ptr<soul::xml::xpath::NodeSet> secondaryNodeSet = soul::xml::xpath::EvaluateToNodeSet(secondaryTextElement->XmlElementName(), xmlElement);
+    if (secondaryNodeSet->Count() == 1)
+    {
+        soul::xml::Node* node = secondaryNodeSet->GetNode(0);
+        if (node->IsElementNode())
+        {
+            soul::xml::Element* secondaryXmlElement = static_cast<soul::xml::Element*>(node);
+            secondaryTextElement->Parse(secondaryXmlElement);
+        }
+        else
+        {
+            throw std::runtime_error("XML element node expected in '" + xmlElement->Name() + "'");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("XML element '" + secondaryTextElement->XmlElementName() + "' not unique in '" + xmlElement->Name() + "'");
+    }
+}
+
+void EndPoint::MeasureTexts(wing::Graphics& graphics)
+{
+    if (primaryTextElement && !primaryTextElement->IsEmpty())
+    {
+        primaryTextElement->Measure(graphics);
+    }
+    if (secondaryTextElement && !secondaryTextElement->IsEmpty())
+    {
+        secondaryTextElement->Measure(graphics);
+    }
 }
 
 EndPointNearer::EndPointNearer(const wing::PointF& location_) : location(location_)

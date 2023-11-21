@@ -9,6 +9,7 @@ import springpp.main_window;
 import springpp.theme;
 import springpp.layout;
 import springpp.configuration;
+import springpp.primitive;
 import wing;
 import util;
 import std.core;
@@ -31,6 +32,24 @@ int WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdSh
 {
     try
     {
+        wing::PointF p(0, 0);
+        wing::PointF q(30, 10);
+        springpp::Line pq(p, q);
+        wing::PointF a(1, 0);
+        springpp::Line pa(p, a);
+        springpp::Vector u = pq.ToVector();
+        springpp::Vector unit = pa.ToVector();
+        springpp::Vector v = Projection(u, unit);
+        springpp::Vector w = u - v;
+        float sinAlfa = w.Length() / u.Length();
+        float cosAlfa = v.Length() / u.Length();
+        float h = 4.0f;
+        float y = h - h * cosAlfa * sinAlfa;
+        float x = 0.0f;
+        if (sinAlfa)
+        {
+            x = y * cosAlfa / sinAlfa;
+        }
         InitApplication(instance);
         springpp::MainWindow mainWindow;
         wing::Graphics* graphics = wing::Graphics::FromHWND(mainWindow.Handle());

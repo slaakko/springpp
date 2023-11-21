@@ -6,6 +6,9 @@
 module springpp.relationship_properties_dialog;
 
 import springpp.relationship_element;
+import springpp.connector_dialog;
+import springpp.text_element;
+import springpp.text_element_properties_dialog;
 
 namespace springpp {
 
@@ -14,9 +17,12 @@ RelationshipPropertiesDialog::RelationshipPropertiesDialog(RelationshipElement* 
         WindowStyle(wing::DialogWindowStyle()).Location(wing::DefaultLocation()).
         WindowClassBackgroundColor(wing::DefaultControlWindowClassBackgroundColor()).BackgroundColor(wing::DefaultControlBackgroundColor()).
         SetSize(wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(120), wing::ScreenMetrics::Get().MMToVerticalPixels(100)))),
-    relationshipElement(relationshipElement_), ready(false), relationGroupBox(nullptr), sourceTextBox(nullptr), targetTextBox(nullptr), 
+    relationshipElement(relationshipElement_), ready(false), relationGroupBox(nullptr), 
     inheritanceRadioButton(nullptr), compositionRadioButton(nullptr), aggregationRadioButton(nullptr), referenceRadioButton(nullptr), createInstanceRadioButton(nullptr),
-    cardinalityGroupBox(nullptr), zeroRadioButton(nullptr), oneRadioButton(nullptr), manyRadioButton(nullptr), okButton(nullptr), cancelButton(nullptr)
+    cardinalityGroupBox(nullptr), zeroRadioButton(nullptr), oneRadioButton(nullptr), manyRadioButton(nullptr), okButton(nullptr), cancelButton(nullptr), 
+    sourceGroupBox(nullptr), primarySourceTextButton(nullptr), secondarySourceTextButton(nullptr), sourceConnectorButton(nullptr),
+    targetGroupBox(nullptr), primaryTargetTextButton(nullptr), secondaryTargetTextButton(nullptr), targetConnectorButton(nullptr),
+    sourceConnectorTextLabel(nullptr), targetConnectorTextLabel(nullptr)
 {
     int column1Width = wing::ScreenMetrics::Get().MMToHorizontalPixels(20);
     int column2Width = wing::ScreenMetrics::Get().MMToHorizontalPixels(30);
@@ -108,38 +114,107 @@ RelationshipPropertiesDialog::RelationshipPropertiesDialog(RelationshipElement* 
     manyRadioButton->CheckedChanged().AddHandler(this, &RelationshipPropertiesDialog::CardinalityRadioButtonStateChanged);
     cardinalityGroupBox->AddChild(manyRadioButtonPtr.release());
 
-    wing::Point sourceTextLabelLoc(defaultControlSpacing.Width, relationGroupBoxLoc.Y + relationGroupBoxSize.Height + defaultControlSpacing.Height);
-    std::unique_ptr<wing::Label> sourceTextLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text("Source text:").Location(sourceTextLabelLoc).SetSize(defaultLabelSize).
-        AutoSize(true).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    wing::Label* sourceTextLabel = sourceTextLabelPtr.get();
-    AddChild(sourceTextLabelPtr.release());
-    wing::Size sourceTextLabelSize = sourceTextLabel->GetSize();
+    wing::Size sourceGroupBoxSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(40), wing::ScreenMetrics::Get().MMToVerticalPixels(30));
+    std::unique_ptr<wing::GroupBox> sourceGroupBoxPtr(new wing::GroupBox(wing::GroupBoxCreateParams().Defaults().Text("Source").
+        Location(wing::Point(defaultControlSpacing.Width, defaultControlSpacing.Height + cardinalityGroupBox->Location().Y + cardinalityGroupBox->GetSize().Height)).
+        SetSize(sourceGroupBoxSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    sourceGroupBox = sourceGroupBoxPtr.get();
+    AddChild(sourceGroupBoxPtr.release());
+    wing::Point primarySourceTextLabelLoc(defaultControlSpacing.Width, 3 * defaultControlSpacing.Height);
+    std::unique_ptr<wing::Label> primarySourceTextLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text("Primary text:").Location(primarySourceTextLabelLoc).
+        SetSize(defaultLabelSize).AutoSize(true).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    wing::Label* primarySourceTextLabel = primarySourceTextLabelPtr.get();
+    sourceGroupBox->AddChild(primarySourceTextLabelPtr.release());
+    wing::Size primarySourceTextButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
+    wing::Point primarySourceTextButtonLoc(sourceGroupBoxSize.Width - primarySourceTextButtonSize.Width - defaultControlSpacing.Width, 3 * defaultControlSpacing.Height - 4);
+    std::unique_ptr<wing::Button> primarySourceTextButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(primarySourceTextButtonLoc).
+        SetSize(primarySourceTextButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    primarySourceTextButton = primarySourceTextButtonPtr.get();
+    primarySourceTextButton->Click().AddHandler(this, &RelationshipPropertiesDialog::EditPrimarySourceText);
+    sourceGroupBox->AddChild(primarySourceTextButtonPtr.release());
+    wing::Point secondarySourceTextLabelLoc(defaultControlSpacing.Width, 3 * defaultControlSpacing.Height + defaultButtonSize.Height);
+    std::unique_ptr<wing::Label> secondarySourceTextLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text("Secondary text:").Location(secondarySourceTextLabelLoc).
+        SetSize(defaultLabelSize).AutoSize(true).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    wing::Label* secondarySourceTextLabel = secondarySourceTextLabelPtr.get();
+    sourceGroupBox->AddChild(secondarySourceTextLabelPtr.release());
+    wing::Size secondarySourceTextButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
+    wing::Point secondarySourceTextButtonLoc(sourceGroupBoxSize.Width - secondarySourceTextButtonSize.Width - defaultControlSpacing.Width, 
+        3 * defaultControlSpacing.Height - 4 + defaultButtonSize.Height);
+    std::unique_ptr<wing::Button> secondarySourceTextButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(secondarySourceTextButtonLoc).
+        SetSize(secondarySourceTextButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    secondarySourceTextButton = secondarySourceTextButtonPtr.get();
+    secondarySourceTextButton->Click().AddHandler(this, &RelationshipPropertiesDialog::EditSecondarySourceText);
+    sourceGroupBox->AddChild(secondarySourceTextButtonPtr.release());
+    wing::Point sourceConnectorLabelLoc(defaultControlSpacing.Width, 3 * defaultControlSpacing.Height + 2 * defaultButtonSize.Height);
+    std::unique_ptr<wing::Label> sourceConnectorLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text("Connector:").Location(sourceConnectorLabelLoc).
+        SetSize(defaultLabelSize).AutoSize(true).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    wing::Label* sourceConnectorLabel = sourceConnectorLabelPtr.get();
+    sourceGroupBox->AddChild(sourceConnectorLabelPtr.release());
+    wing::Point sourceConnectorTextLabelLoc(defaultControlSpacing.Width, 3 * defaultControlSpacing.Height + 3 * defaultButtonSize.Height);
+    std::unique_ptr<wing::Label> sourceConnectorTextLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text(relationshipElement->Source().GetConnector().ToString()).
+        Location(sourceConnectorTextLabelLoc).SetSize(defaultLabelSize).AutoSize(true).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    sourceConnectorTextLabel = sourceConnectorTextLabelPtr.get();
+    sourceGroupBox->AddChild(sourceConnectorTextLabelPtr.release());
+    wing::Size sourceConnectorButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
+    wing::Point sourceConnectorButtonLoc(sourceGroupBoxSize.Width - secondarySourceTextButtonSize.Width - defaultControlSpacing.Width,
+        3 * defaultControlSpacing.Height - 4 + 2 * defaultButtonSize.Height);
+    std::unique_ptr<wing::Button> sourceConnectorButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(sourceConnectorButtonLoc).
+        SetSize(sourceConnectorButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    sourceConnectorButton = sourceConnectorButtonPtr.get();
+    sourceConnectorButton->Click().AddHandler(this, &RelationshipPropertiesDialog::EditSourceConnector);
+    sourceGroupBox->AddChild(sourceConnectorButtonPtr.release());
 
-    std::unique_ptr<wing::TextBox> sourceTextBoxPtr(new wing::TextBox(wing::TextBoxCreateParams().Defaults().Text(relationshipElement->Source().Text())));
-    sourceTextBox = sourceTextBoxPtr.get();
-    sourceTextBox->TextChanged().AddHandler(this, &RelationshipPropertiesDialog::SourceTextBoxTextChanged);
-    std::unique_ptr<wing::PaddedControl> paddedSourceTextBox(new wing::PaddedControl(wing::PaddedControlCreateParams(sourceTextBoxPtr.release()).Defaults().
-        SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    std::unique_ptr<wing::BorderedControl> borderedPaddedSourceTextBox(new wing::BorderedControl(wing::BorderedControlCreateParams(paddedSourceTextBox.release()).Defaults().
-        Location(wing::Point(column1Width, sourceTextLabelLoc.Y)).SetSize(wing::Size(column2Width, defaultTextBoxSize.Height + 4 + 1 + 2 * wing::defaultControlPadding)).
-            SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    AddChild(borderedPaddedSourceTextBox.release());
+    wing::Size targetGroupBoxSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(40), wing::ScreenMetrics::Get().MMToVerticalPixels(30));
+    std::unique_ptr<wing::GroupBox> targetGroupBoxPtr(new wing::GroupBox(wing::GroupBoxCreateParams().Defaults().Text("Target").
+        Location(wing::Point(defaultControlSpacing.Width + relationGroupBoxLoc.X + relationGroupBoxSize.Width,
+            defaultControlSpacing.Height + cardinalityGroupBox->Location().Y + cardinalityGroupBox->GetSize().Height)).
+        SetSize(targetGroupBoxSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    targetGroupBox = targetGroupBoxPtr.get();
+    AddChild(targetGroupBoxPtr.release());
+    wing::Point primaryTargetTextLabelLoc(defaultControlSpacing.Width, 3 * defaultControlSpacing.Height);
+    std::unique_ptr<wing::Label> primaryTargetTextLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text("Primary text:").Location(primaryTargetTextLabelLoc).
+        SetSize(defaultLabelSize).AutoSize(true).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    wing::Label* primaryTargetTextLabel = primaryTargetTextLabelPtr.get();
+    targetGroupBox->AddChild(primaryTargetTextLabelPtr.release());
+    wing::Size primaryTargetTextButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
+    wing::Point primaryTargetTextButtonLoc(targetGroupBoxSize.Width - primaryTargetTextButtonSize.Width - defaultControlSpacing.Width, 3 * defaultControlSpacing.Height - 4);
+    std::unique_ptr<wing::Button> primaryTargetTextButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(primaryTargetTextButtonLoc).
+        SetSize(primaryTargetTextButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    primaryTargetTextButton = primaryTargetTextButtonPtr.get();
+    primaryTargetTextButton->Click().AddHandler(this, &RelationshipPropertiesDialog::EditPrimaryTargetText);
+    targetGroupBox->AddChild(primaryTargetTextButtonPtr.release());
+    wing::Point secondaryTargetTextLabelLoc(defaultControlSpacing.Width, 3 * defaultControlSpacing.Height + defaultButtonSize.Height);
+    std::unique_ptr<wing::Label> secondaryTargetTextLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text("Secondary text:").Location(secondaryTargetTextLabelLoc).
+        SetSize(defaultLabelSize).AutoSize(true).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    wing::Label* secondaryTargetTextLabel = secondaryTargetTextLabelPtr.get();
+    targetGroupBox->AddChild(secondaryTargetTextLabelPtr.release());
+    wing::Size secondaryTargetTextButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
+    wing::Point secondaryTargetTextButtonLoc(targetGroupBoxSize.Width - secondaryTargetTextButtonSize.Width - defaultControlSpacing.Width,
+        3 * defaultControlSpacing.Height - 4 + defaultButtonSize.Height);
+    std::unique_ptr<wing::Button> secondaryTargetTextButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(secondaryTargetTextButtonLoc).
+        SetSize(secondaryTargetTextButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    secondaryTargetTextButton = secondaryTargetTextButtonPtr.get();
+    secondaryTargetTextButton->Click().AddHandler(this, &RelationshipPropertiesDialog::EditSecondaryTargetText);
+    targetGroupBox->AddChild(secondaryTargetTextButtonPtr.release());
+    wing::Point targetConnectorLabelLoc(defaultControlSpacing.Width, 3 * defaultControlSpacing.Height + 2 * defaultButtonSize.Height);
+    std::unique_ptr<wing::Label> targetConnectorLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text("Connector:").Location(targetConnectorLabelLoc).
+        SetSize(defaultLabelSize).AutoSize(true).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    wing::Label* targetConnectorLabel = targetConnectorLabelPtr.get();
+    targetGroupBox->AddChild(targetConnectorLabelPtr.release());
+    wing::Point targetConnectorTextLabelLoc(defaultControlSpacing.Width, 3 * defaultControlSpacing.Height + 3 * defaultButtonSize.Height);
+    std::unique_ptr<wing::Label> targetConnectorTextLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text(relationshipElement->Target().GetConnector().ToString()).
+        Location(targetConnectorTextLabelLoc).SetSize(defaultLabelSize).AutoSize(true).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    targetConnectorTextLabel = targetConnectorTextLabelPtr.get();
+    targetGroupBox->AddChild(targetConnectorTextLabelPtr.release());
 
-    wing::Point targetTextLabelLoc(defaultControlSpacing.Width, sourceTextLabelLoc.Y + sourceTextLabelSize.Height + defaultControlSpacing.Height * 2 + 4);
-    std::unique_ptr<wing::Label> targetTextLabelPtr(new wing::Label(wing::LabelCreateParams().Defaults().Text("Target text:").Location(targetTextLabelLoc).SetSize(defaultLabelSize).
-        AutoSize(true).SetAnchors(wing::Anchors::left | wing::Anchors::top)));
-    wing::Label* targetTextLabel = targetTextLabelPtr.get();
-    AddChild(targetTextLabelPtr.release());
-
-    std::unique_ptr<wing::TextBox> targetTextBoxPtr(new wing::TextBox(wing::TextBoxCreateParams().Defaults().Text(relationshipElement->Target().Text())));
-    targetTextBox = targetTextBoxPtr.get();
-    targetTextBox->TextChanged().AddHandler(this, &RelationshipPropertiesDialog::TargetTextBoxTextChanged);
-    std::unique_ptr<wing::PaddedControl> paddedTargetTextBox(new wing::PaddedControl(wing::PaddedControlCreateParams(targetTextBoxPtr.release()).Defaults().
-        SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    std::unique_ptr<wing::BorderedControl> borderedPaddedTargetTextBox(new wing::BorderedControl(wing::BorderedControlCreateParams(paddedTargetTextBox.release()).Defaults().
-        Location(wing::Point(column1Width, targetTextLabelLoc.Y)).SetSize(wing::Size(column2Width, defaultTextBoxSize.Height + 4 + 1 + 2 * wing::defaultControlPadding)).
-        SetAnchors(wing::Anchors::top | wing::Anchors::left)));
-    AddChild(borderedPaddedTargetTextBox.release());
+    wing::Size targetConnectorButtonSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(8), defaultButtonSize.Height);
+    wing::Point targetConnectorButtonLoc(targetGroupBoxSize.Width - secondaryTargetTextButtonSize.Width - defaultControlSpacing.Width,
+        3 * defaultControlSpacing.Height - 4 + 2 * defaultButtonSize.Height);
+    std::unique_ptr<wing::Button> targetConnectorButtonPtr(new wing::Button(wing::ControlCreateParams().Defaults().Text("...").Location(targetConnectorButtonLoc).
+        SetSize(targetConnectorButtonSize).SetAnchors(wing::Anchors::top | wing::Anchors::left)));
+    targetConnectorButton = targetConnectorButtonPtr.get();
+    targetConnectorButton->Click().AddHandler(this, &RelationshipPropertiesDialog::EditTargetConnector);
+    targetGroupBox->AddChild(targetConnectorButtonPtr.release());
 
     int x = s.Width - defaultButtonSize.Width - defaultControlSpacing.Width;
     int y = s.Height - defaultButtonSize.Height - defaultControlSpacing.Height;
@@ -160,7 +235,66 @@ RelationshipPropertiesDialog::RelationshipPropertiesDialog(RelationshipElement* 
     SetCardinalityRadioButton();
     ready = true;
     RelationRadioButtonStateChanged();
-    sourceTextBox->SetFocus();
+}
+
+void RelationshipPropertiesDialog::EditPrimarySourceText()
+{
+    TextElementPropertiesDialog dialog("Primary Source Text", relationshipElement->Source().PrimaryTextElement());
+    if (dialog.ShowDialog(*this) == wing::DialogResult::ok)
+    {
+        relationshipElement->Source().PrimaryTextElement()->SetLines(dialog.Lines());
+        relationshipElement->Source().PrimaryTextElement()->SetKeyword(dialog.Keyword());
+    }
+}
+
+void RelationshipPropertiesDialog::EditSecondarySourceText()
+{
+    TextElementPropertiesDialog dialog("Secondary Source Text", relationshipElement->Source().SecondaryTextElement());
+    if (dialog.ShowDialog(*this) == wing::DialogResult::ok)
+    {
+        relationshipElement->Source().SecondaryTextElement()->SetLines(dialog.Lines());
+        relationshipElement->Source().SecondaryTextElement()->SetKeyword(dialog.Keyword());
+    }
+}
+
+void RelationshipPropertiesDialog::EditSourceConnector()
+{
+    ConnectorDialog connectorDialog(relationshipElement->Source().GetConnector());
+    if (connectorDialog.ShowDialog(*this) == wing::DialogResult::ok)
+    {
+        relationshipElement->Source().SetConnector(connectorDialog.GetConnector());
+        sourceConnectorTextLabel->SetText(relationshipElement->Source().GetConnector().ToString());
+    }
+}
+
+void RelationshipPropertiesDialog::EditPrimaryTargetText()
+{
+    TextElementPropertiesDialog dialog("Primary Target Text", relationshipElement->Target().PrimaryTextElement());
+    if (dialog.ShowDialog(*this) == wing::DialogResult::ok)
+    {
+        relationshipElement->Target().PrimaryTextElement()->SetLines(dialog.Lines());
+        relationshipElement->Target().PrimaryTextElement()->SetKeyword(dialog.Keyword());
+    }
+}
+
+void RelationshipPropertiesDialog::EditSecondaryTargetText()
+{
+    TextElementPropertiesDialog dialog("Secondary Target Text", relationshipElement->Target().SecondaryTextElement());
+    if (dialog.ShowDialog(*this) == wing::DialogResult::ok)
+    {
+        relationshipElement->Target().SecondaryTextElement()->SetLines(dialog.Lines());
+        relationshipElement->Target().SecondaryTextElement()->SetKeyword(dialog.Keyword());
+    }
+}
+
+void RelationshipPropertiesDialog::EditTargetConnector()
+{
+    ConnectorDialog connectorDialog(relationshipElement->Target().GetConnector());
+    if (connectorDialog.ShowDialog(*this) == wing::DialogResult::ok)
+    {
+        relationshipElement->Target().SetConnector(connectorDialog.GetConnector());
+        targetConnectorTextLabel->SetText(relationshipElement->Target().GetConnector().ToString());
+    }
 }
 
 void RelationshipPropertiesDialog::SetRelationRadioButton()
@@ -312,16 +446,6 @@ void RelationshipPropertiesDialog::CardinalityRadioButtonStateChanged()
             relationshipElement->SetCardinality(Cardinality::many);
         }
     }
-}
-
-void RelationshipPropertiesDialog::SourceTextBoxTextChanged()
-{
-    relationshipElement->Source().SetText(sourceTextBox->Text());
-}
-
-void RelationshipPropertiesDialog::TargetTextBoxTextChanged()
-{
-    relationshipElement->Target().SetText(targetTextBox->Text());
 }
 
 } // namespace springpp

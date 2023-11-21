@@ -19,12 +19,14 @@ public:
 private:
     ClassElement* classElement;
     wing::TextBox* classNameTextBox;
+    wing::TextBox* keywordTextBox;
     wing::CheckBox* abstractCheckBox;
     wing::Button* cancelButton;
     wing::Button* okButton;
     wing::Button* editOperationsButton;
     wing::Button* editAttributesButton;
     void ClassNameChanged();
+    void KeywordChanged();
     void AbstractChanged();
     void EditOperations();
     void EditAttributes();

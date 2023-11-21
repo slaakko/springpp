@@ -19,9 +19,12 @@ wing::RectF CalculateBounds(const std::vector<DiagramElement*>& diagramElements)
     {
         if (bounds.IsEmptyArea())
         {
-            bounds = diagramElement->Bounds();
+            if (!diagramElement->Bounds().IsEmptyArea())
+            {
+                bounds = diagramElement->Bounds();
+            }
         }
-        else
+        else if (!diagramElement->Bounds().IsEmptyArea())
         {
             wing::RectF::Union(bounds, bounds, diagramElement->Bounds());
         }

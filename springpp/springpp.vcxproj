@@ -163,6 +163,8 @@
     <ClCompile Include="command.cppm" />
     <ClCompile Include="configuration.cpp" />
     <ClCompile Include="configuration.cppm" />
+    <ClCompile Include="connector_dialog.cpp" />
+    <ClCompile Include="connector_dialog.cppm" />
     <ClCompile Include="container_element.cpp" />
     <ClCompile Include="container_element.cppm" />
     <ClCompile Include="diagram.cpp" />
@@ -211,6 +213,10 @@
     <ClCompile Include="selection.cppm" />
     <ClCompile Include="connector.cpp" />
     <ClCompile Include="connector.cppm" />
+    <ClCompile Include="text_element.cpp" />
+    <ClCompile Include="text_element.cppm" />
+    <ClCompile Include="text_element_properties_dialog.cpp" />
+    <ClCompile Include="text_element_properties_dialog.cppm" />
     <ClCompile Include="theme.cpp" />
     <ClCompile Include="theme.cppm" />
     <ClCompile Include="tool.cpp" />

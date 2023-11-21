@@ -414,8 +414,7 @@ void RelationshipElementPropertiesAction::Execute(Diagram* diagram, int elementI
             {
                 relationshipElement->Source().Element()->RemoveRelationship(relationshipElement);
                 relationshipElement->Source().Element()->AddRelationship(clone.get());
-                EndPoint endPoint = relationshipElement->Source().Element()->GetEndPoint(relationshipElement->Source().GetConnector());
-                clone->Source().SetConnector(endPoint.GetConnector());
+                EndPoint endPoint = relationshipElement->Source().Element()->GetEndPoint(clone->Source().GetConnector());
                 clone->Source().SetPoint(endPoint.Point());
             }
             for (EndPoint& sourceEndPoint : relationshipElement->SourceEndPoints())
@@ -424,8 +423,7 @@ void RelationshipElementPropertiesAction::Execute(Diagram* diagram, int elementI
                 {
                     sourceEndPoint.Element()->RemoveRelationship(relationshipElement);
                     sourceEndPoint.Element()->AddRelationship(clone.get());
-                    EndPoint endPoint = sourceEndPoint.Element()->GetEndPoint(relationshipElement->Source().GetConnector());
-                    clone->Source().SetConnector(endPoint.GetConnector());
+                    EndPoint endPoint = sourceEndPoint.Element()->GetEndPoint(clone->Source().GetConnector());
                     clone->Source().SetPoint(endPoint.Point());
                 }
             }
@@ -433,8 +431,7 @@ void RelationshipElementPropertiesAction::Execute(Diagram* diagram, int elementI
             {
                 relationshipElement->Target().Element()->RemoveRelationship(relationshipElement);
                 relationshipElement->Target().Element()->AddRelationship(clone.get());
-                EndPoint endPoint = relationshipElement->Target().Element()->GetEndPoint(relationshipElement->Target().GetConnector());
-                clone->Target().SetConnector(endPoint.GetConnector());
+                EndPoint endPoint = relationshipElement->Target().Element()->GetEndPoint(clone->Target().GetConnector());
                 clone->Target().SetPoint(endPoint.Point());
             }
             diagram->SetElementByIndex(clone.release(), elementIndex);

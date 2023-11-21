@@ -357,6 +357,7 @@ int Diagram::GetIndexOfElement(DiagramElement* element) const
 void Diagram::AddElement(DiagramElement* element)
 {
     elements.Add(element);
+    element->SetDiagram(this);
     SetChanged();
     Invalidate();
 }

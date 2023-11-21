@@ -23,6 +23,15 @@ RelationshipElementRep* Inheritance::Clone(RelationshipElement* relationshipElem
     return clone;
 }
 
+float Inheritance::TargetSymbolWidth() const
+{
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    float inheritanceArrowWidth = relationshipLayoutElement->InheritanceArrowWidth();
+    return inheritanceArrowWidth;
+}
+
 void Inheritance::Draw(wing::Graphics& graphics)
 {
     RelationshipElement* relationshipElement = GetRelationshipElement();
@@ -67,6 +76,15 @@ void Inheritance::Draw(wing::Graphics& graphics)
 
 CombinedInheritance::CombinedInheritance(RelationshipElement* relationshipElement_) : RelationshipElementRep(relationshipElement_)
 {
+}
+
+float CombinedInheritance::TargetSymbolWidth() const
+{
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    float inheritanceArrowWidth = relationshipLayoutElement->InheritanceArrowWidth();
+    return inheritanceArrowWidth;
 }
 
 RelationshipElementRep* CombinedInheritance::Clone(RelationshipElement* relationshipElement_) const
@@ -161,7 +179,7 @@ bool CombinedInheritance::Contains(const wing::PointF& location) const
 
 void CombinedInheritance::DrawCombinedInheritance0(wing::Graphics& graphics, RelationshipElement* relationshipElement)
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -242,7 +260,7 @@ void CombinedInheritance::DrawCombinedInheritance0(wing::Graphics& graphics, Rel
 
 void CombinedInheritance::DrawCombinedInheritance90(wing::Graphics& graphics, RelationshipElement* relationshipElement)
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -323,7 +341,7 @@ void CombinedInheritance::DrawCombinedInheritance90(wing::Graphics& graphics, Re
 
 void CombinedInheritance::DrawCombinedInheritance180(wing::Graphics& graphics, RelationshipElement* relationshipElement)
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -404,7 +422,7 @@ void CombinedInheritance::DrawCombinedInheritance180(wing::Graphics& graphics, R
 
 void CombinedInheritance::DrawCombinedInheritance270(wing::Graphics& graphics, RelationshipElement* relationshipElement)
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -485,7 +503,7 @@ void CombinedInheritance::DrawCombinedInheritance270(wing::Graphics& graphics, R
 
 void CombinedInheritance::DrawCombinedInheritance0Selected(wing::Graphics& graphics, RelationshipElement* relationshipElement)
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -556,7 +574,7 @@ void CombinedInheritance::DrawCombinedInheritance0Selected(wing::Graphics& graph
 
 void CombinedInheritance::DrawCombinedInheritance90Selected(wing::Graphics& graphics, RelationshipElement* relationshipElement)
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -627,7 +645,7 @@ void CombinedInheritance::DrawCombinedInheritance90Selected(wing::Graphics& grap
 
 void CombinedInheritance::DrawCombinedInheritance180Selected(wing::Graphics& graphics, RelationshipElement* relationshipElement)
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -698,7 +716,7 @@ void CombinedInheritance::DrawCombinedInheritance180Selected(wing::Graphics& gra
 
 void CombinedInheritance::DrawCombinedInheritance270Selected(wing::Graphics& graphics, RelationshipElement* relationshipElement)
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -769,7 +787,7 @@ void CombinedInheritance::DrawCombinedInheritance270Selected(wing::Graphics& gra
 
 bool CombinedInheritance::Contains0(const wing::PointF& location, RelationshipElement* relationshipElement) const
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -841,7 +859,7 @@ bool CombinedInheritance::Contains0(const wing::PointF& location, RelationshipEl
 
 bool CombinedInheritance::Contains90(const wing::PointF& location, RelationshipElement* relationshipElement) const
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -913,7 +931,7 @@ bool CombinedInheritance::Contains90(const wing::PointF& location, RelationshipE
 
 bool CombinedInheritance::Contains180(const wing::PointF& location, RelationshipElement* relationshipElement) const
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -985,7 +1003,7 @@ bool CombinedInheritance::Contains180(const wing::PointF& location, Relationship
 
 bool CombinedInheritance::Contains270(const wing::PointF& location, RelationshipElement* relationshipElement) const
 {
-    Diagram* diagram = GetDiagram();
+    Diagram* diagram = relationshipElement->GetDiagram();
     ClassElement* targetClassElement = nullptr;
     EndPoint& targetEndPoint = relationshipElement->Target();
     if (targetEndPoint.Element() && targetEndPoint.Element()->IsClassElement())
@@ -1059,6 +1077,33 @@ Composition::Composition(RelationshipElement* relationshipElement_) : Relationsh
 {
 }
 
+float Composition::SourceSymbolWidth() const
+{
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    float compositionSymbolWidth = relationshipLayoutElement->CompositeSymbolWidth();
+    return compositionSymbolWidth;
+}
+
+float Composition::TargetSymbolWidth() const
+{
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    float cardinalitySymbolRadius = relationshipLayoutElement->CardinalitySymbolRadius();
+    float lineArrowWidth = relationshipLayoutElement->LineArrowWidth();
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Cardinality cardinality = relationshipElement->GetCardinality();
+    if (cardinality == Cardinality::one)
+    {
+        return lineArrowWidth;
+    }
+    else if (cardinality == Cardinality::many)
+    {
+        return 2 * cardinalitySymbolRadius + lineArrowWidth;
+    }
+    return 0.0f;
+}
+
 RelationshipElementRep* Composition::Clone(RelationshipElement* relationshipElement_) const
 {
     Composition* clone = new Composition(relationshipElement_);
@@ -1092,12 +1137,6 @@ void Composition::Draw(wing::Graphics& graphics)
         end = relationshipElement->RoutingPoints().front();
     }
     Line compositionLine(start, end);
-    if (!relationshipElement->Source().Text().empty())
-    {
-        float leadinglWidth = compositionSymbolWidth;
-        Line textLine = GetSourceTextLine(compositionLine, leadinglWidth, classPaddingElement->GetPadding().left);
-        DrawSourceText(graphics, font, textBrush, textLine, leadinglWidth);
-    }
     Vector v(compositionLine.ToVector());
     Vector u(UnitVector(v) * compositionSymbolWidth);
     Line compositionSymbolLine(start, u);
@@ -1157,10 +1196,6 @@ void Composition::Draw(wing::Graphics& graphics)
         points.push_back(rightArrowLine.end);
         graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
         graphics.DrawLine(linePen, circleLine.end, arrowLine.end);
-        if (!relationshipElement->Target().Text().empty())
-        {
-            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
-        }
     }
     else if (relationshipElement->GetCardinality() == Cardinality::one)
     {
@@ -1177,10 +1212,6 @@ void Composition::Draw(wing::Graphics& graphics)
         points.push_back(rightArrowLine.end);
         graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
         graphics.DrawLine(linePen, arrowEndLine.start, arrowLine.end);
-        if (!relationshipElement->Target().Text().empty())
-        {
-            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
-        }
     }
 }
 
@@ -1192,6 +1223,33 @@ RelationshipElementRep* Aggregation::Clone(RelationshipElement* relationshipElem
 {
     Aggregation* clone = new Aggregation(relationshipElement_);
     return clone;
+}
+
+float Aggregation::SourceSymbolWidth() const
+{
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    float aggregationSymbolWidth = relationshipLayoutElement->CompositeSymbolWidth();
+    return aggregationSymbolWidth;
+}
+
+float Aggregation::TargetSymbolWidth() const
+{
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    float cardinalitySymbolRadius = relationshipLayoutElement->CardinalitySymbolRadius();
+    float lineArrowWidth = relationshipLayoutElement->LineArrowWidth();
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Cardinality cardinality = relationshipElement->GetCardinality();
+    if (cardinality == Cardinality::one)
+    {
+        return lineArrowWidth;
+    }
+    else if (cardinality == Cardinality::many)
+    {
+        return 2 * cardinalitySymbolRadius + lineArrowWidth;
+    }
+    return 0.0f;
 }
 
 void Aggregation::Draw(wing::Graphics& graphics)
@@ -1221,12 +1279,6 @@ void Aggregation::Draw(wing::Graphics& graphics)
         end = relationshipElement->RoutingPoints().front();
     }
     Line aggregateLine(start, end);
-    if (!relationshipElement->Source().Text().empty())
-    {
-        float leadinglWidth = aggregateSymbolWidth;
-        Line textLine = GetSourceTextLine(aggregateLine, leadinglWidth, classPaddingElement->GetPadding().left);
-        DrawSourceText(graphics, font, textBrush, textLine, leadinglWidth);
-    }
     Vector v(aggregateLine.ToVector());
     Vector u(UnitVector(v) * aggregateSymbolWidth);
     Line aggregateSymbolLine(start, u);
@@ -1278,10 +1330,6 @@ void Aggregation::Draw(wing::Graphics& graphics)
         points.push_back(rightArrowLine.end);
         graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
         graphics.DrawLine(linePen, circleLine.end, arrowLine.end);
-        if (!relationshipElement->Target().Text().empty())
-        {
-            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
-        }
     }
     else if (relationshipElement->GetCardinality() == Cardinality::one)
     {
@@ -1298,10 +1346,6 @@ void Aggregation::Draw(wing::Graphics& graphics)
         points.push_back(rightArrowLine.end);
         graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
         graphics.DrawLine(linePen, arrowEndLine.start, arrowLine.end);
-        if (!relationshipElement->Target().Text().empty())
-        {
-            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
-        }
     }
 }
 
@@ -1313,6 +1357,25 @@ RelationshipElementRep* Reference::Clone(RelationshipElement* relationshipElemen
 {
     Reference* clone = new Reference(relationshipElement_);
     return clone;
+}
+
+float Reference::TargetSymbolWidth() const
+{
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    float cardinalitySymbolRadius = relationshipLayoutElement->CardinalitySymbolRadius();
+    float lineArrowWidth = relationshipLayoutElement->LineArrowWidth();
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Cardinality cardinality = relationshipElement->GetCardinality();
+    if (cardinality == Cardinality::one)
+    {
+        return lineArrowWidth;
+    }
+    else if (cardinality == Cardinality::many)
+    {
+        return 2 * cardinalitySymbolRadius + lineArrowWidth;
+    }
+    return 0.0f;
 }
 
 void Reference::Draw(wing::Graphics& graphics)
@@ -1369,12 +1432,6 @@ void Reference::Draw(wing::Graphics& graphics)
         end = relationshipElement->RoutingPoints().front();
     }
     Line referenceLine(first, end);
-    if (!relationshipElement->Source().Text().empty())
-    {
-        float leadingWidth = classPaddingElement->GetPadding().left;
-        Line textLine = GetSourceTextLine(referenceLine, leadingWidth, leadingWidth);
-        DrawSourceText(graphics, font, textBrush, textLine, leadingWidth);
-    }
     wing::PointF prevPoint = referenceLine.start;
     for (const wing::PointF& routingPoint : relationshipElement->RoutingPoints())
     {
@@ -1414,10 +1471,6 @@ void Reference::Draw(wing::Graphics& graphics)
         points.push_back(rightArrowLine.end);
         graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
         graphics.DrawLine(linePen, arrowEndLine.start, arrowLine.end);
-        if (!relationshipElement->Target().Text().empty())
-        {
-            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
-        }
     }
     else if (cardinality == Cardinality::one)
     {
@@ -1434,10 +1487,6 @@ void Reference::Draw(wing::Graphics& graphics)
         points.push_back(rightArrowLine.end);
         graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
         graphics.DrawLine(linePen, arrowEndLine.start, arrowLine.end);
-        if (!relationshipElement->Target().Text().empty())
-        {
-            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
-        }
     }
     else if (cardinality == Cardinality::zero)
     {
@@ -1469,6 +1518,25 @@ RelationshipElementRep* CreateInstance::Clone(RelationshipElement* relationshipE
     return clone;
 }
 
+float CreateInstance::TargetSymbolWidth() const
+{
+    Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    float cardinalitySymbolRadius = relationshipLayoutElement->CardinalitySymbolRadius();
+    float lineArrowWidth = relationshipLayoutElement->LineArrowWidth();
+    RelationshipElement* relationshipElement = GetRelationshipElement();
+    Cardinality cardinality = relationshipElement->GetCardinality();
+    if (cardinality == Cardinality::one)
+    {
+        return lineArrowWidth;
+    }
+    else if (cardinality == Cardinality::many)
+    {
+        return 2 * cardinalitySymbolRadius + lineArrowWidth;
+    }
+    return 0.0f;
+}
+
 void CreateInstance::Draw(wing::Graphics& graphics)
 {
     RelationshipElement* relationshipElement = GetRelationshipElement();
@@ -1495,12 +1563,6 @@ void CreateInstance::Draw(wing::Graphics& graphics)
         end = relationshipElement->RoutingPoints().front();
     }
     Line instanceLine(start, end);
-    if (!relationshipElement->Source().Text().empty())
-    {
-        float leadingWidth = classPaddingElement->GetPadding().left;
-        Line textLine = GetSourceTextLine(instanceLine, leadingWidth, leadingWidth);
-        DrawSourceText(graphics, font, textBrush, textLine, leadingWidth);
-    }
     Vector v(instanceLine.ToVector());
     wing::PointF prevPoint = instanceLine.start;
     if (!relationshipElement->RoutingPoints().empty())
@@ -1542,10 +1604,6 @@ void CreateInstance::Draw(wing::Graphics& graphics)
         points.push_back(rightArrowLine.end);
         graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
         finalPoint = arrowEndLine.start;
-        if (!relationshipElement->Target().Text().empty())
-        {
-            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
-        }
     }
     else if (cardinality == Cardinality::one)
     {
@@ -1562,10 +1620,6 @@ void CreateInstance::Draw(wing::Graphics& graphics)
         points.push_back(rightArrowLine.end);
         graphics.FillPolygon(arrowBrush, points.data(), static_cast<int>(points.size()));
         finalPoint = arrowEndLine.start;
-        if (!relationshipElement->Target().Text().empty())
-        {
-            DrawTargetText(graphics, font, textBrush, arrowEndLine, lineArrowWidth);
-        }
     }
     std::vector<wing::PointF> points;
     points.push_back(relationshipElement->Source().Point());

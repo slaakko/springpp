@@ -33,9 +33,8 @@ public:
     virtual void Draw(wing::Graphics& graphics) = 0;
     virtual void DrawSelected(wing::Graphics& graphics);
     virtual bool Contains(const wing::PointF& location) const;
-    void DrawSourceText(wing::Graphics& graphics, wing::Font* font, wing::Brush* textBrush, const Line& line, float leadingWidth);
-    void DrawTargetText(wing::Graphics& graphics, wing::Font* font, wing::Brush* textBrush, const Line& line, float symbolWidth);
-    Line GetSourceTextLine(const Line& firstLine, float& leadingWidth, float padding) const;
+    virtual float SourceSymbolWidth() const { return 0.0f; }
+    virtual float TargetSymbolWidth() const { return 0.0f; }
     RelationshipElement* GetRelationshipElement() const { return relationshipElement; }
 private:
     RelationshipElement* relationshipElement;
@@ -63,8 +62,8 @@ public:
     std::vector<wing::PointF>& RoutingPoints() { return routingPoints; }
     wing::PointF LastPoint() const;
     void SetLastPoint(const wing::PointF& lastPoint);
-    const wing::SizeF& SourceTextSize() const { return sourceTextSize; }
-    const wing::SizeF& TargetTextSize() const { return targetTextSize; }
+    Line StartLine() const;
+    Line EndLine() const;
     void Measure(wing::Graphics& graphics) override;
     void Draw(wing::Graphics& graphics) override;
     void DrawSelected(wing::Graphics& graphics) override;
@@ -94,14 +93,13 @@ public:
     void MapIndeces(const std::map<int, int>& indexMap);
 private:
     void SetRep();
+    void SetTextLocations();
     RelationshipKind rkind;
     Cardinality cardinality;
     EndPoint source;
     EndPoint target;
     std::vector<EndPoint> sourceEndPoints;
     std::vector<wing::PointF> routingPoints;
-    wing::SizeF sourceTextSize;
-    wing::SizeF targetTextSize;
     std::unique_ptr<RelationshipElementRep> rep;
 };
 

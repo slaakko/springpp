@@ -15,12 +15,18 @@ export namespace springpp {
 class ContainerElement;
 class Diagram;
 class DiagramElement;
+class TextElement;
 
 class EndPoint
 {
 public:
     EndPoint();
     EndPoint(DiagramElement* element_, const Connector& connector_, const wing::PointF& point_);
+    EndPoint(const EndPoint& that);
+    EndPoint& operator=(const EndPoint& that);
+    EndPoint(EndPoint&& that);
+    EndPoint& operator=(EndPoint&& that);
+    ~EndPoint();
     DiagramElement* Element() const { return element; }
     void SetElement(DiagramElement* element_) { element = element_; }
     const Connector& GetConnector() const { return connector; }
@@ -28,19 +34,21 @@ public:
     const wing::PointF& Point() const { return point; }
     wing::PointF& Point() { return point; }
     void SetPoint(const wing::PointF& point_);
-    const std::string& Text() const { return text; }
-    void SetText(const std::string& text_) { text = text_; }
+    TextElement* PrimaryTextElement() const { return primaryTextElement; }
+    TextElement* SecondaryTextElement() const { return secondaryTextElement; }
     int Index() const { return index; }
     void SetIndex(const std::map<ContainerElement*, int>& containerElementIndexMap);
     void MapIndex(const std::map<int, int>& indexMap);
     void Resolve(Diagram* diagram);
     soul::xml::Element* ToXml(const std::string& elementName) const;
     void Parse(soul::xml::Element* xmlElement);
+    void MeasureTexts(wing::Graphics& graphics);
 private:
     DiagramElement* element;
     Connector connector;
     wing::PointF point;
-    std::string text;
+    TextElement* primaryTextElement;
+    TextElement* secondaryTextElement;
     int index;
 };
 

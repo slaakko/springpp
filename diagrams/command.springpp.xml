@@ -1,0 +1,361 @@
+<diagram>
+ <classElement abstract="true" keyword="" name="Command">
+  <bounds height="28.719725" width="30.044338" x="21.129303" y="61.000000"/>
+  <attribute name="diagram: Diagram">
+   <bounds height="3.943945" width="27.044338" x="22.629303" y="69.443947"/>
+  </attribute>
+  <operation abstract="false" name="+Finalize()">
+   <bounds height="3.943945" width="16.415533" x="22.629303" y="76.387894"/>
+  </operation>
+  <operation abstract="true" name="+Undo()">
+   <bounds height="3.943945" width="12.961480" x="22.629303" y="80.331841"/>
+  </operation>
+  <operation abstract="true" name="+Redo()">
+   <bounds height="3.943945" width="12.961480" x="22.629303" y="84.275787"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="ElementIndex">
+  <bounds height="17.831835" width="41.860664" x="231.000000" y="32.000000"/>
+  <attribute name="element: DiagramElement">
+   <bounds height="3.943945" width="38.860664" x="232.500000" y="40.443947"/>
+  </attribute>
+  <attribute name="index: int">
+   <bounds height="3.943945" width="14.147454" x="232.500000" y="44.387890"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="AddElementsCommand">
+  <bounds height="32.663670" width="43.447544" x="101.000000" y="9.000000"/>
+  <attribute name="indeces: std::vector&lt;int>">
+   <bounds height="3.943945" width="36.505772" x="102.500000" y="17.443945"/>
+  </attribute>
+  <operation abstract="false" name="+AddIndex(index: int)">
+   <bounds height="3.943945" width="32.051785" x="102.500000" y="24.387890"/>
+  </operation>
+  <operation abstract="false" name="+Finalize()">
+   <bounds height="3.943945" width="16.415533" x="102.500000" y="28.331835"/>
+  </operation>
+  <operation abstract="false" name="+Undo()">
+   <bounds height="3.943945" width="15.461480" x="102.500000" y="32.275780"/>
+  </operation>
+  <operation abstract="false" name="+Redo()">
+   <bounds height="3.943945" width="12.961480" x="102.500000" y="36.219723"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="DeleteElementsCommand">
+  <bounds height="28.719725" width="92.438339" x="101.000000" y="45.629295"/>
+  <operation abstract="false" name="+AddDeletedElement(element: DiagramElement, index: int)">
+   <bounds height="3.943945" width="86.938339" x="102.500000" y="57.073242"/>
+  </operation>
+  <operation abstract="false" name="+Finalize()">
+   <bounds height="3.943945" width="16.415533" x="102.500000" y="61.017185"/>
+  </operation>
+  <operation abstract="false" name="+Undo()">
+   <bounds height="3.943945" width="15.461480" x="102.500000" y="64.961128"/>
+  </operation>
+  <operation abstract="false" name="+Redo()">
+   <bounds height="3.943945" width="12.961480" x="102.500000" y="68.905075"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="ReplaceElementCommand">
+  <bounds height="28.719725" width="45.313168" x="101.000000" y="78.314651"/>
+  <attribute name="elemeentIndex: int">
+   <bounds height="3.943945" width="27.780727" x="102.500000" y="86.758598"/>
+  </attribute>
+  <attribute name="element: DiagramElement">
+   <bounds height="3.943945" width="38.860664" x="102.500000" y="90.702545"/>
+  </attribute>
+  <operation abstract="false" name="+Undo()">
+   <bounds height="3.943945" width="12.961480" x="102.500000" y="97.646484"/>
+  </operation>
+  <operation abstract="false" name="+Redo()">
+   <bounds height="3.943945" width="12.961480" x="102.500000" y="101.590431"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="MoveCommand">
+  <bounds height="32.663670" width="95.726509" x="101.000000" y="111.000000"/>
+  <attribute name="indeces: std::vector&lt;int>">
+   <bounds height="3.943945" width="36.505772" x="102.500000" y="119.443947"/>
+  </attribute>
+  <operation abstract="false" name="+AddOldLocation(index: int, oldLocation: CompoundLocation)">
+   <bounds height="3.943945" width="90.226509" x="102.500000" y="126.387894"/>
+  </operation>
+  <operation abstract="false" name="+AddNewLocation(newLocation: CompoundLocation)">
+   <bounds height="3.943945" width="78.405525" x="102.500000" y="130.331833"/>
+  </operation>
+  <operation abstract="false" name="+Undo()">
+   <bounds height="3.943945" width="15.461480" x="102.500000" y="134.275772"/>
+  </operation>
+  <operation abstract="false" name="+Redo()">
+   <bounds height="3.943945" width="12.961480" x="102.500000" y="138.219711"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="CompoundLocation">
+  <bounds height="25.719725" width="42.958271" x="231.000000" y="114.471970"/>
+  <attribute name="location: PointF">
+   <bounds height="3.943945" width="23.599586" x="232.500000" y="122.915916"/>
+  </attribute>
+  <attribute name="points: std::vector&lt;PointF>">
+   <bounds height="3.943945" width="39.958271" x="232.500000" y="126.859863"/>
+  </attribute>
+  <attribute name="hasTargetPoint: bool">
+   <bounds height="3.943945" width="31.234779" x="232.500000" y="130.803802"/>
+  </attribute>
+  <attribute name="targetPoint: PointF">
+   <bounds height="3.943945" width="28.141945" x="232.500000" y="134.747742"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="CommandList">
+  <bounds height="36.607613" width="60.302948" x="6.000000" y="10.000000"/>
+  <attribute name="currentIndex: int">
+   <bounds height="3.943945" width="24.504959" x="7.500000" y="18.443945"/>
+  </attribute>
+  <operation abstract="false" name="+AddCommand(command: Command)">
+   <bounds height="3.943945" width="57.302948" x="7.500000" y="25.387890"/>
+  </operation>
+  <operation abstract="false" name="+CanUndo(): bool">
+   <bounds height="3.943945" width="26.959072" x="7.500000" y="29.331835"/>
+  </operation>
+  <operation abstract="false" name="+CanRedo(): bool">
+   <bounds height="3.943945" width="26.959072" x="7.500000" y="33.275780"/>
+  </operation>
+  <operation abstract="false" name="+Undo()">
+   <bounds height="3.943945" width="12.961480" x="7.500000" y="37.219723"/>
+  </operation>
+  <operation abstract="false" name="+Redo()">
+   <bounds height="3.943945" width="12.961480" x="7.500000" y="41.163666"/>
+  </operation>
+ </classElement>
+ <noteElement>
+  <bounds height="22.719725" width="137.468887" x="231.000000" y="6.000000"/>
+  <line text="for (int index: indeces)"/>
+  <line text="{"/>
+  <line text="    std::unique_ptr&lt;DiagramElement> element = diagram->RemoveElementByIndex(index);"/>
+  <line text="    addedElements.push_back(ElementIndex(element.release(), index));"/>
+  <line text="}"/>
+ </noteElement>
+ <noteElement>
+  <bounds height="26.663670" width="121.195465" x="231.000000" y="54.917412"/>
+  <line text="int n = deletedElements.size();"/>
+  <line text="for (int i = n - 1; i >= 0; --i)"/>
+  <line text="{"/>
+  <line text="    ElementIndex&amp; deletedElement = deletedElements[i];"/>
+  <line text="    diagram->InsertElement(deletedElement.Release(), deletedElement.Index());"/>
+  <line text="}"/>
+ </noteElement>
+ <noteElement>
+  <bounds height="22.719725" width="106.383965" x="231.000000" y="86.666664"/>
+  <line text="for (int index : indeces)"/>
+  <line text="{"/>
+  <line text="    DiagramElement* element = diagram->GetElementByIndex(index);"/>
+  <line text="    element->SetCompoundLocation(oldLocations[i]);"/>
+  <line text="}"/>
+ </noteElement>
+ <relationshipElement cardinality="many" rkind="composition">
+  <bounds height="9.668165" width="86.552460" x="144.447540" y="25.331835"/>
+  <source connector="right.center" index="2" x="144.447540" y="25.331835">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="24.782522" x="147.974442" y="20.781857"/>
+    <line text="addedElements"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.top" index="1" x="231.000000" y="35.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="many" rkind="composition">
+  <bounds height="13.157326" width="37.561661" x="193.438339" y="46.831833"/>
+  <source connector="right.center" index="3" x="193.438339" y="59.989159">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="26.418081" x="193.382431" y="45.810921"/>
+    <line text="deletedElements"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.bottom" index="1" x="231.000000" y="46.831833">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="many" rkind="composition">
+  <bounds height="3.471970" width="34.273499" x="196.726501" y="114.000000"/>
+  <source connector="right.top" index="5" x="196.726501" y="114.000000">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="20.421549" x="200.206970" y="109.408630"/>
+    <line text="oldLocations"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.top" index="6" x="231.000000" y="117.471970">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="many" rkind="composition">
+  <bounds height="3.471970" width="34.273499" x="196.726501" y="137.191696"/>
+  <source connector="right.bottom" index="5" x="196.726501" y="140.663666">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="22.055557" x="199.487183" y="133.205795"/>
+    <line text="newLocations"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.bottom" index="6" x="231.000000" y="137.191696">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="combinedInheritance">
+  <bounds height="104.971970" width="38.826359" x="51.173641" y="24.331835"/>
+  <source connector="none.none" x="0.000000" y="0.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <sourceEndPoint connector="left.center" index="2" x="90.000000" y="24.331835">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="3" x="90.000000" y="59.387894">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="4" x="90.000000" y="92.359863">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="5" x="90.000000" y="129.303802">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <target connector="right.center" index="0" x="51.173641" y="75.359863">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="many" rkind="composition">
+  <bounds height="14.392387" width="0.000000" x="36.151474" y="46.607613"/>
+  <source connector="bottom.center" index="7" x="36.151474" y="46.607613">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="18.051151" x="36.151474" y="49.607613"/>
+    <line text="commands"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="top.center" index="0" x="36.151474" y="61.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="16.887890" width="90.244232" x="140.755768" y="17.359863"/>
+  <source connector="operation.2" index="2" x="140.755768" y="34.247753">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="8" x="231.000000" y="17.359863">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="1.316147" width="39.811661" x="191.188339" y="66.933098"/>
+  <source connector="operation.2" index="3" x="191.188339" y="66.933098">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="9" x="231.000000" y="68.249245">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="38.221214" width="36.523499" x="194.476501" y="98.026527"/>
+  <source connector="operation.2" index="5" x="194.476501" y="136.247742">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="10" x="231.000000" y="98.026527">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+</diagram>

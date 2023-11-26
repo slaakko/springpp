@@ -1,0 +1,159 @@
+<diagram>
+ <classElement abstract="true" keyword="" name="DiagramElement">
+  <bounds height="6.943945" width="29.866055" x="42.423279" y="7.000000"/>
+ </classElement>
+ <classElement abstract="false" keyword="" name="TextElement">
+  <bounds height="68.159172" width="94.712616" x="10.000000" y="34.000000"/>
+  <attribute name="tkind: TextKind">
+   <bounds height="3.943945" width="22.689566" x="11.500000" y="42.443947"/>
+  </attribute>
+  <attribute name="lines: std::vector&lt;string>">
+   <bounds height="3.943945" width="36.502670" x="11.500000" y="46.387890"/>
+  </attribute>
+  <attribute name="keyword: string">
+   <bounds height="3.943945" width="23.047684" x="11.500000" y="50.331833"/>
+  </attribute>
+  <attribute name="keywordTextSize: SizeF">
+   <bounds height="3.943945" width="36.135250" x="11.500000" y="54.275776"/>
+  </attribute>
+  <attribute name="lineSize: SizeF">
+   <bounds height="3.943945" width="22.689566" x="11.500000" y="58.219719"/>
+  </attribute>
+  <attribute name="linesSize: SizeF">
+   <bounds height="3.943945" width="24.325125" x="11.500000" y="62.163662"/>
+  </attribute>
+  <operation abstract="false" name="+Measure(graphics: Graphic)">
+   <bounds height="3.943945" width="43.494492" x="11.500000" y="69.107620"/>
+  </operation>
+  <operation abstract="false" name="+Draw(graphics: Graphics)">
+   <bounds height="3.943945" width="40.037338" x="11.500000" y="73.051567"/>
+  </operation>
+  <operation abstract="false" name="+SetSourceLocation(line: Line, symbolWidth: float)">
+   <bounds height="3.943945" width="76.901115" x="11.500000" y="76.995514"/>
+  </operation>
+  <operation abstract="false" name="+SetTargetLocation(line: Line, symbolWidth: float)">
+   <bounds height="3.943945" width="73.491096" x="11.500000" y="80.939461"/>
+  </operation>
+  <operation abstract="false" name="-SetPrimarySourceLocation(line: Line, symbolWidth: float)">
+   <bounds height="3.943945" width="87.342339" x="11.500000" y="84.883408"/>
+  </operation>
+  <operation abstract="false" name="-SetSecondarySourceLocation(line: Line, symbolWidth: float)">
+   <bounds height="3.943945" width="89.212616" x="11.500000" y="88.827354"/>
+  </operation>
+  <operation abstract="false" name="-SetPrimaryTargetLocation(line: Line, symbolWidth: float)">
+   <bounds height="3.943945" width="83.932320" x="11.500000" y="92.771301"/>
+  </operation>
+  <operation abstract="false" name="-SetSecondaryTargetLocation(line: Line, symbolWidth: float)">
+   <bounds height="3.943945" width="88.302597" x="11.500000" y="96.715248"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="enumeration" name="TextKind">
+  <bounds height="21.775780" width="25.872499" x="117.000000" y="7.000000"/>
+  <attribute name="primaryText">
+   <bounds height="3.943945" width="18.319290" x="118.500000" y="19.387890"/>
+  </attribute>
+  <attribute name="secondaryText">
+   <bounds height="3.943945" width="22.506630" x="118.500000" y="23.331835"/>
+  </attribute>
+ </classElement>
+ <noteElement>
+  <bounds height="117.374413" width="78.101974" x="116.000000" y="33.177139"/>
+  <line text="Vector u = line.ToVector();"/>
+  <line text="if (u.x >= 0 &amp;&amp; u.y >= 0)"/>
+  <line text="{"/>
+  <line text="    Vector x_unit(1, 0);"/>
+  <line text="    Vector y_unit(0, -1);"/>
+  <line text="    float h = Size().height;"/>
+  <line text="    Vector v = Proj(u, x_unit);"/>
+  <line text="    Vector v_minus_u = v - u;"/>
+  <line text="    float r = h * v_minus_u.Length() / Dot(u, u);"/>
+  <line text="    Vector ru = u * r;"/>
+  <line text="    Vector hy = y_unit * h;"/>
+  <line text="    Vector su = Unit(u) * symbolWidth;"/>
+  <line text="    Line a(line.start, su);"/>
+  <line text="    Line b(a.end, ru);"/>
+  <line text="    Line c(b.end, hy);"/>
+  <line text="    DiagramElement::SetLocation(c.end);"/>
+  <line text="}"/>
+  <line text="else if (u.x > 0 &amp;&amp; u.y &lt; 0)"/>
+  <line text="{"/>
+  <line text="    ..."/>
+  <line text="}"/>
+  <line text="else if ((u.x &lt;= 0 &amp;&amp; u.y &lt; 0 || u.x &lt; 0 &amp;&amp; u.y == 0)"/>
+  <line text="{"/>
+  <line text="    ..."/>
+  <line text="}"/>
+  <line text="else"/>
+  <line text="{"/>
+  <line text="    ..."/>
+  <line text="}"/>
+ </noteElement>
+ <noteElement>
+  <bounds height="34.551559" width="81.669197" x="10.000000" y="116.000000"/>
+  <line text="if (tkind == TextKind::primaryText)"/>
+  <line text="{"/>
+  <line text="    SetPrimarySourceLocation(line, symbolWidth);"/>
+  <line text="}"/>
+  <line text="else if (tkind == TextKind::secondaryText)"/>
+  <line text="{"/>
+  <line text="    SetSecondarySourceLocation(line, symbolWidth);"/>
+  <line text="}"/>
+ </noteElement>
+ <relationshipElement cardinality="one" rkind="inheritance">
+  <bounds height="20.056055" width="0.000000" x="57.356308" y="13.943945"/>
+  <source connector="top.center" index="1" x="57.356308" y="34.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="bottom.center" index="0" x="57.356308" y="13.943945">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="5.008972" width="13.537384" x="102.462616" y="86.855377"/>
+  <source connector="operation.4" index="1" x="102.462616" y="86.855377">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="3" x="116.000000" y="91.864349">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="37.032516" width="51.628017" x="50.834599" y="78.967484"/>
+  <source connector="operation.2" index="1" x="102.462616" y="78.967484">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="top.center" index="4" x="50.834599" y="116.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+</diagram>

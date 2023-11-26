@@ -10,11 +10,14 @@ import springpp.edit_diagram_element_list_dialog;
 
 namespace springpp {
 
-ClassPropertiesDialog::ClassPropertiesDialog(ClassElement* classElement_) : wing::Window(wing::WindowCreateParams().Defaults().Text("Class Properties").
+ClassPropertiesDialog::ClassPropertiesDialog(ClassElement* classElement_, 
+    std::map<DiagramElement*, DiagramElement*>& cloneMap_, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap_) :
+    wing::Window(wing::WindowCreateParams().Defaults().Text("Class Properties").
     WindowStyle(wing::DialogWindowStyle()).Location(wing::DefaultLocation()).
     WindowClassBackgroundColor(wing::DefaultControlWindowClassBackgroundColor()).BackgroundColor(wing::DefaultControlBackgroundColor()).
     SetSize(wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(100), wing::ScreenMetrics::Get().MMToVerticalPixels(70)))),
-    classElement(classElement_), classNameTextBox(nullptr), abstractCheckBox(nullptr), cancelButton(nullptr), okButton(nullptr), 
+    classElement(classElement_), cloneMap(cloneMap_), reverseCloneMap(reverseCloneMap_),
+    classNameTextBox(nullptr), abstractCheckBox(nullptr), cancelButton(nullptr), okButton(nullptr), 
     editOperationsButton(nullptr), editAttributesButton(nullptr)
 {
     int column1Width = wing::ScreenMetrics::Get().MMToHorizontalPixels(20);
@@ -132,7 +135,7 @@ ClassPropertiesDialog::ClassPropertiesDialog(ClassElement* classElement_) : wing
         SetSize(defaultButtonSize).SetDock(wing::Dock::none).SetAnchors(static_cast<wing::Anchors>(wing::Anchors::bottom | wing::Anchors::right))));
     okButton = okButtonPtr.get();
     okButton->SetDialogResult(wing::DialogResult::ok);
-    if (classElement->Name().empty())
+    if (classElement->Name().empty() && classElement->Keyword().empty())
     {
         okButton->Disable();
         editOperationsButton->Disable();
@@ -147,11 +150,12 @@ ClassPropertiesDialog::ClassPropertiesDialog(ClassElement* classElement_) : wing
 
 void ClassPropertiesDialog::ClassNameChanged()
 {
-    if (classNameTextBox->Text().empty())
+    if (classNameTextBox->Text().empty() && keywordTextBox->Text().empty())
     {
         okButton->Disable();
         editOperationsButton->Disable();
         editAttributesButton->Disable();
+        classElement->SetName(std::string());
     }
     else
     {
@@ -164,7 +168,20 @@ void ClassPropertiesDialog::ClassNameChanged()
 
 void ClassPropertiesDialog::KeywordChanged()
 {
-    classElement->SetKeyword(keywordTextBox->Text());
+    if (classNameTextBox->Text().empty() && keywordTextBox->Text().empty())
+    {
+        okButton->Disable();
+        editOperationsButton->Disable();
+        editAttributesButton->Disable();
+        classElement->SetKeyword(std::string());
+    }
+    else
+    {
+        okButton->Enable();
+        editOperationsButton->Enable();
+        editAttributesButton->Enable();
+        classElement->SetKeyword(keywordTextBox->Text());
+    }
 }
 
 void ClassPropertiesDialog::AbstractChanged()
@@ -182,20 +199,24 @@ void ClassPropertiesDialog::AbstractChanged()
 
 void ClassPropertiesDialog::EditOperations()
 {
+    std::map<DiagramElement*, DiagramElement*> prevCloneMap = cloneMap;
+    std::map<DiagramElement*, DiagramElement*> prevReverseCloneMap = reverseCloneMap;
     bool mayHaveAbstractOperations = classElement->IsAbstract();
-    IndexList<OperationElement> clonedOperationElements = classElement->Operations().Clone();
-    if (ExecuteEditOperationsDialog(clonedOperationElements, classElement, mayHaveAbstractOperations, *this))
+    if (!ExecuteEditOperationsDialog(classElement->Operations(), cloneMap, reverseCloneMap, classElement, mayHaveAbstractOperations, *this))
     {
-        classElement->SetOperations(std::move(clonedOperationElements));
+        cloneMap = prevCloneMap;
+        reverseCloneMap = prevReverseCloneMap;
     }
 }
 
 void ClassPropertiesDialog::EditAttributes()
 {
-    IndexList<AttributeElement> clonedAttributeElements = classElement->Attributes().Clone();
-    if (ExecuteEditAttributesDialog(clonedAttributeElements, classElement, *this))
+    std::map<DiagramElement*, DiagramElement*> prevCloneMap = cloneMap;
+    std::map<DiagramElement*, DiagramElement*> prevReverseCloneMap = reverseCloneMap;
+    if (!ExecuteEditAttributesDialog(classElement->Attributes(), cloneMap, reverseCloneMap, classElement, *this))
     {
-        classElement->SetAttributes(std::move(clonedAttributeElements));
+        cloneMap = prevCloneMap;
+        reverseCloneMap = prevReverseCloneMap;
     }
 }
 

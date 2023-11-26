@@ -27,7 +27,7 @@ public:
     virtual OperationElement* GetOperation(int operationIndex) const;
     virtual int GetIndexOfOperationElement(OperationElement* operationElement) const;
     virtual float GetMaxChildElementWidth() const { return 0.0f; }
-    virtual void MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap) {}
+    virtual void MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap, std::map<DiagramElement*, DiagramElement*>& revereseCloneMap) {}
     ContainerElement* GetContainerElement() const override { return const_cast<ContainerElement*>(this); }
     void AddRelationship(RelationshipElement* relationship_) override;
     void RemoveRelationship(RelationshipElement* relationship_) override;

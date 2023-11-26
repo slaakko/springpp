@@ -283,7 +283,12 @@ void ClassElementPropertiesAction::Execute(Diagram* diagram, int elementIndex)
     {
         ClassElement* classElement = static_cast<ClassElement*>(element);
         std::unique_ptr<ClassElement> clone(static_cast<ClassElement*>(classElement->Clone()));
-        std::unique_ptr<ClassPropertiesDialog> classPropertiesDialog(new ClassPropertiesDialog(clone.get()));
+        std::map<DiagramElement*, DiagramElement*> cloneMap;
+        std::map<DiagramElement*, DiagramElement*> reverseCloneMap;
+        cloneMap[classElement] = clone.get();
+        reverseCloneMap[clone.get()] = classElement;
+        clone->MapChildObjects(classElement, cloneMap, reverseCloneMap);
+        std::unique_ptr<ClassPropertiesDialog> classPropertiesDialog(new ClassPropertiesDialog(clone.get(), cloneMap, reverseCloneMap));
         Canvas* canvas = GetCanvas();
         wing::Window* window = canvas->GetWindow();
         diagram->HideContextMenu();
@@ -295,15 +300,19 @@ void ClassElementPropertiesAction::Execute(Diagram* diagram, int elementIndex)
                 clone->ResetAbstractOperations();
             }
             std::unique_ptr<ReplaceElementCommand> replaceElementCommand(new ReplaceElementCommand(diagram, elementIndex));
-            std::map<DiagramElement*, DiagramElement*> cloneMap;
-            cloneMap[classElement] = clone.get();
-            clone->MapChildObjects(classElement, cloneMap);
+            std::vector<RelationshipElement*> orphanRelationships;
             std::vector<RelationshipElement*> relationships = classElement->GetAllRelationships();
             for (auto relationship : relationships)
             {
-                relationship->MapContainerElements(cloneMap);
+                bool orphan = false;
+                relationship->MapContainerElements(cloneMap, orphan);
+                if (orphan)
+                {
+                    orphanRelationships.push_back(relationship);
+                }
                 relationship->AddToElements();
             }
+            DeleteRelationships(diagram, orphanRelationships);
             diagram->SetElementByIndex(clone.release(), elementIndex);
             diagram->SetChanged();
             diagram->Invalidate();
@@ -324,7 +333,12 @@ void ObjectElementPropertiesAction::Execute(Diagram* diagram, int elementIndex)
     {
         ObjectElement* objectElement = static_cast<ObjectElement*>(element);
         std::unique_ptr<ObjectElement> clone(static_cast<ObjectElement*>(objectElement->Clone()));
-        std::unique_ptr<ObjectPropertiesDialog> objectPropertiesDialog(new ObjectPropertiesDialog(clone.get()));
+        std::map<DiagramElement*, DiagramElement*> cloneMap;
+        std::map<DiagramElement*, DiagramElement*> reverseCloneMap;
+        cloneMap[objectElement] = clone.get();
+        reverseCloneMap[clone.get()] = objectElement;
+        clone->MapChildObjects(objectElement, cloneMap, reverseCloneMap);
+        std::unique_ptr<ObjectPropertiesDialog> objectPropertiesDialog(new ObjectPropertiesDialog(clone.get(), cloneMap, reverseCloneMap));
         Canvas* canvas = GetCanvas();
         wing::Window* window = canvas->GetWindow();
         diagram->HideContextMenu();
@@ -332,15 +346,19 @@ void ObjectElementPropertiesAction::Execute(Diagram* diagram, int elementIndex)
         if (result == wing::DialogResult::ok)
         {
             std::unique_ptr<ReplaceElementCommand> replaceElementCommand(new ReplaceElementCommand(diagram, elementIndex));
-            std::map<DiagramElement*, DiagramElement*> cloneMap;
-            cloneMap[objectElement] = clone.get();
-            clone->MapChildObjects(objectElement, cloneMap);
+            std::vector<RelationshipElement*> orphanRelationships;
             std::vector<RelationshipElement*> relationships = objectElement->GetAllRelationships();
             for (RelationshipElement* relationship : relationships)
             {
-                relationship->MapContainerElements(cloneMap);
+                bool orphan = false;
+                relationship->MapContainerElements(cloneMap, orphan);
+                if (orphan)
+                {
+                    orphanRelationships.push_back(relationship);
+                }
                 relationship->AddToElements();
             }
+            DeleteRelationships(diagram, orphanRelationships);
             diagram->SetElementByIndex(clone.release(), elementIndex);
             diagram->SetChanged();
             diagram->Invalidate();
@@ -361,6 +379,11 @@ void NoteElementPropertiesAction::Execute(Diagram* diagram, int elementIndex)
     {
         NoteElement* noteElement = static_cast<NoteElement*>(element);
         std::unique_ptr<NoteElement> clone(static_cast<NoteElement*>(noteElement->Clone()));
+        std::map<DiagramElement*, DiagramElement*> cloneMap;
+        std::map<DiagramElement*, DiagramElement*> reverseCloneMap;
+        cloneMap[noteElement] = clone.get();
+        reverseCloneMap[clone.get()] = noteElement;
+        clone->MapChildObjects(noteElement, cloneMap, reverseCloneMap);
         std::unique_ptr<NotePropertiesDialog> notePropertiesDialog(new NotePropertiesDialog(clone.get()));
         Canvas* canvas = diagram->GetCanvas();
         wing::Window* window = canvas->GetWindow();
@@ -369,15 +392,19 @@ void NoteElementPropertiesAction::Execute(Diagram* diagram, int elementIndex)
         if (result == wing::DialogResult::ok)
         {
             std::unique_ptr<ReplaceElementCommand> replaceElementCommand(new ReplaceElementCommand(diagram, elementIndex));
-            std::map<DiagramElement*, DiagramElement*> cloneMap;
-            cloneMap[noteElement] = clone.get();
-            clone->MapChildObjects(noteElement, cloneMap);
+            std::vector<RelationshipElement*> orphanRelationships;
             std::vector<RelationshipElement*> relationships = noteElement->GetAllRelationships();
             for (RelationshipElement* relationship : relationships)
             {
-                relationship->MapContainerElements(cloneMap);
+                bool orphan = false;
+                relationship->MapContainerElements(cloneMap, orphan);
+                if (orphan)
+                {
+                    orphanRelationships.push_back(relationship);
+                }
                 relationship->AddToElements();
             }
+            DeleteRelationships(diagram, orphanRelationships);
             diagram->SetElementByIndex(clone.release(), elementIndex);
             diagram->SetChanged();
             diagram->Invalidate();
@@ -454,6 +481,21 @@ void StraightenRelationshipElementAction::Execute(Diagram* diagram, int elementI
     {
         RelationshipElement* relationship = static_cast<RelationshipElement*>(diagramElement);
         relationship->Straighten();
+    }
+}
+
+SetCenterConnectorsRelationshipElementAction::SetCenterConnectorsRelationshipElementAction(Diagram* diagram_, int elementIndex_, wing::MenuItem* menuItem_) :
+    DiagramElementAction(diagram_, elementIndex_, menuItem_)
+{
+}
+
+void SetCenterConnectorsRelationshipElementAction::Execute(Diagram* diagram, int elementIndex)
+{
+    DiagramElement* diagramElement = diagram->GetElementByIndex(elementIndex);
+    if (diagramElement->IsRelationshipElement())
+    {
+        RelationshipElement* relationship = static_cast<RelationshipElement*>(diagramElement);
+        relationship->SetCenterConnectors();
     }
 }
 

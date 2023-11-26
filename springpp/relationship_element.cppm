@@ -85,10 +85,11 @@ public:
     void AddToElements();
     void RemoveFromElements();
     void SetContainerElementIndeces(const std::map<ContainerElement*, int>& containerElementIndexMap);
-    void MapContainerElements(const std::map<DiagramElement*, DiagramElement*>& cloneMap);
+    void MapContainerElements(const std::map<DiagramElement*, DiagramElement*>& cloneMap, bool& orphan);
     void Resolve(Diagram* diagram);
     void Calculate(const Connector& connector, DiagramElement* element, float w, int index, int count);
     void Straighten();
+    void SetCenterConnectors();
     int MainDirection() const;
     void MapIndeces(const std::map<int, int>& indexMap);
 private:

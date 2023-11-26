@@ -615,6 +615,9 @@ void RelationshipElement::AddActions(Diagram* diagram, int elementIndex, wing::C
         wing::MenuItem* straightenMenuItem = new wing::MenuItem("Straighten");
         contextMenu->AddMenuItem(straightenMenuItem);
         contextMenu->AddAction(new StraightenRelationshipElementAction(diagram, elementIndex, straightenMenuItem));
+        wing::MenuItem* setCenterConnectorsMenuItem = new wing::MenuItem("Set center connectors");
+        contextMenu->AddMenuItem(setCenterConnectorsMenuItem);
+        contextMenu->AddAction(new SetCenterConnectorsRelationshipElementAction(diagram, elementIndex, setCenterConnectorsMenuItem));
     }
     else
     {
@@ -692,14 +695,20 @@ void RelationshipElement::SetContainerElementIndeces(const std::map<ContainerEle
     target.SetIndex(containerElementIndexMap);
 }
 
-void RelationshipElement::MapContainerElements(const std::map<DiagramElement*, DiagramElement*>& cloneMap)
+void RelationshipElement::MapContainerElements(const std::map<DiagramElement*, DiagramElement*>& cloneMap, bool& orphan)
 {
+    orphan = false;
     if (source.Element())
     {
         auto it = cloneMap.find(source.Element());
         if (it != cloneMap.end())
         {
-            source.SetElement(it->second);
+            DiagramElement* target = it->second;
+            if (!target)
+            {
+                orphan = true;
+            }
+            source.SetElement(target);
         }
     }
     for (auto& sourceEndPoint : sourceEndPoints)
@@ -839,6 +848,43 @@ void RelationshipElement::Straighten()
             }
         }
     }
+}
+
+void RelationshipElement::SetCenterConnectors()
+{
+    Line line(source.Point(), target.Point());
+    Vector v = line.ToVector();
+    ConnectorPoint primarySourcePoint = ConnectorPoint::none;
+    ConnectorPoint primaryTargetPoint = ConnectorPoint::none;
+    switch (springpp::MainDirection(v))
+    {
+        case 0:
+        {
+            primarySourcePoint = ConnectorPoint::right;
+            primaryTargetPoint = ConnectorPoint::left;
+            break;
+        }
+        case 180:
+        {
+            primarySourcePoint = ConnectorPoint::left;
+            primaryTargetPoint = ConnectorPoint::right;
+            break;
+        }
+        case 90:
+        {
+            primarySourcePoint = ConnectorPoint::bottom;
+            primaryTargetPoint = ConnectorPoint::top;
+            break;
+        }
+        case 270:
+        {
+            primarySourcePoint = ConnectorPoint::top;
+            primaryTargetPoint = ConnectorPoint::bottom;
+            break;
+        }
+    }
+    source.SetConnector(Connector(primarySourcePoint, ConnectorPoint::center));
+    target.SetConnector(Connector(primaryTargetPoint, ConnectorPoint::center));
 }
 
 void RelationshipElement::MapIndeces(const std::map<int, int>& indexMap)

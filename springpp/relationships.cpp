@@ -25,7 +25,6 @@ RelationshipElementRep* Inheritance::Clone(RelationshipElement* relationshipElem
 
 float Inheritance::TargetSymbolWidth() const
 {
-    RelationshipElement* relationshipElement = GetRelationshipElement();
     Layout* layout = Configuration::Instance().GetLayout();
     RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
     float inheritanceArrowWidth = relationshipLayoutElement->InheritanceArrowWidth();

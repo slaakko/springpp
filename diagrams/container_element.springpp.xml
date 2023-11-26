@@ -1,0 +1,139 @@
+<diagram>
+ <classElement abstract="true" keyword="" name="DiagramElement">
+  <bounds height="24.775780" width="86.318405" x="11.500000" y="7.000000"/>
+  <operation abstract="false" name="+Draw(graphics: Graphics)">
+   <bounds height="3.943945" width="40.037338" x="13.000000" y="18.443945"/>
+  </operation>
+  <operation abstract="false" name="+GetEndPoints(endPointKind: EndPointKind): EndPoint[]">
+   <bounds height="3.943945" width="83.318405" x="13.000000" y="22.387890"/>
+  </operation>
+  <operation abstract="false" name="+GetEndPoint(connector: Connector)">
+   <bounds height="3.943945" width="54.951153" x="13.000000" y="26.331835"/>
+  </operation>
+ </classElement>
+ <classElement abstract="true" keyword="" name="ContainerElement">
+  <bounds height="24.775780" width="91.318405" x="9.000000" y="43.775780"/>
+  <operation abstract="false" name="+GetEndPoints(endPointKind: EndPointKind): EndPoint[]">
+   <bounds height="3.943945" width="85.818405" x="10.500000" y="55.219727"/>
+  </operation>
+  <operation abstract="false" name="+GetEndPoint(connector: Connector)">
+   <bounds height="3.943945" width="57.451153" x="10.500000" y="59.163670"/>
+  </operation>
+  <operation abstract="false" name="+Measure(graphics: Graphics)">
+   <bounds height="3.943945" width="47.630051" x="10.500000" y="63.107613"/>
+  </operation>
+ </classElement>
+ <noteElement>
+  <bounds height="6.943945" width="106.216537" x="108.864143" y="38.775780"/>
+  <line text="returns twelve endpoints, three on each side of the container element"/>
+ </noteElement>
+ <classElement abstract="false" keyword="" name="RelationshipElement">
+  <bounds height="6.943945" width="36.403633" x="149.864136" y="52.691696"/>
+ </classElement>
+ <noteElement>
+  <bounds height="6.943945" width="74.584358" x="108.864143" y="83.135651"/>
+  <line text="measure relationships of this container element"/>
+ </noteElement>
+ <noteElement>
+  <bounds height="10.887890" width="77.227608" x="108.864143" y="66.000000"/>
+  <line text="PointF point = evaluate point for given connector:"/>
+  <line text="return EndPoint(this, connector, point);"/>
+ </noteElement>
+ <relationshipElement cardinality="one" rkind="inheritance">
+  <bounds height="12.000000" width="0.000000" x="54.659203" y="31.775780"/>
+  <source connector="top.center" index="1" x="54.659203" y="43.775780">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="bottom.center" index="0" x="54.659203" y="31.775780">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="many" rkind="aggregation">
+  <bounds height="0.000000" width="49.545731" x="100.318405" y="56.163670"/>
+  <source connector="right.center" index="1" x="100.318405" y="56.163670">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="20.418447" x="103.318405" y="51.219727"/>
+    <line text="relationships"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="3" x="149.864136" y="56.163670">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="3.331123" x="141.533020" y="51.219727"/>
+    <line text="*"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="15.415920" width="10.795738" x="98.068405" y="41.775780"/>
+  <source connector="operation.0" index="1" x="98.068405" y="57.191700">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.top" index="2" x="108.864143" y="41.775780">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="22.000015" width="10.795738" x="98.068405" y="65.079582"/>
+  <source connector="operation.2" index="1" x="98.068405" y="65.079582">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.bottom" index="4" x="108.864143" y="87.079597">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="7.864357" width="10.795738" x="98.068405" y="61.135643"/>
+  <source connector="operation.1" index="1" x="98.068405" y="61.135643">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.top" index="5" x="108.864143" y="69.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+</diagram>

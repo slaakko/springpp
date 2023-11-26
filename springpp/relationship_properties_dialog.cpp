@@ -19,6 +19,7 @@ RelationshipPropertiesDialog::RelationshipPropertiesDialog(RelationshipElement* 
         SetSize(wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(120), wing::ScreenMetrics::Get().MMToVerticalPixels(100)))),
     relationshipElement(relationshipElement_), ready(false), relationGroupBox(nullptr), 
     inheritanceRadioButton(nullptr), compositionRadioButton(nullptr), aggregationRadioButton(nullptr), referenceRadioButton(nullptr), createInstanceRadioButton(nullptr),
+    attachNoteRadioButton(nullptr),
     cardinalityGroupBox(nullptr), zeroRadioButton(nullptr), oneRadioButton(nullptr), manyRadioButton(nullptr), okButton(nullptr), cancelButton(nullptr), 
     sourceGroupBox(nullptr), primarySourceTextButton(nullptr), secondarySourceTextButton(nullptr), sourceConnectorButton(nullptr),
     targetGroupBox(nullptr), primaryTargetTextButton(nullptr), secondaryTargetTextButton(nullptr), targetConnectorButton(nullptr),
@@ -82,6 +83,15 @@ RelationshipPropertiesDialog::RelationshipPropertiesDialog(RelationshipElement* 
     createInstanceRadioButton = createInstanceRadioButtonPtr.get();
     createInstanceRadioButton->CheckedChanged().AddHandler(this, &RelationshipPropertiesDialog::RelationRadioButtonStateChanged);
     relationGroupBox->AddChild(createInstanceRadioButtonPtr.release());
+    wing::Point createInstanceRadioButtonLoc = createInstanceRadioButton->Location();
+    wing::Size createInstanceRadioButtonSize = createInstanceRadioButton->GetSize();
+
+    std::unique_ptr<wing::RadioButton> attachNoteRadioButtonPtr(new wing::RadioButton(wing::RadioButtonCreateParams().Defaults().Text("Attach Note").
+        Location(wing::Point(createInstanceRadioButtonLoc.X, createInstanceRadioButtonLoc.Y + createInstanceRadioButtonSize.Height)).
+        SetAnchors((wing::Anchors::top | wing::Anchors::left))));
+    attachNoteRadioButton = attachNoteRadioButtonPtr.get();
+    attachNoteRadioButton->CheckedChanged().AddHandler(this, &RelationshipPropertiesDialog::RelationRadioButtonStateChanged);
+    relationGroupBox->AddChild(attachNoteRadioButtonPtr.release());
 
     wing::Size cardinalityGroupBoxSize(wing::ScreenMetrics::Get().MMToHorizontalPixels(40), wing::ScreenMetrics::Get().MMToVerticalPixels(30));
     std::unique_ptr<wing::GroupBox> cardinalityGroupBoxPtr(new wing::GroupBox(wing::GroupBoxCreateParams().Defaults().Text("Cardinality").
@@ -330,6 +340,14 @@ void RelationshipPropertiesDialog::SetRelationRadioButton()
             zeroRadioButton->Disable();
             break;
         }
+        case RelationshipKind::attachNote:
+        {
+            relationGroupBox->SetCheckedRadioButton(attachNoteRadioButton);
+            zeroRadioButton->Disable();
+            oneRadioButton->Disable();
+            manyRadioButton->Disable();
+            break;
+        }
     }
 }
 
@@ -380,6 +398,10 @@ void RelationshipPropertiesDialog::RelationRadioButtonStateChanged()
         {
             relationshipElement->SetRKind(RelationshipKind::createInstance);
         }
+        else if (checkedRadioButton == attachNoteRadioButton)
+        {
+            relationshipElement->SetRKind(RelationshipKind::attachNote);
+        }
         if (checkedRadioButton == inheritanceRadioButton)
         {
             if (manyRadioButton->Checked())
@@ -424,6 +446,12 @@ void RelationshipPropertiesDialog::RelationRadioButtonStateChanged()
             }
             zeroRadioButton->Disable();
             manyRadioButton->Enable();
+        }
+        else if (checkedRadioButton == attachNoteRadioButton)
+        {
+            zeroRadioButton->Disable();
+            oneRadioButton->Disable();
+            manyRadioButton->Disable();
         }
     }
 }

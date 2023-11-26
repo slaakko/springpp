@@ -1,0 +1,324 @@
+<diagram>
+ <classElement abstract="true" keyword="" name="DiagramAction">
+  <bounds height="24.775780" width="88.287277" x="8.000000" y="116.000000"/>
+  <attribute name="diagram: Diagram">
+   <bounds height="3.943945" width="27.044338" x="9.500000" y="124.443947"/>
+  </attribute>
+  <operation abstract="false" name="+DiagramAction(diagram: Diagram, menuItem: MenuItem)">
+   <bounds height="3.943945" width="85.287277" x="9.500000" y="131.387894"/>
+  </operation>
+  <operation abstract="true" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="42.947239" x="9.500000" y="135.331833"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="SaveSelectionAsImageAction">
+  <bounds height="16.887890" width="50.038460" x="121.000000" y="27.000000"/>
+  <operation abstract="false" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="42.947239" x="122.500000" y="38.443947"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="AlignTopAction">
+  <bounds height="16.887890" width="51.674324" x="121.000000" y="46.323990"/>
+  <operation abstract="false" name="+Execute(diiagram: Diagram)">
+   <bounds height="3.943945" width="46.174324" x="122.500000" y="57.767937"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="AlignBottomAction">
+  <bounds height="16.887890" width="46.674324" x="121.000000" y="64.647980"/>
+  <operation abstract="false" name="+Execute(diiagram: Diagram)">
+   <bounds height="3.943945" width="43.674324" x="122.500000" y="76.091927"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="AlignVerticalCenterAction">
+  <bounds height="16.887890" width="50.947239" x="121.000000" y="82.971970"/>
+  <operation abstract="false" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="45.447239" x="122.500000" y="94.415916"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="AlignLeftSideAction">
+  <bounds height="16.887890" width="45.947239" x="121.000000" y="101.981316"/>
+  <operation abstract="false" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="42.947239" x="122.500000" y="113.425262"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="AlignRightSideAction">
+  <bounds height="16.887890" width="45.947239" x="121.000000" y="119.943947"/>
+  <operation abstract="false" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="42.947239" x="122.500000" y="131.387894"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="AlignHorizontalCenterAction">
+  <bounds height="16.887890" width="48.751717" x="121.000000" y="139.000000"/>
+  <operation abstract="false" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="42.947239" x="122.500000" y="150.443939"/>
+  </operation>
+ </classElement>
+ <noteElement>
+  <bounds height="34.551559" width="131.842865" x="184.424316" y="42.464130"/>
+  <line text="Selection* selection = diagram->GetSelection();"/>
+  <line text="ElementSelection elementSelection(diagram);"/>
+  <line text="std::vector&lt;int> containerElementIndeces = selection->GetContainerElementIndeces();"/>
+  <line text="for (auto index : containerElementIndeces)"/>
+  <line text="{"/>
+  <line text="    elementSelection.Add(index);"/>
+  <line text="}"/>
+  <line text="elementSelection.AlignTop();"/>
+ </noteElement>
+ <noteElement>
+  <bounds height="34.551559" width="131.842865" x="184.424316" y="79.112106"/>
+  <line text="Selection* selection = diagram->GetSelection();"/>
+  <line text="ElementSelection elementSelection(diagram);"/>
+  <line text="std::vector&lt;int> containerElementIndeces = selection->GetContainerElementIndeces();"/>
+  <line text="for (auto index : containerElementIndeces)"/>
+  <line text="{"/>
+  <line text="    elementSelection.Add(index);"/>
+  <line text="}"/>
+  <line text="elementSelection.AlignVerticalCenter();"/>
+ </noteElement>
+ <classElement abstract="false" keyword="" name="DeleteSelectionAction">
+  <bounds height="16.887890" width="50.947239" x="121.000000" y="215.000000"/>
+  <operation abstract="false" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="45.447239" x="122.500000" y="226.443939"/>
+  </operation>
+ </classElement>
+ <noteElement>
+  <bounds height="18.775780" width="57.306355" x="184.424316" y="219.028015"/>
+  <line text="diagram->GetSelection()->Delete();"/>
+  <line text="diagram->ResetSelection;"/>
+  <line text="diagram->SetChanged();"/>
+  <line text="diagram->Invalidate();"/>
+ </noteElement>
+ <classElement abstract="true" keyword="" name="Selection">
+  <bounds height="16.887890" width="69.676323" x="17.305477" y="5.000000"/>
+  <operation abstract="false" name="+AddActions(contextMenu: ContextMenu)">
+   <bounds height="3.943945" width="64.176323" x="18.805477" y="16.443945"/>
+  </operation>
+ </classElement>
+ <noteElement>
+  <bounds height="14.831835" width="141.921326" x="121.000000" y="7.056055"/>
+  <line text='MenuItem* saveImageMenuItem = new MenuItem("Save Image...");'/>
+  <line text="contextMenu->AddMenuItem(saveImageMenuItem);"/>
+  <line text="contextMenu->AddAction(new SaveSelectionAsImageAction(diagram, saveImageMenuItem));"/>
+ </noteElement>
+ <classElement abstract="false" keyword="" name="SpaceEvenlyVerticallyAction">
+  <bounds height="16.887890" width="48.951706" x="121.000000" y="158.000000"/>
+  <operation abstract="false" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="42.947239" x="122.500000" y="169.443939"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="SpaceEvenlyHorizontallyAction">
+  <bounds height="16.887890" width="53.125092" x="121.000000" y="177.000000"/>
+  <operation abstract="false" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="42.947239" x="122.500000" y="188.443939"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="CombineInheritancesAction">
+  <bounds height="16.887890" width="47.488228" x="121.000000" y="196.000000"/>
+  <operation abstract="false" name="+Execute(diagram: Diagram)">
+   <bounds height="3.943945" width="42.947239" x="122.500000" y="207.443939"/>
+  </operation>
+ </classElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="0.000000" width="14.000000" x="170.424316" y="59.739910"/>
+  <source connector="operation.0" index="2" x="170.424316" y="59.739910">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="8" x="184.424316" y="59.739910">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="0.000000" width="14.727081" x="169.697235" y="96.387886"/>
+  <source connector="operation.0" index="4" x="169.697235" y="96.387886">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="9" x="184.424316" y="96.387886">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="0.000000" width="14.727081" x="169.697235" y="228.415909"/>
+  <source connector="operation.0" index="10" x="169.697235" y="228.415909">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="11" x="184.424316" y="228.415909">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="3.943944" width="36.268204" x="84.731796" y="14.471972"/>
+  <source connector="operation.0" index="12" x="84.731796" y="18.415916">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="13" x="121.000000" y="14.471972">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="combinedInheritance">
+  <bounds height="188.000000" width="10.287277" x="86.000000" y="32.443947"/>
+  <source connector="none.none" x="0.000000" y="0.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <sourceEndPoint connector="left.center" index="1" x="86.000000" y="32.443947">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="2" x="86.000000" y="51.767937">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="3" x="86.000000" y="70.091927">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="4" x="86.000000" y="88.415916">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="5" x="86.000000" y="107.425262">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="6" x="86.000000" y="125.434608">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="7" x="86.000000" y="144.443939">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="14" x="86.000000" y="163.443939">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="15" x="86.000000" y="182.443939">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="16" x="86.000000" y="201.443939">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="left.center" index="10" x="86.000000" y="220.443939">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <target connector="right.center" index="0" x="96.287277" y="128.387894">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="createInstance">
+  <bounds height="94.112106" width="0.000000" x="52.143639" y="21.887890"/>
+  <source connector="bottom.center" index="12" x="52.143639" y="21.887890">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="top.center" index="0" x="52.143639" y="116.000000">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="12.781708" x="52.143639" y="108.056053"/>
+    <line text="creates"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+</diagram>

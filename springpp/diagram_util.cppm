@@ -16,6 +16,8 @@ import std.core;
 
 export namespace springpp {
 
+void DeleteRelationships(Diagram* diagram, const std::vector<RelationshipElement*>& relationships);
+
 wing::RectF CalculateBounds(const std::vector<DiagramElement*>& diagramElements);
 
 void SaveImage(const std::string& imageFileName, const Padding& margins, Canvas* canvas, const std::vector<DiagramElement*>& diagramElements, wing::Graphics* graphics,

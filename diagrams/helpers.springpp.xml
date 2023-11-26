@@ -1,0 +1,252 @@
+<diagram>
+ <classElement abstract="false" keyword="datatype" name="Connector">
+  <bounds height="87.878883" width="54.945137" x="16.736656" y="13.000000"/>
+  <attribute name="primaryPoint: ConnectorPoint">
+   <bounds height="3.943945" width="43.768890" x="18.236656" y="25.387890"/>
+  </attribute>
+  <attribute name="secondaryPoint: ConnectorPoint">
+   <bounds height="3.943945" width="47.956234" x="18.236656" y="29.331835"/>
+  </attribute>
+  <operation abstract="false" name="Connector(x: int) explicit">
+   <bounds height="3.943945" width="36.133701" x="18.236656" y="36.275780"/>
+  </operation>
+  <operation abstract="false" name="ToInt() int">
+   <bounds height="3.943945" width="15.049725" x="18.236656" y="40.219723"/>
+  </operation>
+  <operation abstract="false" name="TopLeft(): int static consteval">
+   <bounds height="3.943945" width="42.861973" x="18.236656" y="44.163666"/>
+  </operation>
+  <operation abstract="false" name="TopCenter(): int static consteval">
+   <bounds height="3.943945" width="47.221394" x="18.236656" y="48.107609"/>
+  </operation>
+  <operation abstract="false" name="TopRight(): int static consteval">
+   <bounds height="3.943945" width="45.041683" x="18.236656" y="52.051552"/>
+  </operation>
+  <operation abstract="false" name="LeftTop(): int static consteval">
+   <bounds height="3.943945" width="42.861973" x="18.236656" y="55.995495"/>
+  </operation>
+  <operation abstract="false" name="LeftCenter(): int static consteval">
+   <bounds height="3.943945" width="47.040009" x="18.236656" y="59.939438"/>
+  </operation>
+  <operation abstract="false" name="LeftBottom(): int static consteval">
+   <bounds height="3.943945" width="47.585712" x="18.236656" y="63.883381"/>
+  </operation>
+  <operation abstract="false" name="BottomLeft(): int static consteval">
+   <bounds height="3.943945" width="47.585712" x="18.236656" y="67.827324"/>
+  </operation>
+  <operation abstract="false" name="BottomCenter(): int static consteval">
+   <bounds height="3.943945" width="51.945137" x="18.236656" y="71.771271"/>
+  </operation>
+  <operation abstract="false" name="BottomRigjht(): int static consteval">
+   <bounds height="3.943945" width="50.492512" x="18.236656" y="75.715218"/>
+  </operation>
+  <operation abstract="false" name="RightTop(): int static consteval">
+   <bounds height="3.943945" width="45.041683" x="18.236656" y="79.659164"/>
+  </operation>
+  <operation abstract="false" name="RightCenter(): int static consteval">
+   <bounds height="3.943945" width="49.219723" x="18.236656" y="83.603111"/>
+  </operation>
+  <operation abstract="false" name="RightBottom(): int static consteval">
+   <bounds height="3.943945" width="49.765427" x="18.236656" y="87.547058"/>
+  </operation>
+  <operation abstract="false" name="Operation(index: int): int static">
+   <bounds height="3.943945" width="44.497528" x="18.236656" y="91.491005"/>
+  </operation>
+  <operation abstract="false" name="Attribute(index: int): int static">
+   <bounds height="3.943945" width="42.314716" x="18.236656" y="95.434952"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="enumeration" name="ConnectorPoint">
+  <bounds height="45.439449" width="28.585512" x="79.759514" y="13.000000"/>
+  <attribute name="none">
+   <bounds height="3.943945" width="8.332306" x="81.259514" y="25.387890"/>
+  </attribute>
+  <attribute name="top">
+   <bounds height="3.943945" width="5.603791" x="81.259514" y="29.331835"/>
+  </attribute>
+  <attribute name="bottom">
+   <bounds height="3.943945" width="11.054620" x="81.259514" y="33.275780"/>
+  </attribute>
+  <attribute name="left">
+   <bounds height="3.943945" width="5.420856" x="81.259514" y="37.219723"/>
+  </attribute>
+  <attribute name="right">
+   <bounds height="3.943945" width="7.419184" x="81.259514" y="41.163666"/>
+  </attribute>
+  <attribute name="center">
+   <bounds height="3.943945" width="10.146149" x="81.259514" y="45.107609"/>
+  </attribute>
+  <attribute name="operation">
+   <bounds height="3.943945" width="14.693157" x="81.259514" y="49.051552"/>
+  </attribute>
+  <attribute name="attribute">
+   <bounds height="3.943945" width="12.873114" x="81.259514" y="52.995495"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="IndexList&lt;T>">
+  <bounds height="64.215225" width="65.499527" x="116.422745" y="13.000000"/>
+  <attribute name="elements: std::vector&lt;std::unique_ptr&lt;T>>">
+   <bounds height="3.943945" width="62.499531" x="117.922745" y="21.443945"/>
+  </attribute>
+  <operation abstract="false" name="Clone(): IndexList&lt;T>">
+   <bounds height="3.943945" width="32.502918" x="117.922745" y="28.387890"/>
+  </operation>
+  <operation abstract="false" name="Get(index: int): T">
+   <bounds height="3.943945" width="25.410330" x="117.922745" y="32.331833"/>
+  </operation>
+  <operation abstract="false" name="Set(index: int, element: T)">
+   <bounds height="3.943945" width="38.497898" x="117.922745" y="36.275776"/>
+  </operation>
+  <operation abstract="false" name="Add(element: T)">
+   <bounds height="3.943945" width="24.501858" x="117.922745" y="40.219719"/>
+  </operation>
+  <operation abstract="false" name="Remove(index: int): T">
+   <bounds height="3.943945" width="32.315334" x="117.922745" y="44.163662"/>
+  </operation>
+  <operation abstract="false" name="Insert(index: int, element:T)">
+   <bounds height="3.943945" width="40.858994" x="117.922745" y="48.107605"/>
+  </operation>
+  <operation abstract="false" name="Release(index: int): T">
+   <bounds height="3.943945" width="32.137051" x="117.922745" y="52.051548"/>
+  </operation>
+  <operation abstract="false" name="Clear()">
+   <bounds height="3.943945" width="11.048419" x="117.922745" y="55.995491"/>
+  </operation>
+  <operation abstract="false" name="IsEmpty(): bool">
+   <bounds height="3.943945" width="23.046133" x="117.922745" y="59.939434"/>
+  </operation>
+  <operation abstract="false" name="Count(): int">
+   <bounds height="3.943945" width="17.230984" x="117.922745" y="63.883377"/>
+  </operation>
+  <operation abstract="false" name="MoveUp(index: int)">
+   <bounds height="3.943945" width="28.500063" x="117.922745" y="67.827324"/>
+  </operation>
+  <operation abstract="false" name="MoveDown(index: int)">
+   <bounds height="3.943945" width="32.679649" x="117.922745" y="71.771271"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="singleton" name="Configuration">
+  <bounds height="28.719725" width="48.406002" x="190.000000" y="13.000000"/>
+  <operation abstract="false" name="Instance(): Configuration static">
+   <bounds height="3.943945" width="45.406002" x="191.500000" y="28.387890"/>
+  </operation>
+  <operation abstract="false" name="GetLayout(): Layout">
+   <bounds height="3.943945" width="29.958889" x="191.500000" y="32.331833"/>
+  </operation>
+  <operation abstract="false" name="SetLayout(layout: Layout)">
+   <bounds height="3.943945" width="38.322712" x="191.500000" y="36.275776"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="Layout">
+  <bounds height="6.943945" width="14.778606" x="250.000000" y="23.415916"/>
+ </classElement>
+ <classElement abstract="false" keyword="" name="EndPoint">
+  <bounds height="28.719725" width="110.566536" x="17.000000" y="116.000000"/>
+  <attribute name="point: PointF">
+   <bounds height="3.943945" width="19.418447" x="18.500000" y="124.443947"/>
+  </attribute>
+  <attribute name="index: int">
+   <bounds height="3.943945" width="14.147454" x="18.500000" y="128.387894"/>
+  </attribute>
+  <operation abstract="false" name="EndPoint(element: DiagramElement, connector: Connector, point: PointF)">
+   <bounds height="3.943945" width="107.566536" x="18.500000" y="135.331833"/>
+  </operation>
+  <operation abstract="false" name="MeasureTexts(graphics: Graphics)">
+   <bounds height="3.943945" width="51.216499" x="18.500000" y="139.275772"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="DiagramElement">
+  <bounds height="6.943945" width="29.866055" x="152.056213" y="116.000000"/>
+ </classElement>
+ <classElement abstract="false" keyword="" name="TextElement">
+  <bounds height="6.943945" width="23.503653" x="152.056213" y="125.387894"/>
+ </classElement>
+ <classElement abstract="false" keyword="enumeration" name="EndPointKind">
+  <bounds height="21.775780" width="25.872499" x="190.000000" y="116.000000"/>
+  <attribute name="source">
+   <bounds height="3.943945" width="10.873236" x="191.500000" y="128.387894"/>
+  </attribute>
+  <attribute name="target">
+   <bounds height="3.943945" width="9.419062" x="191.500000" y="132.331833"/>
+  </attribute>
+ </classElement>
+ <relationshipElement cardinality="one" rkind="composition">
+  <bounds height="0.000002" width="11.593994" x="238.406006" y="27.359861"/>
+  <source connector="right.center" index="3" x="238.406006" y="27.359863">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.bottom" index="4" x="250.000000" y="27.359861">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="aggregation">
+  <bounds height="0.000000" width="24.489677" x="127.566536" y="119.000000"/>
+  <source connector="right.top" index="5" x="127.566536" y="119.000000">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="13.691730" x="130.566528" y="114.056053"/>
+    <line text="element"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.top" index="6" x="152.056213" y="119.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="many" rkind="composition">
+  <bounds height="0.000000" width="24.489677" x="127.566536" y="128.387894"/>
+  <source connector="right.center" index="5" x="127.566536" y="128.387894">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.top" index="7" x="152.056213" y="128.387894">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="3.876827" x="143.179382" y="123.443947"/>
+    <line text="2"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="composition">
+  <bounds height="15.121117" width="28.074039" x="44.209225" y="100.878883"/>
+  <source connector="top.center" index="5" x="72.283264" y="116.000000">
+   <primaryText keyword="">
+    <bounds height="4.943945" width="16.418694" x="56.915405" y="102.778687"/>
+    <line text="connector"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="bottom.center" index="0" x="44.209225" y="100.878883">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+</diagram>

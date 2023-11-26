@@ -1,0 +1,143 @@
+<diagram>
+ <classElement abstract="true" keyword="" name="RelationshipElementRep">
+  <bounds height="44.495506" width="115.028275" x="12.044991" y="7.000000"/>
+  <attribute name="relationshipElement: RelationshipElement">
+   <bounds height="3.943945" width="61.589508" x="13.544991" y="15.443945"/>
+  </attribute>
+  <operation abstract="false" name="+GetRelationshipElement(): RelationshipElement">
+   <bounds height="3.943945" width="72.219856" x="13.544991" y="22.387890"/>
+  </operation>
+  <operation abstract="true" name="+Clone(relationshipElement: RelationshipElement): RelationshipElementRep">
+   <bounds height="3.943945" width="112.028275" x="13.544991" y="26.331835"/>
+  </operation>
+  <operation abstract="true" name="+Draw(graphics: Graphics)">
+   <bounds height="3.943945" width="40.037338" x="13.544991" y="30.275780"/>
+  </operation>
+  <operation abstract="false" name="+DrawSelected(graphics: Graphics)">
+   <bounds height="3.943945" width="52.763691" x="13.544991" y="34.219723"/>
+  </operation>
+  <operation abstract="false" name="+Contains(location: PointF): bool">
+   <bounds height="3.943945" width="48.591854" x="13.544991" y="38.163666"/>
+  </operation>
+  <operation abstract="false" name="+SourceSymbolWidth(): float">
+   <bounds height="3.943945" width="42.767403" x="13.544991" y="42.107609"/>
+  </operation>
+  <operation abstract="false" name="+TargetSymbolWidth(): float">
+   <bounds height="3.943945" width="41.857380" x="13.544991" y="46.051552"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="Inheritance">
+  <bounds height="24.775780" width="120.028275" x="9.544991" y="67.000000"/>
+  <operation abstract="false" name="+Clone(relationshipElement: RelationshipElement): RelationshipElementRep">
+   <bounds height="3.943945" width="114.528275" x="11.044991" y="78.443947"/>
+  </operation>
+  <operation abstract="false" name="+Draw(graphics: Graphics)">
+   <bounds height="3.943945" width="42.537338" x="11.044991" y="82.387894"/>
+  </operation>
+  <operation abstract="false" name="+TargetSymbolWidth(): float">
+   <bounds height="3.943945" width="44.357380" x="11.044991" y="86.331841"/>
+  </operation>
+ </classElement>
+ <noteElement>
+  <bounds height="6.943945" width="70.398567" x="143.000000" y="47.000000"/>
+  <line text="return new Inheritance(relationshipElement);"/>
+ </noteElement>
+ <noteElement>
+  <bounds height="14.831835" width="148.119400" x="143.000000" y="115.000000"/>
+  <line text="Layout layout = Configuration::Instance().GetLayout();"/>
+  <line text="RelationshipLayoutElement* relationshipLayoutElement = layout.GetRelationshipLayoutElement();"/>
+  <line text="return relationshipLayoutElement.InheritanceArrowWidth();"/>
+ </noteElement>
+ <noteElement>
+  <bounds height="54.271275" width="148.119400" x="143.000000" y="57.224228"/>
+  <line text="RelationshipElement* relationshipElement = GetRelationshipElement();"/>
+  <line text="Layout layout = Configuration::Instance().GetLayout();"/>
+  <line text="RelationshipLayoutElement* relationshipLayoutElement = layout.GetRelationshipLayoutElement();"/>
+  <line text="float inheritanceArrowWidth = relationshipLayoutElement.InheritanceArrowWidth();"/>
+  <line text="float inheritanceArrowHeight = sqrt(3) / 2 * inheritanceArrowWidth;"/>
+  <line text="..."/>
+  <line text="Line line(lastPoint, relationshipElement->Target().Point());"/>
+  <line text="Vector v = line.ToVector();"/>
+  <line text="float startLen = max(0, v.Length() - inheritanceArrowHeight);"/>
+  <line text="Vector u = Unit(v) * startLen;"/>
+  <line text="Line startLine(lastPoint, u);"/>
+  <line text="graphics.DrawLine(linePen, startLine.start, startLine.end);"/>
+  <line text="..."/>
+ </noteElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="30.415916" width="15.676735" x="127.323265" y="50.000000"/>
+  <source connector="operation.0" index="1" x="127.323265" y="80.415916">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.top" index="2" x="143.000000" y="50.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="34.112106" width="15.676735" x="127.323265" y="88.303810"/>
+  <source connector="operation.2" index="1" x="127.323265" y="88.303810">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="3" x="143.000000" y="122.415916">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="inheritance">
+  <bounds height="15.504494" width="0.000000" x="69.559128" y="51.495506"/>
+  <source connector="top.center" index="1" x="69.559128" y="67.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="bottom.center" index="0" x="69.559128" y="51.495506">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="0.000000" width="15.676735" x="127.323265" y="84.359863"/>
+  <source connector="operation.1" index="1" x="127.323265" y="84.359863">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="4" x="143.000000" y="84.359863">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+</diagram>

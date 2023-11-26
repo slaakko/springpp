@@ -48,6 +48,17 @@ public:
             throw std::runtime_error("IndexList<T>::Get: invalid index " + std::to_string(index));
         }
     }
+    T* TryGet(int index) const
+    {
+        if (index >= 0 && index < elements.size())
+        {
+            return elements[index].get();
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
     void Set(int index, T* element)
     {
         if (index >= 0 && index < elements.size())

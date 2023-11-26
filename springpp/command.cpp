@@ -7,6 +7,7 @@ module springpp.command;
 
 import springpp.diagram_element;
 import springpp.container_element;
+import springpp.relationship_element;
 import springpp.diagram;
 
 namespace springpp {
@@ -130,8 +131,9 @@ void ReplaceElementCommand::Undo()
     {
         ContainerElement* containerElement = static_cast<ContainerElement*>(element.get());
         std::map<DiagramElement*, DiagramElement*> cloneMap;
+        std::map<DiagramElement*, DiagramElement*> reverseCloneMap;
         cloneMap[newElement.get()] = containerElement;
-        containerElement->MapChildObjects(static_cast<ContainerElement*>(newElement.get()), cloneMap);
+        containerElement->MapChildObjects(static_cast<ContainerElement*>(newElement.get()), cloneMap, reverseCloneMap);
     }
     element->ResetSelected();
     diagram->SetElementByIndex(element.release(), elementIndex);
@@ -146,8 +148,9 @@ void ReplaceElementCommand::Redo()
     {
         ContainerElement* containerElement = static_cast<ContainerElement*>(element.get());
         std::map<DiagramElement*, DiagramElement*> cloneMap;
+        std::map<DiagramElement*, DiagramElement*> reverseCloneMap;
         cloneMap[oldElement.get()] = containerElement;
-        containerElement->MapChildObjects(static_cast<ContainerElement*>(oldElement.get()), cloneMap);
+        containerElement->MapChildObjects(static_cast<ContainerElement*>(oldElement.get()), cloneMap, reverseCloneMap);
     }
     element->ResetSelected();
     diagram->SetElementByIndex(element.release(), elementIndex);

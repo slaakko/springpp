@@ -35,6 +35,7 @@ private:
     wing::RadioButton* aggregationRadioButton;
     wing::RadioButton* referenceRadioButton;
     wing::RadioButton* createInstanceRadioButton;
+    wing::RadioButton* attachNoteRadioButton;
     wing::GroupBox* cardinalityGroupBox;
     wing::RadioButton* zeroRadioButton;
     wing::RadioButton* oneRadioButton;

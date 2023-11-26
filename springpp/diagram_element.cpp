@@ -126,12 +126,14 @@ wing::SizeF DiagramElement::Size() const
 
 void DiagramElement::SetLocation(const wing::PointF& location)
 {
-    bounds = wing::RectF(location, Size());
+    bounds.X = location.X;
+    bounds.Y = location.Y;
 }
 
 void DiagramElement::SetSize(const wing::SizeF& size)
 {
-    bounds = wing::RectF(Location(), size);
+    bounds.Width = size.Width;
+    bounds.Height = size.Height;
 }
 
 void DiagramElement::SetCompoundLocation(const CompoundLocation& compoundLocation)

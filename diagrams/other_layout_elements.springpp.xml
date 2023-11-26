@@ -1,0 +1,237 @@
+<diagram>
+ <classElement abstract="true" keyword="" name="LayoutElement">
+  <bounds height="24.775780" width="39.583286" x="147.000000" y="7.000000"/>
+  <attribute name="name: string">
+   <bounds height="3.943945" width="19.051027" x="148.500000" y="15.443945"/>
+  </attribute>
+  <operation abstract="true" name="+ToXml(): xml::Element*">
+   <bounds height="3.943945" width="36.583286" x="148.500000" y="22.387890"/>
+  </operation>
+  <operation abstract="true" name="+Parse(xml::Element*)">
+   <bounds height="3.943945" width="33.859421" x="148.500000" y="26.331835"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="OperationLayoutElement">
+  <bounds height="17.831835" width="42.945869" x="52.000000" y="52.000000"/>
+  <attribute name="textColor: ColorElement">
+   <bounds height="3.943945" width="35.769382" x="53.500000" y="60.443947"/>
+  </attribute>
+  <attribute name="font: FontElement">
+   <bounds height="3.943945" width="26.869154" x="53.500000" y="64.387894"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="ConcreteOperationLayoutElement">
+  <bounds height="6.943945" width="57.120197" x="14.000000" y="88.000000"/>
+ </classElement>
+ <classElement abstract="false" keyword="" name="AbstractOperationLayoutElement">
+  <bounds height="6.943945" width="56.210175" x="75.000000" y="88.000000"/>
+ </classElement>
+ <classElement abstract="false" keyword="" name="AttributeLayoutElement">
+  <bounds height="17.831835" width="41.122726" x="100.110115" y="52.000000"/>
+  <attribute name="textColor: ColorElement">
+   <bounds height="3.943945" width="35.769382" x="101.610115" y="60.443947"/>
+  </attribute>
+  <attribute name="font: FontElement">
+   <bounds height="3.943945" width="26.869154" x="101.610115" y="64.387894"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="TextLayoutElement">
+  <bounds height="21.775780" width="41.510300" x="146.036484" y="52.000000"/>
+  <attribute name="padding: PaddingElement">
+   <bounds height="3.943945" width="38.510300" x="147.536484" y="60.443947"/>
+  </attribute>
+  <attribute name="textColor: ColorElement">
+   <bounds height="3.943945" width="35.769382" x="147.536484" y="64.387894"/>
+  </attribute>
+  <attribute name="font: FontElement">
+   <bounds height="3.943945" width="26.869154" x="147.536484" y="68.331841"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="ResizeHandleLayoutElement">
+  <bounds height="33.607613" width="48.764118" x="193.071640" y="52.000000"/>
+  <attribute name="lineWidth: float">
+   <bounds height="3.943945" width="22.506630" x="194.571640" y="60.443947"/>
+  </attribute>
+  <attribute name="resizeHandleWidth: float">
+   <bounds height="3.943945" width="36.501118" x="194.571640" y="64.387894"/>
+  </attribute>
+  <attribute name="lineColor: ColorElement">
+   <bounds height="3.943945" width="35.589546" x="194.571640" y="68.331841"/>
+  </attribute>
+  <attribute name="insideColor: ColorElement">
+   <bounds height="3.943945" width="39.043598" x="194.571640" y="72.275787"/>
+  </attribute>
+  <attribute name="linePen: Pen">
+   <bounds height="3.943945" width="19.602932" x="194.571640" y="76.219734"/>
+  </attribute>
+  <attribute name="insideBrush: Brush">
+   <bounds height="3.943945" width="28.504713" x="194.571640" y="80.163681"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="RelationshipLayoutElement">
+  <bounds height="100.654678" width="58.763508" x="247.000000" y="52.000000"/>
+  <attribute name="inheritanceArrowWidth: float">
+   <bounds height="3.943945" width="41.950397" x="248.500000" y="60.443947"/>
+  </attribute>
+  <attribute name="compositeSymbolWidth: float">
+   <bounds height="3.943945" width="43.224739" x="248.500000" y="64.387894"/>
+  </attribute>
+  <attribute name="compositeSymbolHeight: float">
+   <bounds height="3.943945" width="44.317696" x="248.500000" y="68.331841"/>
+  </attribute>
+  <attribute name="aggregateSymbolWidth: float">
+   <bounds height="3.943945" width="43.046455" x="248.500000" y="72.275787"/>
+  </attribute>
+  <attribute name="aggregateSymbolHeight: float">
+   <bounds height="3.943945" width="44.139412" x="248.500000" y="76.219734"/>
+  </attribute>
+  <attribute name="lineArrowWidth: float">
+   <bounds height="3.943945" width="31.044094" x="248.500000" y="80.163681"/>
+  </attribute>
+  <attribute name="lineArrowHeight: float">
+   <bounds height="3.943945" width="32.137051" x="248.500000" y="84.107628"/>
+  </attribute>
+  <attribute name="cardinalitySymbolRadius: float">
+   <bounds height="3.943945" width="44.863400" x="248.500000" y="88.051575"/>
+  </attribute>
+  <attribute name="relationshipSymbolRadius: float">
+   <bounds height="3.943945" width="46.864826" x="248.500000" y="91.995522"/>
+  </attribute>
+  <attribute name="nullReferenceSymbolWidth: float">
+   <bounds height="3.943945" width="48.497284" x="248.500000" y="95.939468"/>
+  </attribute>
+  <attribute name="nullReferenceSymbolHeight: float">
+   <bounds height="3.943945" width="49.590240" x="248.500000" y="99.883415"/>
+  </attribute>
+  <attribute name="lineWidth: float">
+   <bounds height="3.943945" width="22.506630" x="248.500000" y="103.827362"/>
+  </attribute>
+  <attribute name="selectedLineWidth: float">
+   <bounds height="3.943945" width="35.778683" x="248.500000" y="107.771309"/>
+  </attribute>
+  <attribute name="padding: PaddingElement">
+   <bounds height="3.943945" width="38.510300" x="248.500000" y="111.715256"/>
+  </attribute>
+  <attribute name="font: FontElement">
+   <bounds height="3.943945" width="26.869154" x="248.500000" y="115.659203"/>
+  </attribute>
+  <attribute name="lineColor: ColorElement">
+   <bounds height="3.943945" width="35.589546" x="248.500000" y="119.603149"/>
+  </attribute>
+  <attribute name="textColor: ColorElement">
+   <bounds height="3.943945" width="35.769382" x="248.500000" y="123.547096"/>
+  </attribute>
+  <attribute name="arrowColor: ColorElement">
+   <bounds height="3.943945" width="38.673080" x="248.500000" y="127.491043"/>
+  </attribute>
+  <attribute name="compositeSourceColor: ColorElement">
+   <bounds height="3.943945" width="55.763508" x="248.500000" y="131.434982"/>
+  </attribute>
+  <attribute name="linePen: Pen">
+   <bounds height="3.943945" width="19.602932" x="248.500000" y="135.378922"/>
+  </attribute>
+  <attribute name="dashLinePen: Pen">
+   <bounds height="3.943945" width="27.785378" x="248.500000" y="139.322861"/>
+  </attribute>
+  <attribute name="dotLinePen: Pen">
+   <bounds height="3.943945" width="25.239798" x="248.500000" y="143.266800"/>
+  </attribute>
+  <attribute name="selectedLinePen: Pen">
+   <bounds height="3.943945" width="32.874985" x="248.500000" y="147.210739"/>
+  </attribute>
+ </classElement>
+ <relationshipElement cardinality="one" rkind="combinedInheritance">
+  <bounds height="9.168167" width="60.544991" x="40.560097" y="69.831833"/>
+  <source connector="none.none" x="0.000000" y="0.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <sourceEndPoint connector="top.center" index="2" x="40.560097" y="79.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="top.center" index="3" x="101.105087" y="79.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <target connector="bottom.center" index="1" x="73.472931" y="69.831833">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="combinedInheritance">
+  <bounds height="20.224220" width="197.089020" x="73.472931" y="31.775780"/>
+  <source connector="none.none" x="0.000000" y="0.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <sourceEndPoint connector="top.center" index="1" x="73.472931" y="52.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="top.center" index="4" x="122.561363" y="52.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="top.center" index="5" x="169.755157" y="52.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="top.center" index="6" x="219.382065" y="52.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <sourceEndPoint connector="top.center" index="7" x="270.561951" y="52.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </sourceEndPoint>
+  <target connector="bottom.center" index="0" x="166.791641" y="31.775780">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+</diagram>

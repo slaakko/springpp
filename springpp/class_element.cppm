@@ -46,6 +46,20 @@ private:
     float maxChildElementWidth;
 };
 
+class ConcreteClassElement : public ClassElementRep
+{
+public:
+    ConcreteClassElement(ClassElement* classElement_);
+    ClassLayoutElement* GetClassLayout(Layout* layout) const override;
+};
+
+class AbstractClassElement : public ClassElementRep
+{
+public:
+    AbstractClassElement(ClassElement* classElement_);
+    ClassLayoutElement* GetClassLayout(Layout* layout) const override;
+};
+
 class ClassElement : public ContainerElement
 {
 public:
@@ -72,7 +86,7 @@ public:
     OperationElement* GetOperation(int operationIndex) const override;
     int GetIndexOfOperationElement(OperationElement* operationElement) const override;
     std::vector<RelationshipElement*> GetAllRelationships() const override;
-    void MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap) override;
+    void MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap) override;
     float GetMaxChildElementWidth() const override;
     std::vector<EndPoint> GetEndPoints(EndPointKind endPointKind, Tool* tool) const override;
     void AddActions(Diagram* diagram, int elementIndex, wing::ContextMenu* contextMenu) const override;

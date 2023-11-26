@@ -47,7 +47,8 @@ MainWindow::MainWindow() :
     xCoordStatusBarItem(nullptr),
     yCoordStatusBarItem(nullptr),
     springppDiagramElementsFormat(nullptr), 
-    clipboardListener(nullptr)
+    clipboardListener(nullptr),
+    statusBar(nullptr)
 {
     try
     {
@@ -108,9 +109,9 @@ MainWindow::MainWindow() :
         editMenuItem->AddMenuItem(selectAllMenuItem);
         menuBar->AddMenuItem(editMenuItem);
         wing::MenuItem* helpMenuItem = new wing::MenuItem("&Help");
-        wing::MenuItem* usersGuideMenuItem = new wing::MenuItem("&User's Guide");
-        usersGuideMenuItem->Click().AddHandler(this, &MainWindow::UsersGuideClick);
-        helpMenuItem->AddMenuItem(usersGuideMenuItem);
+        wing::MenuItem* userGuideMenuItem = new wing::MenuItem("&User Guide");
+        userGuideMenuItem->Click().AddHandler(this, &MainWindow::UserGuideClick);
+        helpMenuItem->AddMenuItem(userGuideMenuItem);
         wing::MenuItem* aboutMenuItem = new wing::MenuItem("&About...");
         aboutMenuItem->Click().AddHandler(this, &MainWindow::AboutClick);
         helpMenuItem->AddMenuItem(aboutMenuItem);
@@ -206,7 +207,7 @@ MainWindow::MainWindow() :
         canvas->MouseLeave().AddHandler(this, &MainWindow::CanvasMouseLeave);
         canvas->MouseMove().AddHandler(this, &MainWindow::CanvasMouseMove);
         AddChild(canvas);
-        std::unique_ptr<wing::StatusBar> statusBar(new wing::StatusBar(wing::StatusBarCreateParams().Defaults()));
+        statusBar = new wing::StatusBar(wing::StatusBarCreateParams().Defaults());
         filePathStatusBarItem = new wing::StatusBarTextItem(wing::StatusBarTextItemCreateParams().Defaults().BorderStyle(wing::StatusBarItemBorderStyle::sunken));
         statusBar->AddItem(filePathStatusBarItem);
         modifiedStatusBarItem = new wing::StatusBarTextItem(wing::StatusBarTextItemCreateParams().Defaults().BorderStyle(wing::StatusBarItemBorderStyle::sunken));
@@ -234,7 +235,7 @@ MainWindow::MainWindow() :
         statusBar->AddItem(yItem);
         yCoordStatusBarItem = new wing::StatusBarTextItem(wing::StatusBarTextItemCreateParams().Defaults().BorderStyle(wing::StatusBarItemBorderStyle::sunken).MaxTextLength(6));
         statusBar->AddItem(yCoordStatusBarItem);
-        AddChild(statusBar.release());
+        AddChild(statusBar);
         springppDiagramElementsFormat.reset(new wing::ClipboardFormat("springpp.diagram.elements"));
         AddClipboardListener();
     }
@@ -246,6 +247,13 @@ MainWindow::MainWindow() :
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::OnSizeChanged()
+{
+    wing::Window::OnSizeChanged();
+    statusBar->SetChanged();
+    statusBar->Invalidate();
 }
 
 void MainWindow::OnWindowClosing(wing::CancelArgs& args)
@@ -604,11 +612,12 @@ void MainWindow::AboutClick()
     }
 }
 
-void MainWindow::UsersGuideClick()
+void MainWindow::UserGuideClick()
 {
     try
     {
-        // todo
+        std::string userGuideFilePath = util::Path::Combine(util::SpringPPRoot(), "doc/user_guide/user_guide.html");
+        ShellExecuteA(Handle(), "open", userGuideFilePath.c_str(), nullptr, nullptr, SW_SHOW);
     }
     catch (const std::exception& ex)
     {

@@ -49,8 +49,10 @@ private:
     wing::Button* cancelButton;
 };
 
-bool ExecuteEditOperationsDialog(IndexList<OperationElement>& operationList, ContainerElement* containerElement, bool mayHaveAbstractOperations, wing::Window& parentWindow);
+bool ExecuteEditOperationsDialog(IndexList<OperationElement>& operationList, std::map<DiagramElement*, DiagramElement*>& cloneMap,
+    std::map<DiagramElement*, DiagramElement*>& reverseCloneMap, ContainerElement* containerElement, bool mayHaveAbstractOperations, wing::Window& parentWindow);
 
-bool ExecuteEditAttributesDialog(IndexList<AttributeElement>& attributeList, ContainerElement* containerElement, wing::Window& parentWindow);
+bool ExecuteEditAttributesDialog(IndexList<AttributeElement>& attributeList, std::map<DiagramElement*, DiagramElement*>& cloneMap,
+    std::map<DiagramElement*, DiagramElement*>& reverseCloneMap, ContainerElement* containerElement, wing::Window& parentWindow);
 
 } // namespace springpp

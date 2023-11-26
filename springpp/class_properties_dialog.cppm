@@ -11,11 +11,12 @@ import std.core;
 export namespace springpp {
 
 class ClassElement;
+class DiagramElement;
 
 class ClassPropertiesDialog : public wing::Window
 {
 public:    
-    ClassPropertiesDialog(ClassElement* classElement_);
+    ClassPropertiesDialog(ClassElement* classElement_, std::map<DiagramElement*, DiagramElement*>& cloneMap_, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap_);
 private:
     ClassElement* classElement;
     wing::TextBox* classNameTextBox;
@@ -25,6 +26,8 @@ private:
     wing::Button* okButton;
     wing::Button* editOperationsButton;
     wing::Button* editAttributesButton;
+    std::map<DiagramElement*, DiagramElement*>& cloneMap;
+    std::map<DiagramElement*, DiagramElement*>& reverseCloneMap;
     void ClassNameChanged();
     void KeywordChanged();
     void AbstractChanged();

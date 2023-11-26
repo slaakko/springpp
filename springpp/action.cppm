@@ -161,6 +161,13 @@ public:
     void Execute(Diagram* diagram, int elementIndex) override;
 };
 
+class SetCenterConnectorsRelationshipElementAction : public DiagramElementAction
+{
+public:
+    SetCenterConnectorsRelationshipElementAction(Diagram* diagram_, int elementIndex_, wing::MenuItem* menuItem_);
+    void Execute(Diagram* diagram, int elementIndex) override;
+};
+
 class SplitRelationshipElementAction : public DiagramElementAction
 {
 public:    

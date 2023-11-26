@@ -86,11 +86,18 @@ EndPoint AttributeElement::GetEndPoint(const Connector& connector) const
 void AttributeElement::Measure(wing::Graphics& graphics)
 {
     Layout* layout = Configuration::Instance().GetLayout();
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    PaddingElement* paddingElement = relationshipLayoutElement->GetPaddingElement();
+    float relationshipSymbolRadius = relationshipLayoutElement->RelationshipSymbolRadius();
     AttributeLayoutElement* attributeLayout = layout->GetAttributeLayoutElement();
     wing::Font* font = attributeLayout->GetFontElement()->GetFont();
     wing::RectF r = wing::MeasureString(graphics, Name(), *font, wing::PointF(0, 0), layout->GetStringFormat());
     wing::SizeF sz;
     r.GetSize(&sz);
+    if (relationship)
+    {
+        sz.Width += GetRelationshipSymbolFieldWidth(relationshipSymbolRadius, paddingElement->GetPadding().Horizontal());
+    }
     SetSize(sz);
 }
 

@@ -10,11 +10,14 @@ import springpp.object_element;
 
 namespace springpp {
 
-ObjectPropertiesDialog::ObjectPropertiesDialog(ObjectElement* objectElement_) : wing::Window(wing::WindowCreateParams().Defaults().Text("Object Properties").
+ObjectPropertiesDialog::ObjectPropertiesDialog(ObjectElement* objectElement_,
+    std::map<DiagramElement*, DiagramElement*>& cloneMap_, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap_) : 
+    wing::Window(wing::WindowCreateParams().Defaults().Text("Object Properties").
     WindowStyle(wing::DialogWindowStyle()).Location(wing::DefaultLocation()).
     WindowClassBackgroundColor(wing::DefaultControlWindowClassBackgroundColor()).BackgroundColor(wing::DefaultControlBackgroundColor()).
     SetSize(wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(100), wing::ScreenMetrics::Get().MMToVerticalPixels(70)))),
-    objectElement(objectElement_), objectNameTextBox(nullptr), cancelButton(nullptr), okButton(nullptr), editAttributesButton(nullptr)
+    objectElement(objectElement_), cloneMap(cloneMap_), reverseCloneMap(reverseCloneMap_),
+    objectNameTextBox(nullptr), cancelButton(nullptr), okButton(nullptr), editAttributesButton(nullptr)
 {
     int column1Width = wing::ScreenMetrics::Get().MMToHorizontalPixels(20);
     wing::Size s = GetSize();
@@ -108,10 +111,12 @@ void ObjectPropertiesDialog::ObjectNameChanged()
 
 void ObjectPropertiesDialog::EditAttributes()
 {
-    IndexList<AttributeElement> clonedFieldElements = objectElement->Attributes().Clone();
-    if (ExecuteEditAttributesDialog(clonedFieldElements, objectElement, *this))
+    std::map<DiagramElement*, DiagramElement*> prevCloneMap = cloneMap;
+    std::map<DiagramElement*, DiagramElement*> prevReverseCloneMap = reverseCloneMap;
+    if (!ExecuteEditAttributesDialog(objectElement->Attributes(), cloneMap, reverseCloneMap, objectElement, *this))
     {
-        objectElement->SetAttributes(std::move(clonedFieldElements));
+        cloneMap = prevCloneMap;
+        reverseCloneMap = prevReverseCloneMap;
     }
 }
 

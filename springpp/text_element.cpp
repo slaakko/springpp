@@ -461,7 +461,6 @@ void TextElement::SetSecondaryTargetLocation(const Line& line, float symbolWidth
     {
         float w = Size().Width;
         Vector x_unit(-1.0f, 0.0f);
-        Vector y_unit(0.0f, -1.0f);
         Vector v = Projection(u, x_unit);
         float r = w * v.Length() / Dot(u, u);
         Vector ru = u * r;
@@ -476,7 +475,6 @@ void TextElement::SetSecondaryTargetLocation(const Line& line, float symbolWidth
     {
         float h = Size().Height;
         Vector x_unit(-1.0f, 0.0f);
-        Vector y_unit(0.0f, -1.0f);
         Vector v = Projection(u, x_unit);
         Vector v_minus_u = v - u;
         float r = h * v_minus_u.Length() / Dot(u, u);
@@ -491,7 +489,6 @@ void TextElement::SetSecondaryTargetLocation(const Line& line, float symbolWidth
         float w = Size().Width;
         float h = Size().Height;
         Vector x_unit(-1.0f, 0.0f);
-        Vector y_unit(0.0f, -1.0f);
         Vector v = Projection(u, x_unit);
         Vector v_minus_u = v - u;
         float r = h * v_minus_u.Length() / Dot(u, u);

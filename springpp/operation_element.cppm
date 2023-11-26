@@ -32,6 +32,22 @@ private:
     virtual OperationLayoutElement* GetOperationLayout(Layout* layout) const = 0;
 };
 
+class ConcreteOperation : public OperationElementRep
+{
+public:
+    ConcreteOperation(OperationElement* operationElement_);
+private:
+    OperationLayoutElement* GetOperationLayout(Layout* layout) const override;
+};
+
+class AbstractOperation : public OperationElementRep
+{
+public:
+    AbstractOperation(OperationElement* operationElement_);
+private:
+    OperationLayoutElement* GetOperationLayout(Layout* layout) const override;
+};
+
 class OperationElement : public DiagramElement
 {
 public:

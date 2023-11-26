@@ -153,6 +153,7 @@ std::vector<std::unique_ptr<DiagramElement>> CloneElements(Diagram* diagram, con
         }
     }
     std::map<DiagramElement*, DiagramElement*> cloneMap;
+    std::map<DiagramElement*, DiagramElement*> reverseCloneMap;
     std::map<ContainerElement*, int> containerElementIndexMap;
     int nc = containerElements.size();
     for (int i = 0; i < nc; ++i)
@@ -161,13 +162,16 @@ std::vector<std::unique_ptr<DiagramElement>> CloneElements(Diagram* diagram, con
         containerElementIndexMap[containerElement] = i;
         ContainerElement* clone = static_cast<ContainerElement*>(containerElement->Clone());
         cloneMap[containerElement] = clone;
+        reverseCloneMap[clone] = containerElement;
+        clone->MapChildObjects(containerElement, cloneMap, reverseCloneMap);
         clonedElements.push_back(std::unique_ptr<DiagramElement>(clone));
     }
     for auto relationshipElement : relationshipElements)
     {
         RelationshipElement* clone = static_cast<RelationshipElement*>(relationshipElement->Clone());
         clone->SetContainerElementIndeces(containerElementIndexMap);
-        clone->MapContainerElements(cloneMap);
+        bool orphan = false;
+        clone->MapContainerElements(cloneMap, orphan);
         clone->AddToElements();
         clonedElements.push_back(std::unique_ptr<DiagramElement>(clone));
     }
@@ -188,7 +192,7 @@ Selection::~Selection()
 
 void Selection::AddActions(wing::ContextMenu* contextMenu)
 {
-    wing::MenuItem* saveImageMenuItem = new wing::MenuItem("Save Image");
+    wing::MenuItem* saveImageMenuItem = new wing::MenuItem("Save Image...");
     contextMenu->AddMenuItem(saveImageMenuItem);
     contextMenu->AddAction(new SaveSelectionAsImageAction(diagram, saveImageMenuItem));
 }

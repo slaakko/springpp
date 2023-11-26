@@ -13,6 +13,7 @@ export namespace springpp {
 
 class Diagram;
 class DiagramElement;
+class RelationshipElement;
 
 class Command
 {

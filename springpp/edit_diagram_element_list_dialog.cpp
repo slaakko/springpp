@@ -111,7 +111,9 @@ EditDiagramElementListDialog::EditDiagramElementListDialog(const EditDiagramElem
 class AbstractOperationElementListDialog : public EditDiagramElementListDialog
 {
 public:
-    AbstractOperationElementListDialog(const EditDiagramElementListDialogParams& dialogParams_, IndexList<OperationElement>& operationList_, ContainerElement* containerElement_);
+    AbstractOperationElementListDialog(const EditDiagramElementListDialogParams& dialogParams_, 
+        IndexList<OperationElement>& operationList_, std::map<DiagramElement*, DiagramElement*>& cloneMap_, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap_,
+        ContainerElement* containerElement_);
 protected:
     void OnGotFocus();
 private:
@@ -126,6 +128,8 @@ private:
     void MoveDownOperation();
     void SelectedIndexChanged();
     IndexList<OperationElement>& operationList;
+    std::map<DiagramElement*, DiagramElement*>& cloneMap;
+    std::map<DiagramElement*, DiagramElement*>& reverseCloneMap;
     ContainerElement* containerElement;
     wing::TextBox* operationNameTextBox;
     wing::CheckBox* abstractCheckBox;
@@ -134,9 +138,11 @@ private:
 };
 
 AbstractOperationElementListDialog::AbstractOperationElementListDialog(const EditDiagramElementListDialogParams& dialogParams_, 
-    IndexList<OperationElement>& operationList_, ContainerElement* containerElement_) : 
+    IndexList<OperationElement>& operationList_, std::map<DiagramElement*, DiagramElement*>& cloneMap_, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap_, 
+    ContainerElement* containerElement_) :
     EditDiagramElementListDialog(dialogParams_), 
-    operationList(operationList_), containerElement(containerElement_), operationNameTextBox(nullptr), abstractCheckBox(nullptr), selectedIndex(-1), selectedOperation(nullptr)
+    operationList(operationList_), cloneMap(cloneMap_), reverseCloneMap(reverseCloneMap_),
+    containerElement(containerElement_), operationNameTextBox(nullptr), abstractCheckBox(nullptr), selectedIndex(-1), selectedOperation(nullptr)
 {
     wing::Size defaultControlSpacing = wing::ScreenMetrics::Get().DefaultControlSpacing();
     wing::Size defaultTextBoxSize = wing::ScreenMetrics::Get().DefaultTextBoxSize();
@@ -302,6 +308,12 @@ void AbstractOperationElementListDialog::DeleteOperation()
 {
     if (selectedIndex != -1 && selectedOperation != nullptr)
     {
+        auto it = reverseCloneMap.find(selectedOperation);
+        if (it != reverseCloneMap.end())
+        {
+            DiagramElement* oldOperation = it->second;
+            cloneMap[oldOperation] = nullptr;
+        }
         GetListBox()->DeleteItem(selectedIndex);
         operationList.Remove(selectedIndex);
         operationNameTextBox->Clear();
@@ -402,7 +414,9 @@ void AbstractOperationElementListDialog::SelectedIndexChanged()
 class ConcreteOperationElementListDialog : public EditDiagramElementListDialog
 {
 public:
-    ConcreteOperationElementListDialog(const EditDiagramElementListDialogParams& dialogParams_, IndexList<OperationElement>& operationList_, ContainerElement* containerElement_);
+    ConcreteOperationElementListDialog(const EditDiagramElementListDialogParams& dialogParams_, 
+        IndexList<OperationElement>& operationList_, std::map<DiagramElement*, DiagramElement*>& cloneMap_, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap_, 
+        ContainerElement* containerElement_);
 protected:
     void OnGotFocus();
 private:
@@ -417,6 +431,8 @@ private:
     void MoveDownOperation();
     void SelectedIndexChanged();
     IndexList<OperationElement>& operationList;
+    std::map<DiagramElement*, DiagramElement*>& cloneMap;
+    std::map<DiagramElement*, DiagramElement*>& reverseCloneMap;
     ContainerElement* containerElement;
     wing::TextBox* operationNameTextBox;
     int selectedIndex;
@@ -424,9 +440,11 @@ private:
 };
 
 ConcreteOperationElementListDialog::ConcreteOperationElementListDialog(const EditDiagramElementListDialogParams& dialogParams_,
-    IndexList<OperationElement>& operationList_, ContainerElement* containerElement_) :
+    IndexList<OperationElement>& operationList_, std::map<DiagramElement*, DiagramElement*>& cloneMap_, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap_, 
+    ContainerElement* containerElement_) :
     EditDiagramElementListDialog(dialogParams_),
-    operationList(operationList_), containerElement(containerElement_), operationNameTextBox(nullptr), selectedIndex(-1), selectedOperation(nullptr)
+    operationList(operationList_), containerElement(containerElement_), cloneMap(cloneMap_), reverseCloneMap(reverseCloneMap_),
+    operationNameTextBox(nullptr), selectedIndex(-1), selectedOperation(nullptr)
 {
     wing::Size defaultControlSpacing = wing::ScreenMetrics::Get().DefaultControlSpacing();
     wing::Size defaultTextBoxSize = wing::ScreenMetrics::Get().DefaultTextBoxSize();
@@ -556,6 +574,12 @@ void ConcreteOperationElementListDialog::DeleteOperation()
 {
     if (selectedIndex != -1 && selectedOperation != nullptr)
     {
+        auto it = reverseCloneMap.find(selectedOperation);
+        if (it != reverseCloneMap.end())
+        {
+            DiagramElement* oldOperation = it->second;
+            cloneMap[oldOperation] = nullptr;
+        }
         GetListBox()->DeleteItem(selectedIndex);
         operationList.Remove(selectedIndex);
         operationNameTextBox->Clear();
@@ -641,7 +665,8 @@ void ConcreteOperationElementListDialog::SelectedIndexChanged()
     }
 }
 
-bool ExecuteEditOperationsDialog(IndexList<OperationElement>& operationList, ContainerElement* containerElement, bool mayHaveAbstractOperations, wing::Window& parentWindow)
+bool ExecuteEditOperationsDialog(IndexList<OperationElement>& operationList, std::map<DiagramElement*, DiagramElement*>& cloneMap, 
+    std::map<DiagramElement*, DiagramElement*>& reverseCloneMap, ContainerElement* containerElement, bool mayHaveAbstractOperations, wing::Window& parentWindow)
 {
     EditDiagramElementListDialogParams dialogParams;
     dialogParams.dialogCaption = "Operations";
@@ -652,14 +677,14 @@ bool ExecuteEditOperationsDialog(IndexList<OperationElement>& operationList, Con
         dialogParams.dialogSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(140), wing::ScreenMetrics::Get().MMToVerticalPixels(90));
         dialogParams.groupBoxSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(70), wing::ScreenMetrics::Get().MMToVerticalPixels(20));
         dialogParams.listBoxSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(70), wing::ScreenMetrics::Get().MMToVerticalPixels(36));
-        dialog.reset(new AbstractOperationElementListDialog(dialogParams, operationList, containerElement));
+        dialog.reset(new AbstractOperationElementListDialog(dialogParams, operationList, cloneMap, reverseCloneMap, containerElement));
     }
     else
     {
         dialogParams.dialogSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(140), wing::ScreenMetrics::Get().MMToVerticalPixels(90));
         dialogParams.groupBoxSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(70), wing::ScreenMetrics::Get().MMToVerticalPixels(16));
         dialogParams.listBoxSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(70), wing::ScreenMetrics::Get().MMToVerticalPixels(48));
-        dialog.reset(new ConcreteOperationElementListDialog(dialogParams, operationList, containerElement));
+        dialog.reset(new ConcreteOperationElementListDialog(dialogParams, operationList, cloneMap, reverseCloneMap, containerElement));
     }
     if (dialog->ShowDialog(parentWindow) == wing::DialogResult::ok)
     {
@@ -671,7 +696,8 @@ bool ExecuteEditOperationsDialog(IndexList<OperationElement>& operationList, Con
 class AttributeElementListDialog : public EditDiagramElementListDialog
 {
 public:
-    AttributeElementListDialog(const EditDiagramElementListDialogParams& dialogParams_, IndexList<AttributeElement>& attributeList_, ContainerElement* containerElement_);
+    AttributeElementListDialog(const EditDiagramElementListDialogParams& dialogParams_, IndexList<AttributeElement>& attributeList_, 
+        std::map<DiagramElement*, DiagramElement*>& cloneMap_, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap_, ContainerElement* containerElement_);
 protected:
     void OnGotFocus();
 private:
@@ -686,6 +712,8 @@ private:
     void MoveDownAttribute();
     void SelectedIndexChanged();
     IndexList<AttributeElement>& attributeList;
+    std::map<DiagramElement*, DiagramElement*>& cloneMap;
+    std::map<DiagramElement*, DiagramElement*>& reverseCloneMap;
     ContainerElement* containerElement;
     wing::TextBox* attributeNameTextBox;
     int selectedIndex;
@@ -693,9 +721,10 @@ private:
 };
 
 AttributeElementListDialog::AttributeElementListDialog(const EditDiagramElementListDialogParams& dialogParams_,
-    IndexList<AttributeElement>& attributeList_, ContainerElement* containerElement_) :
-    EditDiagramElementListDialog(dialogParams_),
-    attributeList(attributeList_), containerElement(containerElement_), attributeNameTextBox(nullptr), selectedIndex(-1), selectedAttribute(nullptr)
+    IndexList<AttributeElement>& attributeList_, std::map<DiagramElement*, DiagramElement*>& cloneMap_, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap_,
+    ContainerElement* containerElement_) : EditDiagramElementListDialog(dialogParams_),
+    attributeList(attributeList_), cloneMap(cloneMap_), reverseCloneMap(reverseCloneMap_), 
+    containerElement(containerElement_), attributeNameTextBox(nullptr), selectedIndex(-1), selectedAttribute(nullptr)
 {
     wing::Size defaultControlSpacing = wing::ScreenMetrics::Get().DefaultControlSpacing();
     wing::Size defaultTextBoxSize = wing::ScreenMetrics::Get().DefaultTextBoxSize();
@@ -825,6 +854,12 @@ void AttributeElementListDialog::DeleteAttribute()
 {
     if (selectedIndex != -1 && selectedAttribute != nullptr)
     {
+        auto it = reverseCloneMap.find(selectedAttribute);
+        if (it != reverseCloneMap.end())
+        {
+            DiagramElement* oldAttr = it->second;
+            cloneMap[oldAttr] = nullptr;
+        }
         GetListBox()->DeleteItem(selectedIndex);
         attributeList.Remove(selectedIndex);
         attributeNameTextBox->Clear();
@@ -910,7 +945,8 @@ void AttributeElementListDialog::SelectedIndexChanged()
     }
 }
 
-bool ExecuteEditAttributesDialog(IndexList<AttributeElement>& attributeList, ContainerElement* containerElement, wing::Window& parentWindow)
+bool ExecuteEditAttributesDialog(IndexList<AttributeElement>& attributeList, std::map<DiagramElement*, DiagramElement*>& cloneMap,
+    std::map<DiagramElement*, DiagramElement*>& reverseCloneMap, ContainerElement* containerElement, wing::Window& parentWindow)
 {
     EditDiagramElementListDialogParams dialogParams;
     dialogParams.dialogSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(140), wing::ScreenMetrics::Get().MMToVerticalPixels(90));
@@ -918,7 +954,8 @@ bool ExecuteEditAttributesDialog(IndexList<AttributeElement>& attributeList, Con
     dialogParams.groupBoxCaption = "Attribute";
     dialogParams.groupBoxSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(70), wing::ScreenMetrics::Get().MMToVerticalPixels(16));
     dialogParams.listBoxSize = wing::Size(wing::ScreenMetrics::Get().MMToHorizontalPixels(70), wing::ScreenMetrics::Get().MMToVerticalPixels(48));
-    std::unique_ptr<EditDiagramElementListDialog> dialog(new AttributeElementListDialog(dialogParams, attributeList, containerElement));
+    std::unique_ptr<EditDiagramElementListDialog> dialog(new AttributeElementListDialog(dialogParams, attributeList, cloneMap, reverseCloneMap,
+        containerElement));
     if (dialog->ShowDialog(parentWindow) == wing::DialogResult::ok)
     {
         return true;

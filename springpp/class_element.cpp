@@ -229,39 +229,25 @@ void ClassElementRep::DrawOperations(wing::Graphics& graphics)
     }
 }
 
-class ConcreteClassElementRep : public ClassElementRep
-{
-public:
-    ConcreteClassElementRep(ClassElement* classElement_);
-    ClassLayoutElement* GetClassLayout(Layout* layout) const override;
-};
-
-ConcreteClassElementRep::ConcreteClassElementRep(ClassElement* classElement_) : ClassElementRep(classElement_)
+ConcreteClassElement::ConcreteClassElement(ClassElement* classElement_) : ClassElementRep(classElement_)
 {
 }
 
-ClassLayoutElement* ConcreteClassElementRep::GetClassLayout(Layout* layout) const
+ClassLayoutElement* ConcreteClassElement::GetClassLayout(Layout* layout) const
 {
     return layout->GetConcreteClassLayoutElement();
 }
 
-class AbstractClassElementRep : public ClassElementRep
-{
-public:
-    AbstractClassElementRep(ClassElement* classElement_);
-    ClassLayoutElement* GetClassLayout(Layout* layout) const override;
-};
-
-AbstractClassElementRep::AbstractClassElementRep(ClassElement* classElement_) : ClassElementRep(classElement_)
+AbstractClassElement::AbstractClassElement(ClassElement* classElement_) : ClassElementRep(classElement_)
 {
 }
 
-ClassLayoutElement* AbstractClassElementRep::GetClassLayout(Layout* layout) const
+ClassLayoutElement* AbstractClassElement::GetClassLayout(Layout* layout) const
 {
     return layout->GetAbstractClassLayoutElement();
 }
 
-ClassElement::ClassElement() : ContainerElement(DiagramElementKind::classElement), isAbstract(false), rep(new ConcreteClassElementRep(this))
+ClassElement::ClassElement() : ContainerElement(DiagramElementKind::classElement), isAbstract(false), rep(new ConcreteClassElement(this))
 {
 }
 
@@ -355,7 +341,7 @@ void ClassElement::Parse(soul::xml::Element* xmlElement)
     }
     else
     {
-        throw std::runtime_error("XML element 'classElement' has no 'name' attribute");
+        SetName(std::string());
     }
     std::string abstractStr = xmlElement->GetAttribute("abstract");
     if (abstractStr == "true")
@@ -482,7 +468,7 @@ void ClassElement::SetAbstract()
     if (!isAbstract)
     {
         isAbstract = true;
-        rep.reset(new AbstractClassElementRep(this));
+        rep.reset(new AbstractClassElement(this));
     }
 }
 
@@ -491,7 +477,7 @@ void ClassElement::ResetAbstract()
     if (isAbstract)
     {
         isAbstract = false;
-        rep.reset(new ConcreteClassElementRep(this));
+        rep.reset(new ConcreteClassElement(this));
     }
 }
 
@@ -554,7 +540,7 @@ float ClassElement::GetMaxChildElementWidth() const
     return rep->MaxChildElementWidth();
 }
 
-void ClassElement::MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap)
+void ClassElement::MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap, std::map<DiagramElement*, DiagramElement*>& recerseCloneMap)
 {
     if (from->IsClassElement())
     {
@@ -562,12 +548,18 @@ void ClassElement::MapChildObjects(ContainerElement* from, std::map<DiagramEleme
         int no = fromClass->operations.Count();
         for (int i = 0; i < no; ++i)
         {
-            cloneMap[fromClass->operations.Get(i)] = operations.Get(i);
+            OperationElement* newOp = operations.Get(i);
+            OperationElement* oldOp = fromClass->operations.Get(i);
+            cloneMap[oldOp] = newOp;
+            recerseCloneMap[newOp] = oldOp;
         }
         int nf = fromClass->attributes.Count();
         for (int i = 0; i < nf; ++i)
         {
-            cloneMap[fromClass->attributes.Get(i)] = attributes.Get(i);
+            AttributeElement* newAttr = attributes.Get(i);
+            AttributeElement* oldAttr = fromClass->attributes.Get(i);
+            cloneMap[oldAttr] = newAttr;
+            recerseCloneMap[newAttr] = oldAttr;
         }
     }
 }

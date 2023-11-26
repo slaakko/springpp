@@ -25,10 +25,17 @@ void OperationElementRep::Measure(wing::Graphics& graphics)
 {
     Layout* layout = Configuration::Instance().GetLayout();
     OperationLayoutElement* operationLayout = GetOperationLayout(layout);
+    RelationshipLayoutElement* relationshipLayoutElement = layout->GetRelationshipLayoutElement();
+    PaddingElement* paddingElement = relationshipLayoutElement->GetPaddingElement();
+    float relationshipSymbolRadius = relationshipLayoutElement->RelationshipSymbolRadius();
     wing::Font* font = operationLayout->GetFontElement()->GetFont();
     wing::RectF r = wing::MeasureString(graphics, operationElement->Name(), *font, wing::PointF(0, 0), layout->GetStringFormat());
     wing::SizeF sz;
     r.GetSize(&sz);
+    if (operationElement->Relationship())
+    {
+        sz.Width += GetRelationshipSymbolFieldWidth(relationshipSymbolRadius, paddingElement->GetPadding().Horizontal());
+    }
     operationElement->SetSize(sz);
 }
 
@@ -41,36 +48,20 @@ void OperationElementRep::Draw(wing::Graphics& graphics)
     wing::DrawString(graphics, operationElement->Name(), *font, operationElement->Location(), *brush);
 }
 
-class ConcreteOperationRep : public OperationElementRep
-{
-public:
-    ConcreteOperationRep(OperationElement* operationElement_);
-private:
-    OperationLayoutElement* GetOperationLayout(Layout* layout) const override;
-};
-
-ConcreteOperationRep::ConcreteOperationRep(OperationElement* operationElement_) : OperationElementRep(operationElement_)
+ConcreteOperation::ConcreteOperation(OperationElement* operationElement_) : OperationElementRep(operationElement_)
 {
 }
 
-OperationLayoutElement* ConcreteOperationRep::GetOperationLayout(Layout* layout) const
+OperationLayoutElement* ConcreteOperation::GetOperationLayout(Layout* layout) const
 {
     return layout->GetConcreteOperationLayoutElement();
 }
 
-class AbstractOperationRep : public OperationElementRep
-{
-public:
-    AbstractOperationRep(OperationElement* operationElement_);
-private:
-    OperationLayoutElement* GetOperationLayout(Layout* layout) const override;
-};
-
-AbstractOperationRep::AbstractOperationRep(OperationElement* operationElement_) : OperationElementRep(operationElement_)
+AbstractOperation::AbstractOperation(OperationElement* operationElement_) : OperationElementRep(operationElement_)
 {
 }
 
-OperationLayoutElement* AbstractOperationRep::GetOperationLayout(Layout* layout) const
+OperationLayoutElement* AbstractOperation::GetOperationLayout(Layout* layout) const
 {
     return layout->GetAbstractOperationLayoutElement();
 }
@@ -78,7 +69,7 @@ OperationLayoutElement* AbstractOperationRep::GetOperationLayout(Layout* layout)
 OperationElement::OperationElement() : 
     DiagramElement(DiagramElementKind::operationElement), 
     isAbstract(false), 
-    rep(new ConcreteOperationRep(this)), 
+    rep(new ConcreteOperation(this)), 
     containerElement(nullptr), 
     relationship(nullptr)
 {
@@ -154,7 +145,7 @@ void OperationElement::SetAbstract()
     if (!IsAbstract())
     {
         isAbstract = true;
-        rep.reset(new AbstractOperationRep(this));
+        rep.reset(new AbstractOperation(this));
     }
 }
 
@@ -163,7 +154,7 @@ void OperationElement::ResetAbstract()
     if (IsAbstract())
     {
         isAbstract = false;
-        rep.reset(new ConcreteOperationRep(this));
+        rep.reset(new ConcreteOperation(this));
     }
 }
 

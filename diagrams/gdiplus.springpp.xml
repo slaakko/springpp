@@ -1,0 +1,113 @@
+<diagram>
+ <classElement abstract="false" keyword="" name="Graphics">
+  <bounds height="48.439445" width="122.092964" x="11.000000" y="62.000000"/>
+  <operation abstract="false" name="+Clear(c: Color)">
+   <bounds height="3.943945" width="24.224356" x="12.500000" y="73.443947"/>
+  </operation>
+  <operation abstract="false" name="+DrawArc(pen: Pen, r: RectF, startAngle: float, sweepAngle: float)">
+   <bounds height="3.943945" width="96.382721" x="12.500000" y="77.387894"/>
+  </operation>
+  <operation abstract="false" name="+DrawEllipse(pen: Pen, r: RectF)">
+   <bounds height="3.943945" width="48.943771" x="12.500000" y="81.331841"/>
+  </operation>
+  <operation abstract="false" name="+DrawLine(pen: Pen, start: PointF, end: PointF)">
+   <bounds height="3.943945" width="70.033943" x="12.500000" y="85.275787"/>
+  </operation>
+  <operation abstract="false" name="+DrawRectangle(pen: Pen, rect: RectF)">
+   <bounds height="3.943945" width="58.395905" x="12.500000" y="89.219734"/>
+  </operation>
+  <operation abstract="false" name="+DrawString(text: string, font: Font, origin: PointF, brush: Brush)">
+   <bounds height="3.943945" width="93.471268" x="12.500000" y="93.163681"/>
+  </operation>
+  <operation abstract="false" name="+FillPolygon(brush: Brush, points: PointF[], int numPoints)">
+   <bounds height="3.943945" width="84.940010" x="12.500000" y="97.107628"/>
+  </operation>
+  <operation abstract="false" name="+FillRectangle(brush: Brush, rect: RectF)">
+   <bounds height="3.943945" width="60.394234" x="12.500000" y="101.051575"/>
+  </operation>
+  <operation abstract="false" name="+MeasureString(text: string, font: Font, origin: PointF, stringFormat: StringFormat)">
+   <bounds height="3.943945" width="119.092964" x="12.500000" y="104.995522"/>
+  </operation>
+ </classElement>
+ <classElement abstract="false" keyword="" name="Pen">
+  <bounds height="17.831835" width="20.776688" x="36.248199" y="12.000000"/>
+  <attribute name="color: Color">
+   <bounds height="3.943945" width="17.776688" x="37.748199" y="20.443945"/>
+  </attribute>
+  <attribute name="width: float">
+   <bounds height="3.943945" width="16.689934" x="37.748199" y="24.387890"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="Brush">
+  <bounds height="13.887890" width="20.776688" x="61.488647" y="12.000000"/>
+  <attribute name="color: Color">
+   <bounds height="3.943945" width="17.776688" x="62.988647" y="20.443945"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="Font">
+  <bounds height="21.775780" width="26.415102" x="86.729095" y="12.000000"/>
+  <attribute name="family: string">
+   <bounds height="3.943945" width="19.412247" x="88.229095" y="20.443945"/>
+  </attribute>
+  <attribute name="size: float">
+   <bounds height="3.943945" width="14.872992" x="88.229095" y="24.387890"/>
+  </attribute>
+  <attribute name="style: FontStyle">
+   <bounds height="3.943945" width="23.415102" x="88.229095" y="28.331835"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="enumeration" name="FontStyle">
+  <bounds height="33.607613" width="25.872499" x="117.607956" y="12.000000"/>
+  <attribute name="regular">
+   <bounds height="3.943945" width="11.236005" x="119.107956" y="24.387890"/>
+  </attribute>
+  <attribute name="bold">
+   <bounds height="3.943945" width="7.240900" x="119.107956" y="28.331835"/>
+  </attribute>
+  <attribute name="italic">
+   <bounds height="3.943945" width="7.602118" x="119.107956" y="32.275780"/>
+  </attribute>
+  <attribute name="underline">
+   <bounds height="3.943945" width="14.511773" x="119.107956" y="36.219723"/>
+  </attribute>
+  <attribute name="strikeout">
+   <bounds height="3.943945" width="13.417267" x="119.107956" y="40.163666"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="Color">
+  <bounds height="25.719725" width="20.418570" x="11.000000" y="12.000000"/>
+  <attribute name="alpha: byte">
+   <bounds height="3.943945" width="17.057352" x="12.500000" y="20.443945"/>
+  </attribute>
+  <attribute name="red: byte">
+   <bounds height="3.943945" width="13.781585" x="12.500000" y="24.387890"/>
+  </attribute>
+  <attribute name="green: byte">
+   <bounds height="3.943945" width="17.418570" x="12.500000" y="28.331835"/>
+  </attribute>
+  <attribute name="blue: byte">
+   <bounds height="3.943945" width="15.238860" x="12.500000" y="32.275780"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="" name="StringFormat">
+  <bounds height="17.831835" width="48.592037" x="147.944214" y="12.000000"/>
+  <attribute name="alignment: StringAlignment">
+   <bounds height="3.943945" width="40.138107" x="149.444214" y="20.443945"/>
+  </attribute>
+  <attribute name="lineAlignment: StringAlignment">
+   <bounds height="3.943945" width="45.592037" x="149.444214" y="24.387890"/>
+  </attribute>
+ </classElement>
+ <classElement abstract="false" keyword="enumeration" name="StringAlignment">
+  <bounds height="25.719725" width="29.493984" x="201.000000" y="12.000000"/>
+  <attribute name="near">
+   <bounds height="3.943945" width="7.602118" x="202.500000" y="24.387890"/>
+  </attribute>
+  <attribute name="center">
+   <bounds height="3.943945" width="10.146149" x="202.500000" y="28.331835"/>
+  </attribute>
+  <attribute name="far">
+   <bounds height="3.943945" width="4.873603" x="202.500000" y="32.275780"/>
+  </attribute>
+ </classElement>
+</diagram>

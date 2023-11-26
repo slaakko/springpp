@@ -1,0 +1,175 @@
+<diagram>
+ <classElement abstract="false" keyword="" name="ObjectElement">
+  <bounds height="60.271286" width="116.157814" x="7.543255" y="30.000000"/>
+  <attribute name="attributes: IndexList&lt;AttributeElement>">
+   <bounds height="3.943945" width="57.408367" x="9.043255" y="38.443947"/>
+  </attribute>
+  <attribute name="captionTextHeight: float">
+   <bounds height="3.943945" width="35.414364" x="9.043255" y="42.387890"/>
+  </attribute>
+  <attribute name="captionRect: RectF">
+   <bounds height="3.943945" width="28.865932" x="9.043255" y="46.331833"/>
+  </attribute>
+  <attribute name="attributeRect: RectF">
+   <bounds height="3.943945" width="30.135622" x="9.043255" y="50.275776"/>
+  </attribute>
+  <attribute name="maxChildElementWidth: float">
+   <bounds height="3.943945" width="43.041805" x="9.043255" y="54.219719"/>
+  </attribute>
+  <operation abstract="false" name="+Measure(graphics: Graphics)">
+   <bounds height="3.943945" width="47.630051" x="9.043255" y="61.163673"/>
+  </operation>
+  <operation abstract="false" name="+Draw(graphics: Graphics)">
+   <bounds height="3.943945" width="42.537338" x="9.043255" y="65.107620"/>
+  </operation>
+  <operation abstract="false" name="-MeasureAttributes(graphics: Graphics,objectLayout: ObjectLayoutElement)">
+   <bounds height="3.943945" width="110.657814" x="9.043255" y="69.051567"/>
+  </operation>
+  <operation abstract="false" name="-SetSize()">
+   <bounds height="3.943945" width="18.093878" x="9.043255" y="72.995514"/>
+  </operation>
+  <operation abstract="false" name="-DrawFrame(graphics: Graphics, objectLayout: ObjectLayoutElement)">
+   <bounds height="3.943945" width="104.607956" x="9.043255" y="76.939461"/>
+  </operation>
+  <operation abstract="false" name="-DrawCaption(graphics: Graphics, objectLayout: ObjectLayoutElement)">
+   <bounds height="3.943945" width="103.931099" x="9.043255" y="80.883408"/>
+  </operation>
+  <operation abstract="false" name="-DrawAttributes(graphics: Graphics, objectLayout: ObjectLayoutElement)">
+   <bounds height="3.943945" width="106.473579" x="9.043255" y="84.827354"/>
+  </operation>
+ </classElement>
+ <noteElement>
+  <bounds height="26.663670" width="110.489143" x="153.769958" y="41.747757"/>
+  <line text="Layout layout = Configuration.Instance().GetLayout();"/>
+  <line text="ObjectLayioutElement objectLayout = layout.GetObjectLayoutElement();"/>
+  <line text="ContainerElement::Draw(graphics);"/>
+  <line text="DrawFrame(graphics, objectLayout);"/>
+  <line text="DrawCaption(graphics, objectLayout);"/>
+  <line text="DrawAttributes(graphics, objectLayout);"/>
+ </noteElement>
+ <noteElement>
+  <bounds height="18.775780" width="68.400253" x="153.769958" y="21.000000"/>
+  <line text="ContainerElement::Measure(graphics);"/>
+  <line text="calculate captionRect"/>
+  <line text="MeasureAttributes(graphics, objectLayout);"/>
+  <line text="SetSize();"/>
+ </noteElement>
+ <noteElement>
+  <bounds height="34.551559" width="79.388718" x="153.769958" y="70.000000"/>
+  <line text="SizeF size;"/>
+  <line text="size.width = captionRect.width;"/>
+  <line text="float h = captionRect.height;"/>
+  <line text="if (!attributes.IsEmpty())"/>
+  <line text="    size.width= max(size.width, attributeRect.width);"/>
+  <line text="    h += attributeRect.height;"/>
+  <line text="size.height = max(size.height, h);"/>
+  <line text="ContainerElement::SetSize(size);"/>
+ </noteElement>
+ <classElement abstract="true" keyword="" name="ContainerElement">
+  <bounds height="6.943945" width="32.042664" x="49.600830" y="7.000000"/>
+ </classElement>
+ <noteElement>
+  <bounds height="26.663670" width="171.643539" x="154.000000" y="107.000000"/>
+  <line text="..."/>
+  <line text="graphics.DrawLine(framePen, topStart, topEnd);"/>
+  <line text="graphics.DrawArc(framePen, topLeftRoundingRect, topLeftRoundingStartAngle, topLeftRoudingSweepAngle);"/>
+  <line text="graphics.DrawLine(framePen, rightStart, rightEnd);"/>
+  <line text="graphics.DrawArc(framePen, topRightRoundingRect, topRightRoundingStartAngle, topRightRoudingSweepAngle);"/>
+  <line text="..."/>
+ </noteElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="12.000000" width="32.318893" x="121.451065" y="55.079590"/>
+  <source connector="operation.1" index="0" x="121.451065" y="67.079590">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="1" x="153.769958" y="55.079590">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="32.747757" width="32.318893" x="121.451065" y="30.387890"/>
+  <source connector="operation.0" index="0" x="121.451065" y="63.135647">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="2" x="153.769958" y="30.387890">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="12.308296" width="32.318893" x="121.451065" y="74.967484"/>
+  <source connector="operation.3" index="0" x="121.451065" y="74.967484">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="3" x="153.769958" y="87.275780">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="inheritance">
+  <bounds height="16.056055" width="0.000000" x="65.622162" y="13.943945"/>
+  <source connector="top.center" index="0" x="65.622162" y="30.000000">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="bottom.center" index="4" x="65.622162" y="13.943945">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+ <relationshipElement cardinality="one" rkind="attachNote">
+  <bounds height="41.420403" width="32.548935" x="121.451065" y="78.911430"/>
+  <source connector="operation.4" index="0" x="121.451065" y="78.911430">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </source>
+  <target connector="left.center" index="5" x="154.000000" y="120.331833">
+   <primaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </primaryText>
+   <secondaryText keyword="">
+    <bounds height="0.000000" width="0.000000" x="0.000000" y="0.000000"/>
+   </secondaryText>
+  </target>
+ </relationshipElement>
+</diagram>

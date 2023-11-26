@@ -8,9 +8,42 @@ module springpp.diagram_util;
 import springpp.diagram;
 import springpp.class_element;
 import springpp.container_element;
+import springpp.command;
 import util;
 
 namespace springpp {
+
+void DeleteRelationships(Diagram* diagram, const std::vector<RelationshipElement*>& relationships)
+{
+    if (relationships.empty()) return;
+    std::unique_ptr<DeleteElementsCommand> deleteElementsCommand(new DeleteElementsCommand(diagram));
+    std::vector<int> indeces;
+    for (auto relationship : relationships)
+    {
+        int index = diagram->GetIndexOfElement(relationship);
+        if (index != -1)
+        {
+            if (std::find(indeces.begin(), indeces.end(), index) == indeces.end())
+            {
+                indeces.push_back(index);
+            }
+        }
+    }
+    std::sort(indeces.begin(), indeces.end());
+    int m = indeces.size();
+    for (int i = m - 1; i >= 0; --i)
+    {
+        int index = indeces[i];
+        std::unique_ptr<DiagramElement> element = diagram->RemoveElementByIndex(index);
+        if (element->IsRelationshipElement())
+        {
+            RelationshipElement* relationship = static_cast<RelationshipElement*>(element.get());
+            relationship->RemoveFromElements();
+        }
+        deleteElementsCommand->AddDeletedElement(element.release(), index);
+    }
+    diagram->GetCommandList().AddCommand(deleteElementsCommand.release());
+}
 
 wing::RectF CalculateBounds(const std::vector<DiagramElement*>& diagramElements)
 {
@@ -38,6 +71,7 @@ void SaveImage(const std::string& imageFileName, const Padding& margins, Canvas*
     Diagram diagram;
     diagram.SetCanvas(canvas);
     std::map<DiagramElement*, DiagramElement*> cloneMap;
+    std::map<DiagramElement*, DiagramElement*> reverseCloneMap;
     std::vector<RelationshipElement*> relationships;
     for (auto diagramElement : diagramElements)
     {
@@ -46,7 +80,7 @@ void SaveImage(const std::string& imageFileName, const Padding& margins, Canvas*
         {
             ContainerElement* containerElement = static_cast<ContainerElement*>(clone);
             cloneMap[diagramElement] = clone;
-            containerElement->MapChildObjects(static_cast<ContainerElement*>(diagramElement), cloneMap);
+            containerElement->MapChildObjects(static_cast<ContainerElement*>(diagramElement), cloneMap, reverseCloneMap);
         }
         else if (clone->IsRelationshipElement())
         {
@@ -56,7 +90,8 @@ void SaveImage(const std::string& imageFileName, const Padding& margins, Canvas*
     }
     for (auto relationship : relationships)
     {
-        relationship->MapContainerElements(cloneMap);
+        bool orphan = false;
+        relationship->MapContainerElements(cloneMap, orphan);
         relationship->AddToElements();
     }
     wing::RectF bounds = diagram.CalculateBounds();

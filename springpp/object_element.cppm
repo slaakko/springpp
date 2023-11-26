@@ -32,7 +32,7 @@ public:
     AttributeElement* GetAttribute(int attributeIndex) const override;
     int GetIndexOfAttributeElement(AttributeElement* attributeElement) const override;
     std::vector<RelationshipElement*> GetAllRelationships() const override;
-    void MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap) override;
+    void MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap, std::map<DiagramElement*, DiagramElement*>& revcerseCloneMap) override;
     std::vector<EndPoint> GetEndPoints(EndPointKind endPointKind, Tool* tool) const override;
     float GetMaxChildElementWidth() const override;
 private:

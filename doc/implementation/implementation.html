@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Implementation</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css" />
+</head>
+
+<body>
+    <h1>Spring++ Implementation</h1>
+
+    <h2>Overview</h2>
+
+    <p>
+        This picture shows the most important classes of Spring++ and their relations:
+    </p>
+
+    <img src="../image/overview.png"/>
+
+    <h2>Primitives</h2>
+
+    <p>
+    Graphics code operates on basic primitives such as points, sizes, vectors and rectangles:
+    </p>
+
+    <img src="../image/primitives.png"/>
+
+    <h2>GDI+</h2>
+
+    <p>
+        Spring++ uses the Microsoft GDI+ graphics library (https://learn.microsoft.com/en-us/windows/win32/gdiplus/-gdiplus-gdi-start)
+        that contains a rich set of drawing components.
+        Spring++ uses only a subset of those:
+    </p>
+
+    <img src="../image/gdiplus.png"/>
+
+    <h2>Diagram Elements</h2>
+
+    <p>
+        The <span class="bold">DiagramElement</span> class is the base class of all diagram elements. Each element has a bounding rectangle and a name.
+        All elements can measure their dimensions, draw themselves to the graphics surface, clone themselves,
+        return their attributes as XML and parse the attributes back from XML:
+    </p>
+
+    <img src="../image/diagram_element.png"/>
+
+    <h2>Layout</h2>
+
+    <p>
+        Layout contain subdimensions, colors, fonts and paddings of diagram elements.
+        The unit of measure of all layout elements is millimeter.
+        The layout is saved as XML to the <span class="bold">layout.xml</span> file 
+        located in the <span class="bold">layout</span> subdirectory of the 
+        <span class="bold">springpp</span> directory.
+    </p>
+
+    <h3>Overview</h3>
+
+    <p>
+        This picture contains the layout classes:
+    </p>
+
+    <img src="../image/layout_overview.png"/>
+
+    <h3>Fundamental Layout Elements</h3>
+
+    <p>
+        The <span class="bold">LayoutElement</span> class is the base class of all layout elements.
+        Each layout element has a name, can return its attributes as XML and parse attributes back from XML.
+    </p>
+
+    <p>
+        The fundamental layout elements contain color, font and padding attributes:
+    </p>
+
+    <img src="../image/fundamental_layout_elements.png"/>
+
+    <h3>Container Layout Elements</h3>
+
+    <p>
+        The container layout elements contain the line widths, colors, fonts and paddings of the 
+        class, object and note diagram elements:
+    </p>
+
+    <img src="../image/container_layout_elements.png"/>
+
+    <h3>Other Layout Elements</h3>
+
+    <p>
+        The rest layout elements contains the widths, heights, radii, colors, fonts and paddings of
+        the rest of diagram elements:
+    </p>
+
+    <img src="../image/other_layout_elements.png"/>
+
+    <h2>Helper Classes</h2>
+
+    <img src="../image/helpers.png"/>
+
+    <h3>Connector</h3>
+
+    <p>
+        The <span class="bold">Connector</span> class represents an ID of an endpoint of a container class.
+        Each container object has twelve endpoints, three on each side of the container object.
+        In addition a class element has one endpoint for each operation and attribute, and 
+        an object element has one endpoint for each attribute.
+    </p>
+
+    <p>
+        The primary connector point specifies the side of the container element: 
+        <span class="bold">left</span>, <span class="bold">top</span>, <span class="bold">right</span>, or <span class="bold">bottom</span>,
+        or it can be <span class="bold">operation</span> or <span class="bold">attribute</span>.
+        The secondary connector point specifies one of the three points: left and right sides have 
+        <span class="bold">top</span>, <span class="bold">center</span> and <span class="bold">bottom</span> points,
+        and the top and bottom sides have <span class="bold">left</span>, <span class="bold">center</span> and <span class="bold">right</span> points.
+        If the primary point is <span class="bold">operation</span> or <span class="bold">attribute</span> the secondary point is the 
+        index of the corresponding operation or attribute in a container element.
+    </p>
+
+    <h3>EndPoint</h3>
+
+    <p>
+        The <span class="bold">EndPoint</span> class represents an endpoint of a relationship element.
+        It has a reference to a diagram element, that is a container element, an operation element or an attribute element.
+        It has also a connector, a calculated canvas point, two text elements and an index of a container element in a diagram.
+        The primary text element contains the text drawn above the relationship line and
+        the secondary text element contains the text drawn below the relationship line.
+    </p>
+
+    <h3>IndexList</h3>
+
+    <p>
+        <span class="bold">IndexList</span> is a class template that is specialized for the 
+        <span class="bold">DiagramElement</span>,  <span class="bold">AttributeElement</span> or  <span class="bold">OperationElement</span>.
+        The IndexList owns its elements. The elements are referenced by their index in the list.
+    </p>
+
+    <h3>Configuration</h3>
+
+    The <span class="bold">Configuration</span> class is a singleton that holds a <span class="bold">Layout</span> object.
+    It is used by the diagram elements to access the layout.
+
+    <h2>Container Elements</h2>
+
+    <img src="../image/container_element.png"/>
+
+    <p>
+        The <span class="bold">ContainerElement</span> class contains references to relationships that
+        the container element is part of.
+        When the location or size of the container element changes its <span class="bold">Measure</span> 
+        method will be called. It calculates new source and target points for the relationships.
+    </p>
+
+    <h3>Class Element</h3>
+
+    <img src="../image/class_element.png"/>
+
+    <p>
+        The <span class="bold">ClassElement</span> class contains an <span class="bold">isAbstract</span> flag 
+        that tells whether the class is abstract or not. When the isAbstract flag is changed, the 
+        <span class="bold">rep</span> member is also changed to a new instance of 
+        <span class="bold">ConcreteClassElement</span> or <span class="bold">AbstractClassElement</span>.
+    </p>
+
+    <p>
+        The measuring and drawing of the class element is delegated to the representation class.
+        The <span class="bold">GetClassLayout</span> method of the representation
+        returns an instance of the  <span class="bold">ConcreteClassLayoutElement</span> or  <span class="bold">AbstractClassLayoutElement</span> 
+        depending whether the representation is concrete or abstract. The font style of the caption in the concrete layout is bold and 
+        in the abstract layout it is bold italic.
+    </p>
+
+    <h3>Object Element</h3>
+
+    <img src="../image/object_element.png"/>
+
+    <P>
+        The <span class="bold">ObjectElement</span> class is simpler than the class element. The <span class="bold">DrawFrame</span> method draws a
+        rounded rectangle frame to the object element.
+    </P>
+
+    <h3>Note Element</h3>
+
+    <img src="../image/note_element.png"/>
+
+    <p>
+        The <span class="bold">NoteElement</span> class has a vector of text lines. The <span class="bold">Draw</span> method 
+        draws a frame with a note corner bitmap and calls the graphics.DrawString() method to draw the text lines.
+    </p>
+
+    <h2>Child Elements</h2>
+
+    <p>
+        Instances of the <span class="bold">AttributeElement</span> class are  contained by object or class elements.
+        Instances of the <span class="bold">OperationElement</span> class are contained by class elements.
+        Attributes and operations have a reference to their container element and they may be part of a relationship.
+    </p>
+
+    <img src="../image/child_elements.png"/>
+
+    <h2>Relationships</h2>
+
+    <h3>Relationship Element</h3>
+
+    <img src="../image/relationship_element.png"/>
+
+    <p>
+        The <span class="bold">RelationshipElement</span> class represents a relationship between two container elements.
+        It has <span class="bold">rkind</span> member that is the kind of relationship represented,
+        <span class="bold">cardinality</span> that holds the cardinality of the relationship, 
+        <span class="bold">source</span> and <span class="bold">target</span> endpoints and 
+        a vector of <span class="bold">routing points</span>.
+    </p>
+
+    <p>
+        When the <span class="bold">rkind</span> member changes, the <span class="bold">SetRep</span> method is called to 
+        create a new instance of relationship representation and set it as the value of the <span class="bold">rep</span> member.
+    </p>
+
+    <p>
+        The <span class="bold">Measure</span> method calculates the sizes of primary and secondary text elements for the 
+        source and target endpoints, and then calls the <span class="bold">SetTextLocations</span> method to
+        set new locations for those text elements.
+    </p>
+
+    <h3>Inheritance Relationship</h3>
+
+    <img src="../image/inheritance_relationship.png"/>
+
+    <p>
+        The <span class="bold">Inheritance</span> class is an example of a concrete relationship.
+        The <span class="bold">Draw</span> method draws a line from the 
+        starting point of the inheritance arrow to the first routing point of the inheritance.
+        Then it draws the line from the previous routing point to the next routing point in turn.
+        Finally it calculates the points of the lines that consist the target end of the inheritance arrow and draws the lines.
+    </p>
+
+    <p>
+        For the rest of the concrete releationships, the implementations are analogous.
+    </p>
+
+    <h2>Text Element</h2>
+
+    <img src="../image/text_element.png"/>
+
+    <p>
+        The <span class="bold">TextElement</span> represents text drawn above or below a relationship line segment
+        either near to the source or target endpoint of the relationship.
+        If the <span class="bold">tkind</span> is <span class="bold">primaryText</span> the text is 
+        drawn above the line segment, and if it is <span class="bold">secondaryText</span> the text is drawn below the line segment.
+    </p>
+
+    <p>
+        The <span class="bold">SetSourceLocation</span> and <span class="bold">SetTargetLocation</span> methods
+        calculate the location of the text element for the source and target endpoints respectively.
+    </p>
+
+    <p>
+        As an example of the location calculation code for the  <span class="bold">SetPrimarySourceLocation</span>
+        is shown. In this case the <span class="bold">line</span> parameter is the starting line segment of the relationship line.
+        First the line segment is converted to a vector <span class="bold">u</span>.
+        Then the code branches depending on the quarter of the circle the vector u points to.
+        The code is shown when the angle of the vector is between 0&#176 and 90&#176. Spring++ follows a common convention of 
+        graphics systems that the x axis points to the right and the y axis points down. 
+        Thus the <span class="bold">x_unit</span> and <span class="bold">y_unit</span> vectors are set accordingly.
+        The variable <span class="bold">h</span> is set as the height of the bounding rectangle of the text element.
+    </p>
+
+    <p>
+        The code is based on vector mathematics and geometry, specifically properties of similar right triangles.
+    </p>
+
+    <p>
+        The calculations for other quarters of the circle are analogous but differ slightly.
+    </p>
+
+    <h2>Undo and Redo</h2>
+
+    <p>
+        To support undo and redo, user actions are captured as <span class="bold">Command</span>s and saved to a 
+        <span class="bold">CommandList</span>. The command list is owned by the <span class="bold">Diagram</span> class.
+    </p>
+
+    <img src="../image/command.png"/>
+
+    <h3>Command List</h3>
+
+    <p>
+        The <span class="bold">CommandList</span> class holds commands and keeps track of current command index.
+    </p>
+
+    <p>
+        The <span class="bold">AddCommand</span> method calls the <span class="bold">Finalize</span> method 
+        of the command and saves the command to the current index position, or adds the command to the 
+        end of the command list, if the current index is equal to the number of commands in the list.
+        Then the current index is incremented and the list is resized to hold exactly current index number of commands.
+    </p>
+
+    <p>
+        The <span class="bold">CanUndo</span> method returns <span class="bold">true</span> if the current command index is positive and 
+        <span class="bold">false</span> otherwise.
+    </p>
+
+    <p>
+        The <span class="bold">Undo</span> method decrements the current command index and then calls the <span class="bold">Undo</span> method of the command at the 
+        current command index.
+    </p>
+
+    <p>
+        The <span class="bold">CanRedo</span> method returns <span class="bold">true</span> if the current command index is less then the 
+        number of commands in the list and <span class="bold">false</span> otherwise.
+    </p>
+
+    <p>
+        The <span class="bold">Redo</span> method calls the <span class="bold">Redo</span> method of the command at the current command index, and increments the 
+        current command index.
+    </p>
+
+    <p>
+        The <span class="bold">CanUndo</span> and <span class="bold">CanRedo</span> methods are used to enable and disable the <span class="bold">Undo</span> and
+        <span class="bold">Redo</span> menu items respectively.
+    </p>
+
+    <h2>Selections</h2>
+
+    <p>
+        There are three kind of selections derived from the <span class="bold">Selection</span> base class: 
+        the <span class="bold">EmptySelection</span> is the default when nothing is selected,
+        the <span class="bold">ElementSelection</span> contains indeces of diagram elements selected by <span class="bold">control+clicking</span> them,
+        and the <span class="bold">RectangleSelection</span> is created by dragging a rectangle around diagram elements.
+    </p>
+
+    <img src="../image/selection.png"/>
+
+    <h2>Context Menu Actions</h2>
+
+    <p>
+        Actions are added to a context menu when user <span class="bold">right-clicks</span> either an individual diagram element or a selection.
+    </p>
+
+    <h3>
+        Diagram Element Actions
+    </h3>
+
+    <p>
+        Actions derived from the <span class="bold">DiagramElementAction</span> are added to a context menu by the <span class="bold">AddActions</span> method of a diagram element 
+        when it is <span class="bold">right-clicked</span>. When user selects a menu item from the context menu, 
+        the <span class="bold">Execute</span> method of a diagram element action gets called.</p>
+
+    <img src="../image/diagram_element_action.png"/>
+
+    <h3>
+        Diagram Actions
+    </h3>
+
+    <p>
+        Actions derived from the <span class="bold">DiagramAction</span> are added to a context menu by the <span class="bold">AddActions</span> method of a selection when 
+        it is <span class="bold">right-clicked</span>. When user selects a menu item from the context menu, 
+        the <span class="bold">Execute</span> method of a diagram action gets called.</p>
+    </p>
+
+    <img src="../image/diagram_action.png"/>
+
+</body>
+
+</html>

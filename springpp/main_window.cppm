@@ -20,6 +20,7 @@ public:
 protected:
     void OnWindowClosing(wing::CancelArgs& args) override;
     void OnKeyDown(wing::KeyEventArgs& args) override;
+    void OnSizeChanged() override;
     void OnClipboardUpdate() override;
 private:
     void NewClick();
@@ -35,7 +36,7 @@ private:
     void RedoClick();
     void SelectAllClick();
     void AboutClick();
-    void UsersGuideClick();
+    void UserGuideClick();
     void CanvasMouseEnter();
     void CanvasMouseLeave();
     void CanvasMouseMove(wing::MouseEventArgs& args);
@@ -70,6 +71,7 @@ private:
     std::unique_ptr<wing::ClipboardFormat> springppDiagramElementsFormat;
     std::u32string clipboardData;
     std::unique_ptr<wing::ClipboardListener> clipboardListener;
+    wing::StatusBar* statusBar;
 };
 
 } // namespace springpp

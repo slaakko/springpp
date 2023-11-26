@@ -341,7 +341,7 @@ std::vector<RelationshipElement*> ObjectElement::GetAllRelationships() const
     return relationships;
 }
 
-void ObjectElement::MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap)
+void ObjectElement::MapChildObjects(ContainerElement* from, std::map<DiagramElement*, DiagramElement*>& cloneMap, std::map<DiagramElement*, DiagramElement*>& reverseCloneMap)
 {
     if (from->IsObjectElement())
     {
@@ -349,7 +349,10 @@ void ObjectElement::MapChildObjects(ContainerElement* from, std::map<DiagramElem
         int nf = fromObject->attributes.Count();
         for (int i = 0; i < nf; ++i)
         {
-            cloneMap[fromObject->attributes.Get(i)] = attributes.Get(i);
+            AttributeElement* newAttr = attributes.Get(i);
+            AttributeElement* oldAttr = fromObject->attributes.Get(i);
+            cloneMap[oldAttr] = newAttr;
+            reverseCloneMap[newAttr] = oldAttr;
         }
     }
 }

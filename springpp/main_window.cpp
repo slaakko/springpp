@@ -112,6 +112,12 @@ MainWindow::MainWindow() :
         wing::MenuItem* userGuideMenuItem = new wing::MenuItem("&User Guide");
         userGuideMenuItem->Click().AddHandler(this, &MainWindow::UserGuideClick);
         helpMenuItem->AddMenuItem(userGuideMenuItem);
+        wing::MenuItem* indexMenuItem = new wing::MenuItem("&Index");
+        indexMenuItem->Click().AddHandler(this, &MainWindow::IndexClick);
+        helpMenuItem->AddMenuItem(indexMenuItem);
+        wing::MenuItem* homePageMenuItem = new wing::MenuItem("&Home Page");
+        homePageMenuItem->Click().AddHandler(this, &MainWindow::HomePageClick);
+        helpMenuItem->AddMenuItem(homePageMenuItem);
         wing::MenuItem* aboutMenuItem = new wing::MenuItem("&About...");
         aboutMenuItem->Click().AddHandler(this, &MainWindow::AboutClick);
         helpMenuItem->AddMenuItem(aboutMenuItem);
@@ -618,6 +624,32 @@ void MainWindow::UserGuideClick()
     {
         std::string userGuideFilePath = util::Path::Combine(util::SpringPPRoot(), "doc/user_guide/user_guide.html");
         ShellExecuteA(Handle(), "open", userGuideFilePath.c_str(), nullptr, nullptr, SW_SHOW);
+    }
+    catch (const std::exception& ex)
+    {
+        wing::ShowErrorMessageBox(Handle(), ex.what());
+    }
+}
+
+void MainWindow::IndexClick()
+{
+    try
+    {
+        std::string indexFilePath = util::Path::Combine(util::SpringPPRoot(), "doc/index.html");
+        ShellExecuteA(Handle(), "open", indexFilePath.c_str(), nullptr, nullptr, SW_SHOW);
+    }
+    catch (const std::exception& ex)
+    {
+        wing::ShowErrorMessageBox(Handle(), ex.what());
+    }
+}
+
+void MainWindow::HomePageClick()
+{
+    try
+    {
+        std::string homePagePath = "https://slaakko.github.io/springpp/index.html";
+        ShellExecuteA(Handle(), "open", homePagePath.c_str(), nullptr, nullptr, SW_SHOW);
     }
     catch (const std::exception& ex)
     {

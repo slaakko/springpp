@@ -37,6 +37,8 @@ private:
     void SelectAllClick();
     void AboutClick();
     void UserGuideClick();
+    void IndexClick();
+    void HomePageClick();
     void CanvasMouseEnter();
     void CanvasMouseLeave();
     void CanvasMouseMove(wing::MouseEventArgs& args);

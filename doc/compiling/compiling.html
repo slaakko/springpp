@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Compiling from Source Code</title>
+    <link rel="stylesheet" type="text/css" href="../style/style.css" />
+</head>
+
+<body>
+    <h1>Compiling Spring++ from Source Code</h1>
+
+    <h2>Requirements</h2>
+
+    <p>
+        Compiling Spring++ requires Microsoft Visual Studio 2022 Community Edition with 'Desktop Development with C++' tool chain installed and <a href="https://www.boost.org/">Boost</a> C++ libraries installed.
+    </p>
+
+    <h2>
+        Configuration
+    </h2>
+
+    <ul>
+        <li>Extract the <span class="bold">spring++-0.1.0.zip</span> package to a directory of your choice.</li>
+        <li>Open the <span class="bold">springpp.sln</span> using Visual Studio</li>
+        <li>Select the <span class="bold">Property Manager</span> tab from the <span class="bold">Solution Explorer</span>. 
+            If the property manager is not shown,  you can view it by selecting <span class="bold">View | Other Windows | Property Manager</span> menu item.</li>
+        <li>
+            Open for example the <span class="bold">Debug|x64</span> configuration of the </span><span class="bold">ast</span> project:<br/>
+            <img src="../image/property_manager.png"/>
+        </li>
+        <li>
+            Right-click <span class="bold">build</span> and select <span class="bold">Properties</span>
+        </li>
+        <li>
+            The <span class="bold">build</span> property pages opens. <br/>
+            <img src="../image/build_properties.png"/>
+        </li>
+        <li>
+            Select the <span class="bold">User Macros</span> tab and enter your Boost library paths.
+        </li>
+    </ul>
+
+    <h2>
+        Compilation
+    </h2>
+
+    <ul>
+        <li>Select the <span class="bold">Debug|x64</span> configuration and build the solution.</li>
+        <li>Select the <span class="bold">Release|x64</span> configuration and build the solution.</li>
+    </ul>
+    
+    <h2>
+        Installation
+    </h2>
+
+    <p>
+        Copy the <span class="bold">spring++</span> executables from the <span class="bold">x64/Debug</span> directory and
+        from the <span class="bold">x64/Release</span> directory to the <span class="bold">bin</span> directory.
+    </p>
+</body>
+</html>

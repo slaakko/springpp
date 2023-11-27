@@ -60,8 +60,8 @@ int WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdSh
         }
         layout->Load();
         springpp::Configuration::Instance().SetLayout(layout.release());
-        mainWindow.SetSmallIcon(wing::Application::GetResourceManager().GetIcon("spring.icon"));
-        mainWindow.SetIcon(wing::Application::GetResourceManager().GetIcon("spring.icon"));
+        mainWindow.SetSmallIcon(wing::Application::GetResourceManager().GetIcon("springpp.icon"));
+        mainWindow.SetIcon(wing::Application::GetResourceManager().GetIcon("springpp.icon"));
         int exitCode = wing::Application::Run(mainWindow);
         return exitCode;
     }

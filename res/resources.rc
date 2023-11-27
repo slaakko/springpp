@@ -1,4 +1,4 @@
-spring.icon ICON "spring.ico"
+springpp.icon ICON "spring++.ico"
 class.tool.spring.bitmap BITMAP "class.tool.spring.bmp"
 class.tool.spring.cursor CURSOR "class.tool.spring.cur"
 object.tool.spring.bitmap BITMAP "object.tool.spring.bmp"

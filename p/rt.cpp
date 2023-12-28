@@ -1039,28 +1039,7 @@ void GraphicsMeasureStringMethod::Execute(ExecutionContext* context)
         FontKey fontKey(familyName, size, style);
         font = Rt::Instance().GetFont(fontKey);
         Object* textObj = textObject->GetObject();
-        std::u16string text;
-        if (textObj->IsStringObject())
-        {
-            StringObject* stringObject = static_cast<StringObject*>(textObj);
-            text = util::ToUtf16(stringObject->Value());
-        }
-        else if (textObj->IsValueObject())
-        {
-            Value* stringValue = static_cast<Value*>(textObj);
-            if (stringValue->IsStringValue())
-            {
-                text = util::ToUtf16(stringValue->ToString());
-            }
-            else
-            {
-                throw std::runtime_error("string value expected");
-            }
-        }
-        else
-        {
-            throw std::runtime_error("string object expected");
-        }
+        std::u16string text = util::ToUtf16(textObj->ToStringObject(context)->Value());
         Object* graphicsObj = graphicsObject->GetObject();
         if (graphicsObj->IsHeapObject())
         {
@@ -1341,28 +1320,7 @@ void GraphicsDrawStringMethod::Execute(ExecutionContext* context)
         font = Rt::Instance().GetFont(fontKey);
     }
     Object* textObj = textObject->GetObject();
-    std::u16string text;
-    if (textObj->IsStringObject())
-    {
-        StringObject* stringObject = static_cast<StringObject*>(textObj);
-        text = util::ToUtf16(stringObject->Value());
-    }
-    else if (textObj->IsValueObject())
-    {
-        Value* stringValue = static_cast<Value*>(textObj);
-        if (stringValue->IsStringValue())
-        {
-            text = util::ToUtf16(stringValue->ToString());
-        }
-        else
-        {
-            throw std::runtime_error("string value expected");
-        }
-    }
-    else
-    {
-        throw std::runtime_error("string object expected");
-    }
+    std::u16string text = util::ToUtf16(textObj->ToStringObject(context)->Value());
     Object* graphicsObj = graphicsObject->GetObject();
     if (graphicsObj->IsHeapObject())
     {

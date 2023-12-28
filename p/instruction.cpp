@@ -1726,8 +1726,10 @@ Instruction* EqualStringInstruction::Execute(ExecutionContext* context)
     Stack* stack = context->GetStack();
     std::unique_ptr<Object> right = stack->Pop();
     std::unique_ptr<Object> left = stack->Pop();
-    std::string leftValue = left->GetObject()->ToString();
-    std::string rightValue = right->GetObject()->ToString();
+    StringObject* leftObject = left->ToStringObject(context);
+    std::string leftValue = leftObject->Value();
+    StringObject* rightObject = right->ToStringObject(context);
+    std::string rightValue = rightObject->Value();
     stack->Push(new BooleanValue(leftValue == rightValue));
     return Next();
 }
@@ -1741,8 +1743,10 @@ Instruction* NotEqualStringInstruction::Execute(ExecutionContext* context)
     Stack* stack = context->GetStack();
     std::unique_ptr<Object> right = stack->Pop();
     std::unique_ptr<Object> left = stack->Pop();
-    std::string leftValue = left->GetObject()->ToString();
-    std::string rightValue = right->GetObject()->ToString();
+    StringObject* leftObject = left->ToStringObject(context);
+    std::string leftValue = leftObject->Value();
+    StringObject* rightObject = right->ToStringObject(context);
+    std::string rightValue = rightObject->Value();
     stack->Push(new BooleanValue(leftValue != rightValue));
     return Next();
 }

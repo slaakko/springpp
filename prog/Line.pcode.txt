@@ -1,0 +1,41 @@
+module Line, id=2145253607
+implementation
+uses System, System.Graphics, System.Graphics.Primitive
+procedure '@program'
+definition
+module id 2145253607
+id 1
+frame size: 2
+var
+  local 'bm' index 0 type 'Bitmap'
+  local 'graphics' index 1 type 'Graphics'
+code
+  0 : receive(0)
+  1 : new_object(Bitmap)
+  2 : push_value(100)
+  3 : push_value(100)
+  4 : call_ctor(1489900195, 7)
+  5 : store_local(0)
+  6 : load_local(0)
+  7 : call_external(Bitmap.GetGraphics, 0)
+  8 : store_local(1)
+  9 : load_local(1)
+  10 : load_global(2)
+  11 : new_object(Point)
+  12 : push_value(0)
+  13 : int_to_real
+  14 : push_value(0)
+  15 : int_to_real
+  16 : call_ctor(1205691996, 1)
+  17 : new_object(Point)
+  18 : push_value(100)
+  19 : int_to_real
+  20 : push_value(100)
+  21 : int_to_real
+  22 : call_ctor(1205691996, 1)
+  23 : call_external(Graphics.DrawLine, 1)
+  24 : load_local(0)
+  25 : push_value('C:/work/springpp/prog/line.png')
+  26 : call_external(Bitmap.Save, 2)
+  27 : nop
+

@@ -19,7 +19,6 @@ void InitApplication(HINSTANCE instance)
 {
     util::Init();
     wing::Init(instance);
-    springpp::InitThemes();
 }
 
 void TerminateApplication()

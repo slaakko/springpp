@@ -1,0 +1,49 @@
+module Array, id=153142918
+implementation
+uses System
+procedure '@program'
+definition
+module id 153142918
+id 1
+frame size: 2
+type
+  object type 'Shape'
+    fields:
+    methods:
+      constructor
+      declaration
+      parameter 'this' type 'Shape'
+      module id 153142918
+      implementation id 2
+      frame size: 0
+
+  array type 'array of Shape'
+    element type Shape
+var
+  'a' index 0 type 'array of Shape'
+  's' index 1 type 'Shape'
+constructor
+definition
+parameter 'this' index 0 type 'Shape'
+module id 153142918
+id 2
+frame size: 1
+code
+  0 : receive(1)
+  1 : nop
+
+code
+  0 : receive(0)
+  1 : new_array(array of Shape, 4)
+  2 : store_local(0)
+  3 : new_object(Shape)
+  4 : call_ctor(153142918, 2)
+  5 : push_value(0)
+  6 : load_local(0)
+  7 : store_element
+  8 : push_value(0)
+  9 : load_local(0)
+  10 : load_element
+  11 : store_local(1)
+  12 : nop
+

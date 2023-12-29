@@ -565,13 +565,25 @@ void BoundConstructorCallNode::Load(Emitter* emitter)
         argument->Load(emitter);
     }
     CallConstructorInstruction* callConstructorInstruction = new CallConstructorInstruction();
+    if (constructor->ModuleId() == -1)
+    {
+        ThrowError("constructor module ID not set", emitter->Lexer(), Pos());
+    }
     callConstructorInstruction->SetModuleId(constructor->ModuleId());
     if (constructor->IsDeclaration())
     {
+        if (constructor->ImplementationId() == -1)
+        {
+            ThrowError("constructor implementation ID not set", emitter->Lexer(), Pos());
+        }
         callConstructorInstruction->SetSubroutineId(constructor->ImplementationId());
     }
     else
     {
+        if (constructor->Id() == -1)
+        {
+            ThrowError("constructor ID not set", emitter->Lexer(), Pos());
+        }
         callConstructorInstruction->SetSubroutineId(constructor->Id());
     }
     emitter->Emit(callConstructorInstruction);
@@ -646,19 +658,35 @@ void BoundMethodCallNode::Load(Emitter* emitter)
         {
             ExternalSubroutine* subroutine = GetExternalSubroutine(method->ExternalSubroutineName());
             CallExternalInstruction* callExternalInstruction = new CallExternalInstruction();
+            if (subroutine->Id() == -1)
+            {
+                ThrowError("external method '" + method->FullName() + "' subroutine ID not set", emitter->Lexer(), Pos());
+            }
             callExternalInstruction->SetId(subroutine->Id());
             emitter->Emit(callExternalInstruction);
         }
         else if (method->IsProcedure())
         {
             CallProcedureInstruction* callProcedureInstruction = new CallProcedureInstruction();
+            if (method->ModuleId() == -1)
+            {
+                ThrowError("method '" + method->FullName() + "' module ID not set", emitter->Lexer(), Pos());
+            }
             callProcedureInstruction->SetModuleId(method->ModuleId());
             if (method->IsDeclaration())
             {
+                if (method->ImplementationId() == -1)
+                {
+                    ThrowError("method '" + method->FullName() + "' implementation ID not set", emitter->Lexer(), Pos());
+                }
                 callProcedureInstruction->SetSubroutineId(method->ImplementationId());
             }
             else
             {
+                if (method->Id() == -1)
+                {
+                    ThrowError("method '" + method->FullName() + "' ID not set", emitter->Lexer(), Pos());
+                }
                 callProcedureInstruction->SetSubroutineId(method->Id());
             }
             emitter->Emit(callProcedureInstruction);
@@ -666,13 +694,25 @@ void BoundMethodCallNode::Load(Emitter* emitter)
         else if (method->IsFunction())
         {
             CallFunctionInstruction* callFunctionInstruction = new CallFunctionInstruction();
+            if (method->ModuleId() == -1)
+            {
+                ThrowError("method '" + method->FullName() + "' module ID not set", emitter->Lexer(), Pos());
+            }
             callFunctionInstruction->SetModuleId(method->ModuleId());
             if (method->IsDeclaration())
             {
+                if (method->ImplementationId() == -1)
+                {
+                    ThrowError("method '" + method->FullName() + "' implementation ID not set", emitter->Lexer(), Pos());
+                }
                 callFunctionInstruction->SetSubroutineId(method->ImplementationId());
             }
             else
             {
+                if (method->Id() == -1)
+                {
+                    ThrowError("method '" + method->FullName() + "' ID not set", emitter->Lexer(), Pos());
+                }
                 callFunctionInstruction->SetSubroutineId(method->Id());
             }
             emitter->Emit(callFunctionInstruction);
@@ -1638,10 +1678,6 @@ BoundNodeVisitor::~BoundNodeVisitor()
 
 std::unique_ptr<BoundCompoundStatementNode> Bind(ParsingContext* context, CompoundStatementNode* compoundStatement, Subroutine* subroutine, soul::lexer::LexerBase<char>& lexer)
 {
-    if (subroutine && subroutine->Heading()->GetObjectType() && subroutine->Heading()->GetObjectType()->Name() == "Arrow")
-    {
-        int x = 0;
-    }
     StatementBinder binder(context, subroutine, lexer);
     compoundStatement->Accept(binder);
     std::unique_ptr<BoundCompoundStatementNode> statement = binder.GetBoundCompoundStatement();

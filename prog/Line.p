@@ -6,9 +6,11 @@ var
   bm: Bitmap;
   x, y: integer;
   graphics: Graphics;
+  arrow: Arrow;
   font: Font;
   size: Size;
-  textX, textY: integer;
+  textX, textY: real;
+  arrowPoints: PointArray;
 begin
   x := MMToPixels(100, dpiX);
   y :=  MMToPixels(100, dpiY);
@@ -22,5 +24,12 @@ begin
   textX := 50 - size.w / 2;
   textY := 50 - size.h / 2;
   graphics.DrawString('foobar', font, blackBrush, new Point(textX, textY));
+  graphics.DrawEllipse(blackPen, new Rect(new Point(10, 10), new Size(10, 10)));
+  graphics.DrawArc(blackPen, new Rect(new Point(40, 40), new Size(10, 10)), 0, 90);
+  arrowPoints := new Point[2];
+  arrowPoints[0] := new Point(60, 60);
+  arrowPoints[1] := new Point(80, 60);
+  arrow := new Arrow(arrowPoints);
+  arrow.Draw(graphics);
   bm.Save('C:/work/springpp/prog/line.png');
 end.

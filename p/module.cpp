@@ -11,6 +11,7 @@ import p.reader;
 import p.parsing_context;
 import p.context;
 import p.execute;
+import p.stdfn;
 import std.filesystem;
 
 namespace p {
@@ -336,6 +337,7 @@ void Module::Load(const std::string& fromFilePath, Context* context)
         rootBlock->Read(reader);
         reader.PushBlock(rootBlock.get());
         context->PushBlock(rootBlock.get());
+        SetStandardFunctionReturnTypes(rootBlock.get());
     }
     bool interfacePresent = reader.GetBinaryReader().ReadBool();
     if (interfacePresent)

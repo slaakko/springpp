@@ -308,6 +308,27 @@ public:
     void Execute(ExecutionContext* context) override;
 };
 
+class GraphicsFillPolygonMethod : public ExternalSubroutine
+{
+public:
+    GraphicsFillPolygonMethod();
+    void Execute(ExecutionContext* context) override;
+};
+
+class GraphicsDrawEllipseMethod : public ExternalSubroutine
+{
+public:
+    GraphicsDrawEllipseMethod();
+    void Execute(ExecutionContext* context) override;
+};
+
+class GraphicsDrawArcMethod : public ExternalSubroutine
+{
+public:
+    GraphicsDrawArcMethod();
+    void Execute(ExecutionContext* context) override;
+};
+
 class BitmapSaveMethod : public ExternalSubroutine
 {
 public:
@@ -354,6 +375,9 @@ Rt::Rt()
     AddExternalSubroutine(new GraphicsDrawRectangleMethod());
     AddExternalSubroutine(new GraphicsMeasureStringMethod());
     AddExternalSubroutine(new GraphicsDrawStringMethod());
+    AddExternalSubroutine(new GraphicsFillPolygonMethod());
+    AddExternalSubroutine(new GraphicsDrawEllipseMethod());
+    AddExternalSubroutine(new GraphicsDrawArcMethod());
     AddExternalSubroutine(new BitmapSaveMethod());
 }
 
@@ -543,7 +567,11 @@ void GraphicsClearMethod::Execute(ExecutionContext* context)
                     GenericPointerValue* nativePtr = static_cast<GenericPointerValue*>(nativeValue);
                     void* np = nativePtr->Pointer();
                     Gdiplus::Graphics* graphics = static_cast<Gdiplus::Graphics*>(np);
-                    graphics->Clear(color);
+                    Gdiplus::Status status = graphics->Clear(color);
+                    if (status != Gdiplus::Ok)
+                    {
+                        throw std::runtime_error("could not clear");
+                    }
                 }
             }
         }
@@ -699,7 +727,11 @@ void GraphicsDrawLineMethod::Execute(ExecutionContext* context)
                                 GenericPointerValue* nativePtr = static_cast<GenericPointerValue*>(nativeValue);
                                 void* np = nativePtr->Pointer();
                                 Gdiplus::Graphics* graphics = static_cast<Gdiplus::Graphics*>(np);
-                                graphics->DrawLine(pen, p1, p2);
+                                Gdiplus::Status status = graphics->DrawLine(pen, p1, p2);
+                                if (status != Gdiplus::Ok)
+                                {
+                                    throw std::runtime_error("could not draw line");
+                                }
                             }
                         }
                     }
@@ -792,7 +824,7 @@ void GraphicsDrawRectangleMethod::Execute(ExecutionContext* context)
                 }
                 else
                 {
-                    throw std::runtime_error("r not found");
+                    throw std::runtime_error("b not found");
                 }
                 Gdiplus::Color color(a, r, g, b);
                 float width = 0;
@@ -947,7 +979,11 @@ void GraphicsDrawRectangleMethod::Execute(ExecutionContext* context)
                     GenericPointerValue* nativePtr = static_cast<GenericPointerValue*>(nativeValue);
                     void* np = nativePtr->Pointer();
                     Gdiplus::Graphics* graphics = static_cast<Gdiplus::Graphics*>(np);
-                    graphics->DrawRectangle(pen, rect);
+                    Gdiplus::Status status = graphics->DrawRectangle(pen, rect);
+                    if (status != Gdiplus::Ok)
+                    {
+                        throw std::runtime_error("could not draw rectangle");
+                    }
                 }
             }
         }
@@ -1350,6 +1386,670 @@ void GraphicsDrawStringMethod::Execute(ExecutionContext* context)
     }
 }
 
+GraphicsFillPolygonMethod::GraphicsFillPolygonMethod() : ExternalSubroutine("Graphics.FillPolygon")
+{
+}
+
+void GraphicsFillPolygonMethod::Execute(ExecutionContext* context)
+{
+    Stack* stack = context->GetStack();
+    std::unique_ptr<Object> pointsObject = stack->Pop();
+    std::unique_ptr<Object> brushObject = stack->Pop();
+    std::unique_ptr<Object> graphicsObject = stack->Pop();
+    Object* pointsObj = pointsObject->GetObject();
+    std::vector<Gdiplus::PointF> points;
+    Gdiplus::Brush* brush = nullptr;
+    if (pointsObj->IsArrayObject())
+    {
+        ArrayObject* arrayObject = static_cast<ArrayObject*>(pointsObj);
+        int32_t length = arrayObject->Length();
+        for (int32_t i = 0; i < length; ++i)
+        {
+            Object* pointObject = arrayObject->GetElement(i);
+            Object* pointObj = pointObject->GetObject();
+            if (pointObj->IsHeapObject())
+            {
+                HeapObject* pointHeapObject = static_cast<HeapObject*>(pointObj);
+                ObjectType* pointType = pointHeapObject->GetType();
+                float x = 0;
+                float y = 0;
+                int32_t x_index = pointType->GetFieldIndex("x");
+                if (x_index != -1)
+                {
+                    Object* xObject = pointHeapObject->GetField(x_index);
+                    Object* xObj = xObject->GetObject();
+                    if (xObj->IsValueObject())
+                    {
+                        Value* xValue = static_cast<Value*>(xObj);
+                        x = xValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("x not found");
+                }
+                int32_t y_index = pointType->GetFieldIndex("y");
+                if (y_index != -1)
+                {
+                    Object* yObject = pointHeapObject->GetField(y_index);
+                    Object* yObj = yObject->GetObject();
+                    if (yObj->IsValueObject())
+                    {
+                        Value* yValue = static_cast<Value*>(yObj);
+                        y = yValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("y not found");
+                }
+                points.push_back(Gdiplus::PointF(x, y));
+            }
+            else
+            {
+                throw std::runtime_error("heap object expected");
+            }
+        }
+    }
+    else
+    {
+        throw std::runtime_error("array object expected");
+    }
+    Object* brushObj = brushObject->GetObject();
+    if (brushObj->IsHeapObject())
+    {
+        HeapObject* heapBrushObject = static_cast<HeapObject*>(brushObj);
+        ObjectType* brushType = heapBrushObject->GetType();
+        int32_t color_index = brushType->GetFieldIndex("color");
+        if (color_index != -1)
+        {
+            Object* color = heapBrushObject->GetField(color_index);
+            Object* colorObj = color->GetObject();
+            if (colorObj->IsHeapObject())
+            {
+                HeapObject* colorObject = static_cast<HeapObject*>(colorObj);
+                ObjectType* colorObjectType = static_cast<ObjectType*>(colorObject->GetType());
+                int32_t a = -1;
+                int32_t r = -1;
+                int32_t g = -1;
+                int32_t b = -1;
+                int32_t a_field_index = colorObjectType->GetFieldIndex("a");
+                if (a_field_index != -1)
+                {
+                    a = colorObject->GetField(a_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("a not found");
+                }
+                int32_t r_field_index = colorObjectType->GetFieldIndex("r");
+                if (r_field_index != -1)
+                {
+                    r = colorObject->GetField(r_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("r not found");
+                }
+                int32_t g_field_index = colorObjectType->GetFieldIndex("g");
+                if (g_field_index != -1)
+                {
+                    g = colorObject->GetField(g_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("r not found");
+                }
+                int32_t b_field_index = colorObjectType->GetFieldIndex("b");
+                if (b_field_index != -1)
+                {
+                    b = colorObject->GetField(g_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("r not found");
+                }
+                Gdiplus::Color color(a, r, g, b);
+                brush = Rt::Instance().GetBrush(color);
+            }
+            else
+            {
+                throw std::runtime_error("heap object expected");
+            }
+        }
+        else
+        {
+            throw std::runtime_error("color not found");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("heap object expected");
+    }
+    Object* graphicsObj = graphicsObject->GetObject();
+    if (graphicsObj->IsHeapObject())
+    {
+        HeapObject* graphicsObject = static_cast<HeapObject*>(graphicsObj);
+        ObjectType* graphicsType = graphicsObject->GetType();
+        int32_t nativeIndex = graphicsType->GetFieldIndex("native");
+        if (nativeIndex != -1)
+        {
+            Object* native = graphicsObject->GetField(nativeIndex);
+            if (native->IsValueObject())
+            {
+                Value* nativeValue = static_cast<Value*>(native);
+                if (nativeValue->IsGenericPointerValue())
+                {
+                    GenericPointerValue* nativePtr = static_cast<GenericPointerValue*>(nativeValue);
+                    void* np = nativePtr->Pointer();
+                    Gdiplus::Graphics* graphics = static_cast<Gdiplus::Graphics*>(np);
+                    Gdiplus::Status status = graphics->FillPolygon(brush, points.data(), points.size());
+                    if (status != Gdiplus::Ok)
+                    {
+                        throw std::runtime_error("could not fill polygon");
+                    }
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error("native not found");
+        }
+    }
+}
+
+GraphicsDrawEllipseMethod::GraphicsDrawEllipseMethod() : ExternalSubroutine("Graphics.DrawEllipse")
+{
+}
+
+void GraphicsDrawEllipseMethod::Execute(ExecutionContext* context)
+{
+    Stack* stack = context->GetStack();
+    std::unique_ptr<Object> rectObject = stack->Pop();
+    std::unique_ptr<Object> penObject = stack->Pop();
+    std::unique_ptr<Object> graphicsObject = stack->Pop();
+    Gdiplus::Pen* pen = nullptr;
+    Object* rectObj = rectObject->GetObject();
+    float x = 0;
+    float y = 0;
+    float w = 0;
+    float h = 0;
+    if (rectObj->IsHeapObject())
+    {
+        HeapObject* rectHeapObject = static_cast<HeapObject*>(rectObj);
+        ObjectType* rectObjectType = rectHeapObject->GetType();
+        int32_t location_index = rectObjectType->GetFieldIndex("location");
+        if (location_index != -1)
+        {
+            Object* locationObject = rectHeapObject->GetField(location_index);
+            Object* locationObj = locationObject->GetObject();
+            if (locationObj->IsHeapObject())
+            {
+                HeapObject* locationHeapObject = static_cast<HeapObject*>(locationObj);
+                ObjectType* locationType = locationHeapObject->GetType();
+                int32_t x_index = locationType->GetFieldIndex("x");
+                if (x_index != -1)
+                {
+                    Object* xObject = locationHeapObject->GetField(x_index);
+                    Object* xObj = xObject->GetObject();
+                    if (xObj->IsValueObject())
+                    {
+                        Value* xValue = static_cast<Value*>(xObj);
+                        x = xValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("x not found");
+                }
+                int32_t y_index = locationType->GetFieldIndex("y");
+                if (y_index != -1)
+                {
+                    Object* yObject = locationHeapObject->GetField(y_index);
+                    Object* yObj = yObject->GetObject();
+                    if (yObj->IsValueObject())
+                    {
+                        Value* yValue = static_cast<Value*>(yObj);
+                        y = yValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("y not found");
+                }
+            }
+        }
+        int32_t size_index = rectObjectType->GetFieldIndex("size");
+        if (size_index != -1)
+        {
+            Object* sizeObject = rectHeapObject->GetField(size_index);
+            Object* sizeObj = sizeObject->GetObject();
+            if (sizeObj->IsHeapObject())
+            {
+                HeapObject* sizeHeapObject = static_cast<HeapObject*>(sizeObj);
+                ObjectType* sizeType = sizeHeapObject->GetType();
+                int32_t w_index = sizeType->GetFieldIndex("w");
+                if (w_index != -1)
+                {
+                    Object* wObject = sizeHeapObject->GetField(w_index);
+                    Object* wObj = wObject->GetObject();
+                    if (wObj->IsValueObject())
+                    {
+                        Value* wValue = static_cast<Value*>(wObj);
+                        w = wValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("w not found");
+                }
+                int32_t h_index = sizeType->GetFieldIndex("h");
+                if (h_index != -1)
+                {
+                    Object* hObject = sizeHeapObject->GetField(h_index);
+                    Object* hObj = hObject->GetObject();
+                    if (hObj->IsValueObject())
+                    {
+                        Value* hValue = static_cast<Value*>(hObj);
+                        h = hValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("h not found");
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error("size not found");
+        }
+    }
+    Gdiplus::RectF rect(x, y, w, h);
+    Object* penObj = penObject->GetObject();
+    if (penObj->IsHeapObject())
+    {
+        HeapObject* penHeapObject = static_cast<HeapObject*>(penObj);
+        ObjectType* penObjectType = penHeapObject->GetType();
+        int32_t colorIndex = penObjectType->GetFieldIndex("color");
+        if (colorIndex != -1)
+        {
+            Object* color = penHeapObject->GetField(colorIndex);
+            Object* colorObj = color->GetObject();
+            if (colorObj->IsHeapObject())
+            {
+                HeapObject* colorObject = static_cast<HeapObject*>(colorObj);
+                ObjectType* colorObjectType = static_cast<ObjectType*>(colorObject->GetType());
+                int32_t a = -1;
+                int32_t r = -1;
+                int32_t g = -1;
+                int32_t b = -1;
+                int32_t a_field_index = colorObjectType->GetFieldIndex("a");
+                if (a_field_index != -1)
+                {
+                    a = colorObject->GetField(a_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("a not found");
+                }
+                int32_t r_field_index = colorObjectType->GetFieldIndex("r");
+                if (r_field_index != -1)
+                {
+                    r = colorObject->GetField(r_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("r not found");
+                }
+                int32_t g_field_index = colorObjectType->GetFieldIndex("g");
+                if (g_field_index != -1)
+                {
+                    g = colorObject->GetField(g_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("r not found");
+                }
+                int32_t b_field_index = colorObjectType->GetFieldIndex("b");
+                if (b_field_index != -1)
+                {
+                    b = colorObject->GetField(g_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("r not found");
+                }
+                Gdiplus::Color color(a, r, g, b);
+                float width = 0;
+                int32_t width_index = penObjectType->GetFieldIndex("width");
+                if (width_index != -1)
+                {
+                    Object* widthObject = penHeapObject->GetField(width_index);
+                    if (widthObject->IsValueObject())
+                    {
+                        Value* widthValue = static_cast<Value*>(widthObject);
+                        if (widthValue->IsRealValue())
+                        {
+                            width = widthValue->ToReal();
+                        }
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("width not found");
+                }
+                pen = Rt::Instance().GetPen(PenKey(color, width));
+            }
+        }
+    }
+    Object* graphicsObj = graphicsObject->GetObject();
+    if (graphicsObj->IsHeapObject())
+    {
+        HeapObject* graphicsObject = static_cast<HeapObject*>(graphicsObj);
+        ObjectType* graphicsType = graphicsObject->GetType();
+        int32_t nativeIndex = graphicsType->GetFieldIndex("native");
+        if (nativeIndex != -1)
+        {
+            Object* native = graphicsObject->GetField(nativeIndex);
+            if (native->IsValueObject())
+            {
+                Value* nativeValue = static_cast<Value*>(native);
+                if (nativeValue->IsGenericPointerValue())
+                {
+                    GenericPointerValue* nativePtr = static_cast<GenericPointerValue*>(nativeValue);
+                    void* np = nativePtr->Pointer();
+                    Gdiplus::Graphics* graphics = static_cast<Gdiplus::Graphics*>(np);
+                    Gdiplus::Status status = graphics->DrawEllipse(pen, rect);
+                    if (status != Gdiplus::Ok)
+                    {
+                        throw std::runtime_error("could not draw ellipse");
+                    }
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error("native not found");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("heap object expected");
+    }
+}
+
+GraphicsDrawArcMethod::GraphicsDrawArcMethod() : ExternalSubroutine("Graphics.DrawArc")
+{
+}
+
+void GraphicsDrawArcMethod::Execute(ExecutionContext* context)
+{
+    Stack* stack = context->GetStack();
+    std::unique_ptr<Object> sweepAngleObject = stack->Pop();
+    std::unique_ptr<Object> startAngleObject = stack->Pop();
+    std::unique_ptr<Object> rectObject = stack->Pop();
+    std::unique_ptr<Object> penObject = stack->Pop();
+    std::unique_ptr<Object> graphicsObject = stack->Pop();
+    float sweepAngle = 0;
+    float startAngle = 0;
+    float x = 0;
+    float y = 0;
+    float w = 0;
+    float h = 0;
+    Object* sweepAngleObj = sweepAngleObject->GetObject();
+    if (sweepAngleObj->IsValueObject())
+    {
+        sweepAngle = sweepAngleObj->ToReal();
+    }
+    Object* startAngleObj = startAngleObject->GetObject();
+    if (startAngleObj->IsValueObject())
+    {
+        startAngle = startAngleObj->ToReal();
+    }
+    Object* rectObj = rectObject->GetObject();
+    if (rectObj->IsHeapObject())
+    {
+        HeapObject* rectHeapObject = static_cast<HeapObject*>(rectObj);
+        ObjectType* rectObjectType = rectHeapObject->GetType();
+        int32_t location_index = rectObjectType->GetFieldIndex("location");
+        if (location_index != -1)
+        {
+            Object* locationObject = rectHeapObject->GetField(location_index);
+            Object* locationObj = locationObject->GetObject();
+            if (locationObj->IsHeapObject())
+            {
+                HeapObject* locationHeapObject = static_cast<HeapObject*>(locationObj);
+                ObjectType* locationType = locationHeapObject->GetType();
+                int32_t x_index = locationType->GetFieldIndex("x");
+                if (x_index != -1)
+                {
+                    Object* xObject = locationHeapObject->GetField(x_index);
+                    Object* xObj = xObject->GetObject();
+                    if (xObj->IsValueObject())
+                    {
+                        Value* xValue = static_cast<Value*>(xObj);
+                        x = xValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("x not found");
+                }
+                int32_t y_index = locationType->GetFieldIndex("y");
+                if (y_index != -1)
+                {
+                    Object* yObject = locationHeapObject->GetField(y_index);
+                    Object* yObj = yObject->GetObject();
+                    if (yObj->IsValueObject())
+                    {
+                        Value* yValue = static_cast<Value*>(yObj);
+                        y = yValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("y not found");
+                }
+            }
+        }
+        int32_t size_index = rectObjectType->GetFieldIndex("size");
+        if (size_index != -1)
+        {
+            Object* sizeObject = rectHeapObject->GetField(size_index);
+            Object* sizeObj = sizeObject->GetObject();
+            if (sizeObj->IsHeapObject())
+            {
+                HeapObject* sizeHeapObject = static_cast<HeapObject*>(sizeObj);
+                ObjectType* sizeType = sizeHeapObject->GetType();
+                int32_t w_index = sizeType->GetFieldIndex("w");
+                if (w_index != -1)
+                {
+                    Object* wObject = sizeHeapObject->GetField(w_index);
+                    Object* wObj = wObject->GetObject();
+                    if (wObj->IsValueObject())
+                    {
+                        Value* wValue = static_cast<Value*>(wObj);
+                        w = wValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("w not found");
+                }
+                int32_t h_index = sizeType->GetFieldIndex("h");
+                if (h_index != -1)
+                {
+                    Object* hObject = sizeHeapObject->GetField(h_index);
+                    Object* hObj = hObject->GetObject();
+                    if (hObj->IsValueObject())
+                    {
+                        Value* hValue = static_cast<Value*>(hObj);
+                        h = hValue->ToReal();
+                    }
+                    else
+                    {
+                        throw std::runtime_error("value object expected");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("h not found");
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error("size not found");
+        }
+    }
+    Gdiplus::RectF rect(x, y, w, h);
+    Gdiplus::Pen* pen = nullptr;
+    Object* penObj = penObject->GetObject();
+    if (penObj->IsHeapObject())
+    {
+        HeapObject* penHeapObject = static_cast<HeapObject*>(penObj);
+        ObjectType* penObjectType = penHeapObject->GetType();
+        int32_t colorIndex = penObjectType->GetFieldIndex("color");
+        if (colorIndex != -1)
+        {
+            Object* color = penHeapObject->GetField(colorIndex);
+            Object* colorObj = color->GetObject();
+            if (colorObj->IsHeapObject())
+            {
+                HeapObject* colorObject = static_cast<HeapObject*>(colorObj);
+                ObjectType* colorObjectType = static_cast<ObjectType*>(colorObject->GetType());
+                int32_t a = -1;
+                int32_t r = -1;
+                int32_t g = -1;
+                int32_t b = -1;
+                int32_t a_field_index = colorObjectType->GetFieldIndex("a");
+                if (a_field_index != -1)
+                {
+                    a = colorObject->GetField(a_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("a not found");
+                }
+                int32_t r_field_index = colorObjectType->GetFieldIndex("r");
+                if (r_field_index != -1)
+                {
+                    r = colorObject->GetField(r_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("r not found");
+                }
+                int32_t g_field_index = colorObjectType->GetFieldIndex("g");
+                if (g_field_index != -1)
+                {
+                    g = colorObject->GetField(g_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("r not found");
+                }
+                int32_t b_field_index = colorObjectType->GetFieldIndex("b");
+                if (b_field_index != -1)
+                {
+                    b = colorObject->GetField(g_field_index)->ToInteger();
+                }
+                else
+                {
+                    throw std::runtime_error("r not found");
+                }
+                Gdiplus::Color color(a, r, g, b);
+                float width = 0;
+                int32_t width_index = penObjectType->GetFieldIndex("width");
+                if (width_index != -1)
+                {
+                    Object* widthObject = penHeapObject->GetField(width_index);
+                    if (widthObject->IsValueObject())
+                    {
+                        Value* widthValue = static_cast<Value*>(widthObject);
+                        if (widthValue->IsRealValue())
+                        {
+                            width = widthValue->ToReal();
+                        }
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("width not found");
+                }
+                pen = Rt::Instance().GetPen(PenKey(color, width));
+            }
+        }
+    }
+    Object* graphicsObj = graphicsObject->GetObject();
+    if (graphicsObj->IsHeapObject())
+    {
+        HeapObject* graphicsObject = static_cast<HeapObject*>(graphicsObj);
+        ObjectType* graphicsType = graphicsObject->GetType();
+        int32_t nativeIndex = graphicsType->GetFieldIndex("native");
+        if (nativeIndex != -1)
+        {
+            Object* native = graphicsObject->GetField(nativeIndex);
+            if (native->IsValueObject())
+            {
+                Value* nativeValue = static_cast<Value*>(native);
+                if (nativeValue->IsGenericPointerValue())
+                {
+                    GenericPointerValue* nativePtr = static_cast<GenericPointerValue*>(nativeValue);
+                    void* np = nativePtr->Pointer();
+                    Gdiplus::Graphics* graphics = static_cast<Gdiplus::Graphics*>(np);
+                    Gdiplus::Status status = graphics->DrawArc(pen, rect, startAngle, sweepAngle);
+                    if (status != Gdiplus::Ok)
+                    {
+                        throw std::runtime_error("could not draw arc");
+                    }
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error("native not found");
+        }
+    }
+}
+
 BitmapSaveMethod::BitmapSaveMethod() : ExternalSubroutine("Bitmap.Save")
 {
 }
@@ -1385,7 +2085,11 @@ void BitmapSaveMethod::Execute(ExecutionContext* context)
                     int result = GetEncoderClsId(imageFormat, guid);
                     if (result == 0)
                     {
-                        bm->Save((const WCHAR*)fileName.c_str(), &guid, nullptr);
+                        Gdiplus::Status status = bm->Save((const WCHAR*)fileName.c_str(), &guid, nullptr);
+                        if (status != Gdiplus::Ok)
+                        {
+                            throw std::runtime_error("could not save bitmap");
+                        }
                     }
                     else
                     {

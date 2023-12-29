@@ -42,6 +42,20 @@ void Block::AddFundamentalTypes()
     AddType(new PointerType());
 }
 
+Type* Block::GetFundamentalType(TypeKind kind)
+{
+    switch (kind)
+    {
+        case TypeKind::booleanType: return GetType("boolean");
+        case TypeKind::integerType: return GetType("integer");
+        case TypeKind::charType: return GetType("char");
+        case TypeKind::realType: return GetType("real");
+        case TypeKind::stringType: return GetType("string");
+        case TypeKind::pointerType: return GetType("pointer");
+    }
+    throw std::runtime_error("fundamental type " + std::to_string(static_cast<int>(kind)) + " not found");
+}
+
 Type* Block::GetFundamentalType(TypeKind kind, soul::lexer::LexerBase<char>& lexer, int64_t pos) const
 {
     switch (kind)
@@ -1082,7 +1096,8 @@ void CompileStatementPart(ParsingContext* context, CompoundStatementNode* compou
     {
         Function* function = static_cast<Function*>(subroutine);
         Variable* resultVar = new Variable("@result");
-        resultVar->SetType(function->ResultType());
+        std::vector<Type*> argumentTypes;
+        resultVar->SetType(function->ResultType(argumentTypes));
         block->AddVariable(resultVar);
     }
     std::unique_ptr<BoundCompoundStatementNode> boundCompoundStatement = Bind(context, compoundStatement, subroutine, lexer);

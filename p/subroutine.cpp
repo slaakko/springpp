@@ -654,7 +654,7 @@ Function::Function(FunctionKind kind_, FunctionHeading* heading_) : Subroutine(S
 {
 }
 
-Type* Function::ResultType() const
+Type* Function::ResultType(const std::vector<Type*>& argumentTypes) const
 {
     return GetFunctionHeading()->ResultType();
 }

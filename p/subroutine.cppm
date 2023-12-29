@@ -234,7 +234,7 @@ public:
     FunctionKind FnKind() const { return fnkind; }
     const FunctionHeading* GetFunctionHeading() const { return static_cast<const FunctionHeading*>(Heading()); }
     FunctionHeading* GetFunctionHeading() { return static_cast<FunctionHeading*>(Heading()); }
-    Type* ResultType() const;
+    virtual Type* ResultType(const std::vector<Type*>& parameterTypes) const;
     virtual Value* Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, soul::lexer::LexerBase<char>& lexer, int64_t pos);
     virtual void GenerateCode(Emitter* emitter, int64_t pos);
     bool IsRegularFunction() const { return fnkind == FunctionKind::regularfn; }

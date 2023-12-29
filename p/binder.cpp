@@ -77,11 +77,14 @@ TypeKind GetCommonType(TypeKind left, TypeKind right)
     return TypeKind::none;
 }
 
+std::unique_ptr<BoundExpressionNode> BindExpression(ParsingContext* context, Subroutine* subroutine, soul::lexer::LexerBase<char>& lexer, Node* node, 
+    const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments);
+
 std::unique_ptr<BoundExpressionNode> BindExpression(ParsingContext* context, Subroutine* subroutine, soul::lexer::LexerBase<char>& lexer, Node* node);
 
 BoundExpressionNode* MakeBoundMethodCall(Subroutine* method, std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments, soul::lexer::LexerBase<char>& lexer, int64_t pos)
 {
-    std::unique_ptr<BoundMethodCallNode> boundMethodCall(new BoundMethodCallNode(method, pos));
+    std::unique_ptr<BoundMethodCallNode> boundMethodCall(new BoundMethodCallNode(method, boundArguments, pos));
     if (method->Parameters().size() != boundArguments.size())
     {
         ThrowError("error: method '" + method->FullName() + "' takes " + std::to_string(method->Parameters().size()) + " parameters, " + std::to_string(boundArguments.size()) +
@@ -142,8 +145,17 @@ void BoundExpressionNode::Store(Emitter* emitter)
     throw std::runtime_error("cannot store to this kind of bound expression");
 }
 
+Type* BinaryExprFunctionResultType(Function* operatorFunction, BoundExpressionNode* left, BoundExpressionNode* right)
+{
+    std::vector<Type*> argumentTypes;
+    argumentTypes.push_back(left->GetType());
+    argumentTypes.push_back(right->GetType());
+    return operatorFunction->ResultType(argumentTypes);
+}
+
 BoundBinaryExpressionNode::BoundBinaryExpressionNode(Function* operatorFunction_, BoundExpressionNode* left_, BoundExpressionNode* right_, int64_t pos_) :
-    BoundExpressionNode(BoundNodeKind::boundBinaryExprNode, pos_, operatorFunction_->ResultType()), operatorFunction(operatorFunction_), left(left_), right(right_)
+    BoundExpressionNode(BoundNodeKind::boundBinaryExprNode, pos_, BinaryExprFunctionResultType(operatorFunction_, left_, right_)), 
+        operatorFunction(operatorFunction_), left(left_), right(right_)
 {
 }
 
@@ -164,8 +176,15 @@ BoundExpressionNode* BoundBinaryExpressionNode::Clone() const
     return new BoundBinaryExpressionNode(operatorFunction, left->Clone(), right->Clone(), Pos());
 }
 
+Type* UnaryExprFunctionResultType(Function* operatorFunction, BoundExpressionNode* operand)
+{
+    std::vector<Type*> argumentTypes;
+    argumentTypes.push_back(operand->GetType());
+    return operatorFunction->ResultType(argumentTypes);
+}
+
 BoundUnaryExpressionNode::BoundUnaryExpressionNode(Function* operatorFunction_, BoundExpressionNode* operand_, int64_t pos_) :
-    BoundExpressionNode(BoundNodeKind::boundUnaryExprNode, pos_, operatorFunction_->ResultType()), operatorFunction(operatorFunction_), operand(operand_)
+    BoundExpressionNode(BoundNodeKind::boundUnaryExprNode, pos_, UnaryExprFunctionResultType(operatorFunction_, operand_)), operatorFunction(operatorFunction_), operand(operand_)
 {
 }
 
@@ -329,8 +348,16 @@ BoundExpressionNode* BoundConstantNode::Clone() const
     return new BoundConstantNode(Pos(), GetType(), constant);
 }
 
+Type* ConversionFunctionResultType(Function* conversionFunction, BoundExpressionNode* operand)
+{
+    std::vector<Type*> argumentTypes;
+    argumentTypes.push_back(operand->GetType());
+    return conversionFunction->ResultType(argumentTypes);
+}
+
 BoundConversionNode::BoundConversionNode(Function* conversionFunction_, BoundExpressionNode* operand_, int64_t pos_) :
-    BoundExpressionNode(BoundNodeKind::boundConversionNode, pos_, conversionFunction_->ResultType()), conversionFunction(conversionFunction_), operand(operand_)
+    BoundExpressionNode(BoundNodeKind::boundConversionNode, pos_, ConversionFunctionResultType(conversionFunction_, operand_)), 
+    conversionFunction(conversionFunction_), operand(operand_)
 {
 }
 
@@ -384,7 +411,18 @@ BoundExpressionNode* BoundProcedureNode::Clone() const
     return new BoundProcedureNode(procedure, Pos());
 }
 
-BoundFunctionNode::BoundFunctionNode(Function* function_, int64_t pos_) : BoundExpressionNode(BoundNodeKind::boundFunctionNode, pos_, function_->ResultType()), function(function_)
+Type* BoundFunctionResultType(Function* function, const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments)
+{
+    std::vector<Type*> argumentTypes;
+    for (const auto& arg : boundArguments)
+    {
+        argumentTypes.push_back(arg->GetType());
+    }
+    return function->ResultType(argumentTypes);
+}
+
+BoundFunctionNode::BoundFunctionNode(Function* function_, const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments, int64_t pos_) :
+    BoundExpressionNode(BoundNodeKind::boundFunctionNode, pos_, BoundFunctionResultType(function_, boundArguments)), function(function_)
 {
 }
 
@@ -395,7 +433,8 @@ void BoundFunctionNode::Accept(BoundNodeVisitor& visitor)
 
 BoundExpressionNode* BoundFunctionNode::Clone() const
 {
-    return new BoundFunctionNode(function, Pos());
+    std::vector<std::unique_ptr<BoundExpressionNode>> boundArguments;
+    return new BoundFunctionNode(function, boundArguments, Pos());
 }
 
 BoundMethodNode::BoundMethodNode(BoundExpressionNode* subject_, Subroutine* method_, int64_t pos_) : 
@@ -413,8 +452,18 @@ BoundExpressionNode* BoundMethodNode::Clone() const
     return new BoundMethodNode(subject->Clone(), method, Pos());
 }
 
-BoundFunctionCallNode::BoundFunctionCallNode(Function* function_, int64_t pos_) : 
-    BoundExpressionNode(BoundNodeKind::boundFunctionCallNode, pos_, function_->ResultType()), function(function_)
+Type* BoundFunctionCallResultType(Function* function, const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments)
+{
+    std::vector<Type*> argumentTypes;
+    for (const auto& argument : boundArguments)
+    {
+        argumentTypes.push_back(argument->GetType());
+    }
+    return function->ResultType(argumentTypes);
+}
+
+BoundFunctionCallNode::BoundFunctionCallNode(Function* function_, const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments, int64_t pos_) : 
+    BoundExpressionNode(BoundNodeKind::boundFunctionCallNode, pos_, BoundFunctionCallResultType(function_, boundArguments)), function(function_)
 {
 }
 
@@ -433,19 +482,35 @@ void BoundFunctionCallNode::Load(Emitter* emitter)
     {
         ExternalSubroutine* subroutine = GetExternalSubroutine(function->ExternalSubroutineName());
         CallExternalInstruction* callExternalInstruction = new CallExternalInstruction();
+        if (subroutine->Id() == -1)
+        {
+            ThrowError("subroutine ID not set in external function call '" + subroutine->FullName() + "'", emitter->Lexer(), Pos());
+        }
         callExternalInstruction->SetId(subroutine->Id());
         emitter->Emit(callExternalInstruction);
     }
     else if (function->IsRegularFunction())
     {
         CallFunctionInstruction* callFunctionInstruction = new CallFunctionInstruction();
+        if (function->ModuleId() == -1)
+        {
+            ThrowError("module ID not set in function call '" + function->FullName() + "'", emitter->Lexer(), Pos());
+        }
         callFunctionInstruction->SetModuleId(function->ModuleId());
         if (function->IsDeclaration())
         {
+            if (function->ImplementationId() == -1)
+            {
+                ThrowError("implementation ID not set in function call '" + function->FullName() + "'", emitter->Lexer(), Pos());
+            }
             callFunctionInstruction->SetSubroutineId(function->ImplementationId());
         }
         else
         {
+            if (function->Id() == -1)
+            {
+                ThrowError("implementation ID not set in function call '" + function->FullName() + "'", emitter->Lexer(), Pos());
+            }
             callFunctionInstruction->SetSubroutineId(function->Id());
         }
         emitter->Emit(callFunctionInstruction);
@@ -453,6 +518,10 @@ void BoundFunctionCallNode::Load(Emitter* emitter)
     else if (function->IsStandardFunction())
     {
         StandardFunction* stdfn = static_cast<StandardFunction*>(function);
+        if (stdfn->Id() == -1)
+        {
+            ThrowError("standard function ID not set in function call '" + function->FullName() + "'", emitter->Lexer(), Pos());
+        }
         CallStdFnInstruction* callStdFnInstruction = new CallStdFnInstruction();
         callStdFnInstruction->SetStdFnId(stdfn->Id());
         callStdFnInstruction->SetArgumentCount(arguments.size());
@@ -467,7 +536,7 @@ void BoundFunctionCallNode::Accept(BoundNodeVisitor& visitor)
 
 BoundExpressionNode* BoundFunctionCallNode::Clone() const
 {
-    BoundFunctionCallNode* clone = new BoundFunctionCallNode(function, Pos());
+    BoundFunctionCallNode* clone = new BoundFunctionCallNode(function, arguments, Pos());
     for (const auto& arg : arguments)
     {
         clone->AddArgument(arg->Clone());
@@ -523,12 +592,17 @@ BoundExpressionNode* BoundConstructorCallNode::Clone() const
     return clone;
 }
 
-Type* GetMethodType(Subroutine* method)
+Type* GetMethodType(Subroutine* method, const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments)
 {
     if (method->IsFunction())
     {
         Function* function = static_cast<Function*>(method);
-        return function->ResultType();
+        std::vector<Type*> argumentTypes;
+        for (const auto& arg : boundArguments)
+        {
+            argumentTypes.push_back(arg->GetType());
+        }
+        return function->ResultType(argumentTypes);
     }
     else
     {
@@ -536,7 +610,8 @@ Type* GetMethodType(Subroutine* method)
     }
 }
 
-BoundMethodCallNode::BoundMethodCallNode(Subroutine* method_, int64_t pos_) : BoundExpressionNode(BoundNodeKind::boundMethodCallNode, pos_, GetMethodType(method_)), method(method_)
+BoundMethodCallNode::BoundMethodCallNode(Subroutine* method_, const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments, int64_t pos_) : 
+    BoundExpressionNode(BoundNodeKind::boundMethodCallNode, pos_, GetMethodType(method_, boundArguments)), method(method_)
 {
 }
 
@@ -612,7 +687,7 @@ void BoundMethodCallNode::Accept(BoundNodeVisitor& visitor)
 
 BoundExpressionNode* BoundMethodCallNode::Clone() const
 {
-    BoundMethodCallNode* clone = new BoundMethodCallNode(method, Pos());
+    BoundMethodCallNode* clone = new BoundMethodCallNode(method, arguments, Pos());
     for (const auto& arg : arguments)
     {
         clone->AddArgument(arg->Clone());
@@ -875,7 +950,8 @@ void BoundReturnFunctionResultStatementNode::Accept(BoundNodeVisitor& visitor)
 class ExpressionBinder : public Visitor
 {
 public:
-    ExpressionBinder(ParsingContext* context_, Subroutine* subroutine_, soul::lexer::LexerBase<char>& lexer_);
+    ExpressionBinder(ParsingContext* context_, Subroutine* subroutine_, soul::lexer::LexerBase<char>& lexer_, 
+        const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments_);
     std::unique_ptr<BoundExpressionNode> GetBoundExpressionNode();
     void Visit(BinaryExprNode& node) override;
     void Visit(UnaryExprNode& node) override;
@@ -903,11 +979,13 @@ private:
     ParsingContext* context;
     Subroutine* subroutine;
     soul::lexer::LexerBase<char>& lexer;
+    const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments;
     std::unique_ptr<BoundExpressionNode> boundExpressionNode;
 };
 
-ExpressionBinder::ExpressionBinder(ParsingContext* context_, Subroutine* subroutine_, soul::lexer::LexerBase<char>& lexer_) : 
-    context(context_), subroutine(subroutine_), lexer(lexer_)
+ExpressionBinder::ExpressionBinder(ParsingContext* context_, Subroutine* subroutine_, soul::lexer::LexerBase<char>& lexer_, 
+    const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments_) :
+    context(context_), subroutine(subroutine_), lexer(lexer_), boundArguments(boundArguments_)
 {
 }
 
@@ -959,7 +1037,7 @@ void ExpressionBinder::Visit(UnaryExprNode& node)
 
 void ExpressionBinder::Visit(ParenthesizedExprNode& node)
 {
-    boundExpressionNode = BindExpression(context, subroutine, lexer, node.Expr());
+    boundExpressionNode = BindExpression(context, subroutine, lexer, node.Expr(), boundArguments);
 }
 
 void ExpressionBinder::Visit(IntegerLiteralNode& node)
@@ -1022,7 +1100,7 @@ void ExpressionBinder::Visit(IdentifierNode& node)
         case IdentifierKind::function:
         {
             Function* function = node.GetFunction();
-            boundExpressionNode.reset(new BoundFunctionNode(function, node.Pos()));
+            boundExpressionNode.reset(new BoundFunctionNode(function, boundArguments, node.Pos()));
             break;
         }
     }
@@ -1117,7 +1195,11 @@ void ExpressionBinder::Visit(NewArrayExprNode& node)
 
 void ExpressionBinder::Visit(ValueTypecastNode& node)
 {
-    Type* type = context->GetBlock()->GetType(node.TypeIdentifier()->Str());
+    Type* type = context->GetBlock()->GetType(node.TypeName());
+    if (!type)
+    {
+        ThrowError("type '" + node.TypeName() + "' not found", lexer, node.Pos());
+    }
     node.Expression()->Accept(*this);
     boundExpressionNode.reset(new BoundValueConversionNode(boundExpressionNode.release(), type, node.Pos()));
 }
@@ -1136,7 +1218,7 @@ void ExpressionBinder::Visit(InvokeExprNode& node)
         std::unique_ptr<BoundExpressionNode> boundArgumentNode = BindExpression(context, this->subroutine, lexer, argument.get());
         boundArguments.push_back(std::unique_ptr<BoundExpressionNode>(boundArgumentNode.release()));
     }
-    std::unique_ptr<BoundExpressionNode> subjectNode = BindExpression(context, this->subroutine, lexer, node.Subject());
+    std::unique_ptr<BoundExpressionNode> subjectNode = BindExpression(context, this->subroutine, lexer, node.Subject(), boundArguments);
     if (subjectNode->IsBoundMethodNode())
     {
         BoundMethodNode* boundMethodNode = static_cast<BoundMethodNode*>(subjectNode.get());
@@ -1187,7 +1269,7 @@ void ExpressionBinder::Visit(InvokeExprNode& node)
         if (subroutine->IsFunction())
         {
             Function* function = static_cast<Function*>(subroutine);
-            BoundFunctionCallNode* boundFunctionCallNode = new BoundFunctionCallNode(function, node.Pos());
+            BoundFunctionCallNode* boundFunctionCallNode = new BoundFunctionCallNode(function, boundArguments, node.Pos());
             for (auto& boundArgument : boundArguments)
             {
                 boundFunctionCallNode->AddArgument(boundArgument.release());
@@ -1258,9 +1340,18 @@ void ExpressionBinder::Visit(DotNode& node)
     }
 }
 
+std::unique_ptr<BoundExpressionNode> BindExpression(ParsingContext* context, Subroutine* subroutine, soul::lexer::LexerBase<char>& lexer, Node* node,
+    const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments)
+{
+    ExpressionBinder binder(context, subroutine, lexer, boundArguments);
+    node->Accept(binder);
+    return binder.GetBoundExpressionNode();
+}
+
 std::unique_ptr<BoundExpressionNode> BindExpression(ParsingContext* context, Subroutine* subroutine, soul::lexer::LexerBase<char>& lexer, Node* node)
 {
-    ExpressionBinder binder(context, subroutine, lexer);
+    std::vector<std::unique_ptr<BoundExpressionNode>> boundArguments;
+    ExpressionBinder binder(context, subroutine, lexer, boundArguments);
     node->Accept(binder);
     return binder.GetBoundExpressionNode();
 }
@@ -1338,6 +1429,15 @@ void StatementBinder::Visit(AssignmentStatementNode& node)
         }
     }
     std::unique_ptr<BoundExpressionNode> source = BindExpression(context, subroutine, lexer, node.Source());
+    if (target->GetType() != source->GetType() && !target->GetType()->IsArrayType() && !source->GetType()->IsArrayType())
+    {
+        Function* conversionFunction = GetConversionFunction(target->GetType(), source->GetType(), lexer, node.Pos(), false);
+        if (!conversionFunction)
+        {
+            ThrowError("error: invalid assignment in subroutine '" + subroutine->FullName() + "'", lexer, node.Pos());
+        }
+        source.reset(new BoundConversionNode(conversionFunction, source.release(), node.Pos()));
+    }
     boundStatement.reset(new BoundAssignmentStatementNode(target.release(), source.release(), node.Pos()));
 }
 
@@ -1538,6 +1638,10 @@ BoundNodeVisitor::~BoundNodeVisitor()
 
 std::unique_ptr<BoundCompoundStatementNode> Bind(ParsingContext* context, CompoundStatementNode* compoundStatement, Subroutine* subroutine, soul::lexer::LexerBase<char>& lexer)
 {
+    if (subroutine && subroutine->Heading()->GetObjectType() && subroutine->Heading()->GetObjectType()->Name() == "Arrow")
+    {
+        int x = 0;
+    }
     StatementBinder binder(context, subroutine, lexer);
     compoundStatement->Accept(binder);
     std::unique_ptr<BoundCompoundStatementNode> statement = binder.GetBoundCompoundStatement();

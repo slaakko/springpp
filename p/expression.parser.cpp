@@ -2726,6 +2726,209 @@ soul::parser::Match ExpressionParser<LexerT>::FunctionIdentifier(LexerT& lexer, 
 }
 
 template<typename LexerT>
+soul::parser::Match ExpressionParser<LexerT>::TypeName(LexerT& lexer, ParsingContext* context)
+{
+    #ifdef SOUL_PARSER_DEBUG_SUPPORT
+    int64_t parser_debug_match_pos = 0;
+    bool parser_debug_write_to_log = lexer.Log() != nullptr;
+    if (parser_debug_write_to_log)
+    {
+        parser_debug_match_pos = lexer.GetPos();
+        soul::lexer::WriteBeginRuleToLog(lexer, "TypeName");
+    }
+    #endif
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627730);
+    std::unique_ptr<IdentifierNode> typeIdentifier;
+    soul::parser::Match match(false);
+    soul::parser::Match* parentMatch0 = &match;
+    switch (*lexer)
+    {
+        case ID:
+        {
+            soul::parser::Match match(false);
+            soul::parser::Match* parentMatch1 = &match;
+            {
+                int64_t pos = lexer.GetPos();
+                soul::parser::Match match = ExpressionParser<LexerT>::TypeIdentifier(lexer, context);
+                typeIdentifier.reset(static_cast<IdentifierNode*>(match.value));
+                if (match.hit)
+                {
+                    {
+                        #ifdef SOUL_PARSER_DEBUG_SUPPORT
+                        if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "TypeName");
+                        #endif
+                        return soul::parser::Match(true, new soul::parser::Value<std::string>(typeIdentifier.release()->Str()));
+                    }
+                }
+                *parentMatch1 = match;
+            }
+            if (match.hit)
+            {
+                *parentMatch0 = match;
+            }
+            break;
+        }
+        case INTEGER:
+        {
+            soul::parser::Match match(false);
+            soul::parser::Match* parentMatch2 = &match;
+            {
+                int64_t pos = lexer.GetPos();
+                soul::parser::Match match(false);
+                if (*lexer == INTEGER)
+                {
+                    ++lexer;
+                    match.hit = true;
+                }
+                if (match.hit)
+                {
+                    {
+                        #ifdef SOUL_PARSER_DEBUG_SUPPORT
+                        if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "TypeName");
+                        #endif
+                        return soul::parser::Match(true, new soul::parser::Value<std::string>("integer"));
+                    }
+                }
+                *parentMatch2 = match;
+            }
+            if (match.hit)
+            {
+                *parentMatch0 = match;
+            }
+            break;
+        }
+        case REAL:
+        {
+            soul::parser::Match match(false);
+            soul::parser::Match* parentMatch3 = &match;
+            {
+                int64_t pos = lexer.GetPos();
+                soul::parser::Match match(false);
+                if (*lexer == REAL)
+                {
+                    ++lexer;
+                    match.hit = true;
+                }
+                if (match.hit)
+                {
+                    {
+                        #ifdef SOUL_PARSER_DEBUG_SUPPORT
+                        if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "TypeName");
+                        #endif
+                        return soul::parser::Match(true, new soul::parser::Value<std::string>("real"));
+                    }
+                }
+                *parentMatch3 = match;
+            }
+            if (match.hit)
+            {
+                *parentMatch0 = match;
+            }
+            break;
+        }
+        case CHAR:
+        {
+            soul::parser::Match match(false);
+            soul::parser::Match* parentMatch4 = &match;
+            {
+                int64_t pos = lexer.GetPos();
+                soul::parser::Match match(false);
+                if (*lexer == CHAR)
+                {
+                    ++lexer;
+                    match.hit = true;
+                }
+                if (match.hit)
+                {
+                    {
+                        #ifdef SOUL_PARSER_DEBUG_SUPPORT
+                        if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "TypeName");
+                        #endif
+                        return soul::parser::Match(true, new soul::parser::Value<std::string>("char"));
+                    }
+                }
+                *parentMatch4 = match;
+            }
+            if (match.hit)
+            {
+                *parentMatch0 = match;
+            }
+            break;
+        }
+        case BOOLEAN:
+        {
+            soul::parser::Match match(false);
+            soul::parser::Match* parentMatch5 = &match;
+            {
+                int64_t pos = lexer.GetPos();
+                soul::parser::Match match(false);
+                if (*lexer == BOOLEAN)
+                {
+                    ++lexer;
+                    match.hit = true;
+                }
+                if (match.hit)
+                {
+                    {
+                        #ifdef SOUL_PARSER_DEBUG_SUPPORT
+                        if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "TypeName");
+                        #endif
+                        return soul::parser::Match(true, new soul::parser::Value<std::string>("boolean"));
+                    }
+                }
+                *parentMatch5 = match;
+            }
+            if (match.hit)
+            {
+                *parentMatch0 = match;
+            }
+            break;
+        }
+        case STRING:
+        {
+            soul::parser::Match match(false);
+            soul::parser::Match* parentMatch6 = &match;
+            {
+                int64_t pos = lexer.GetPos();
+                soul::parser::Match match(false);
+                if (*lexer == STRING)
+                {
+                    ++lexer;
+                    match.hit = true;
+                }
+                if (match.hit)
+                {
+                    {
+                        #ifdef SOUL_PARSER_DEBUG_SUPPORT
+                        if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "TypeName");
+                        #endif
+                        return soul::parser::Match(true, new soul::parser::Value<std::string>("string"));
+                    }
+                }
+                *parentMatch6 = match;
+            }
+            if (match.hit)
+            {
+                *parentMatch0 = match;
+            }
+            break;
+        }
+    }
+    #ifdef SOUL_PARSER_DEBUG_SUPPORT
+    if (parser_debug_write_to_log)
+    {
+        if (match.hit) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "TypeName");
+        else soul::lexer::WriteFailureToLog(lexer, "TypeName");
+    }
+    #endif
+    if (!match.hit)
+    {
+        match.value = nullptr;
+    }
+    return match;
+}
+
+template<typename LexerT>
 soul::parser::Match ExpressionParser<LexerT>::ValueTypecast(LexerT& lexer, ParsingContext* context)
 {
     #ifdef SOUL_PARSER_DEBUG_SUPPORT
@@ -2737,8 +2940,8 @@ soul::parser::Match ExpressionParser<LexerT>::ValueTypecast(LexerT& lexer, Parsi
         soul::lexer::WriteBeginRuleToLog(lexer, "ValueTypecast");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627730);
-    std::unique_ptr<IdentifierNode> typeIdentifier;
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627731);
+    std::unique_ptr<soul::parser::Value<std::string>> typeName;
     std::unique_ptr<Node> expression;
     soul::parser::Match match(false);
     soul::parser::Match* parentMatch0 = &match;
@@ -2756,8 +2959,8 @@ soul::parser::Match ExpressionParser<LexerT>::ValueTypecast(LexerT& lexer, Parsi
                     soul::parser::Match match(false);
                     soul::parser::Match* parentMatch4 = &match;
                     {
-                        soul::parser::Match match = ExpressionParser<LexerT>::TypeIdentifier(lexer, context);
-                        typeIdentifier.reset(static_cast<IdentifierNode*>(match.value));
+                        soul::parser::Match match = ExpressionParser<LexerT>::TypeName(lexer, context);
+                        typeName.reset(static_cast<soul::parser::Value<std::string>*>(match.value));
                         *parentMatch4 = match;
                     }
                     if (match.hit)
@@ -2813,7 +3016,7 @@ soul::parser::Match ExpressionParser<LexerT>::ValueTypecast(LexerT& lexer, Parsi
                 #ifdef SOUL_PARSER_DEBUG_SUPPORT
                 if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "ValueTypecast");
                 #endif
-                return soul::parser::Match(true, new ValueTypecastNode(typeIdentifier.release(), expression.release(), pos));
+                return soul::parser::Match(true, new ValueTypecastNode(typeName->value, expression.release(), pos));
             }
         }
         *parentMatch0 = match;
@@ -2844,7 +3047,7 @@ soul::parser::Match ExpressionParser<LexerT>::TypeIdentifier(LexerT& lexer, Pars
         soul::lexer::WriteBeginRuleToLog(lexer, "TypeIdentifier");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627731);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627732);
     soul::parser::Match match(false);
     soul::parser::Match* parentMatch0 = &match;
     {
@@ -2902,7 +3105,7 @@ soul::parser::Match ExpressionParser<LexerT>::VariableReference(LexerT& lexer, P
         soul::lexer::WriteBeginRuleToLog(lexer, "VariableReference");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627732);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627733);
     std::unique_ptr<Node> variableIdentifier;
     std::unique_ptr<Node> variableTypecast;
     soul::parser::Match match(false);
@@ -2981,7 +3184,7 @@ soul::parser::Match ExpressionParser<LexerT>::VariableIdentifier(LexerT& lexer, 
         soul::lexer::WriteBeginRuleToLog(lexer, "VariableIdentifier");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627733);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627734);
     soul::parser::Match match(false);
     soul::parser::Match* parentMatch0 = &match;
     {
@@ -3039,7 +3242,7 @@ soul::parser::Match ExpressionParser<LexerT>::Field(LexerT& lexer, ParsingContex
         soul::lexer::WriteBeginRuleToLog(lexer, "Field");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627734);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627735);
     soul::parser::Match match(false);
     soul::parser::Match* parentMatch0 = &match;
     {
@@ -3097,7 +3300,7 @@ soul::parser::Match ExpressionParser<LexerT>::Method(LexerT& lexer, ParsingConte
         soul::lexer::WriteBeginRuleToLog(lexer, "Method");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627735);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627736);
     soul::parser::Match match(false);
     soul::parser::Match* parentMatch0 = &match;
     {
@@ -3155,7 +3358,7 @@ soul::parser::Match ExpressionParser<LexerT>::Qualifier(LexerT& lexer, ParsingCo
         soul::lexer::WriteBeginRuleToLog(lexer, "Qualifier");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627736);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627737);
     std::unique_ptr<Node> index;
     std::unique_ptr<Node> fieldDesignator;
     soul::parser::Match match(false);
@@ -3239,7 +3442,7 @@ soul::parser::Match ExpressionParser<LexerT>::Index(LexerT& lexer, ParsingContex
         soul::lexer::WriteBeginRuleToLog(lexer, "Index");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627737);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627738);
     std::unique_ptr<IndexExprNode> expr = std::unique_ptr<IndexExprNode>();
     std::unique_ptr<Node> index;
     soul::parser::Match match(false);
@@ -3350,7 +3553,7 @@ soul::parser::Match ExpressionParser<LexerT>::FieldDesignator(LexerT& lexer, Par
         soul::lexer::WriteBeginRuleToLog(lexer, "FieldDesignator");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627738);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627739);
     std::unique_ptr<DotNode> expr = std::unique_ptr<DotNode>();
     std::unique_ptr<IdentifierNode> id;
     soul::parser::Match match(false);
@@ -3441,7 +3644,7 @@ soul::parser::Match ExpressionParser<LexerT>::Identifier(LexerT& lexer, ParsingC
         soul::lexer::WriteBeginRuleToLog(lexer, "Identifier");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627739);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627740);
     soul::parser::Match match(false);
     soul::parser::Match* parentMatch0 = &match;
     {
@@ -3489,7 +3692,7 @@ soul::parser::Match ExpressionParser<LexerT>::VariableTypecast(LexerT& lexer, Pa
         soul::lexer::WriteBeginRuleToLog(lexer, "VariableTypecast");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627740);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627741);
     std::unique_ptr<IdentifierNode> typeIdentifier;
     std::unique_ptr<Node> variableReference;
     soul::parser::Match match(false);
@@ -3596,7 +3799,7 @@ soul::parser::Match ExpressionParser<LexerT>::NewExpression(LexerT& lexer, Parsi
         soul::lexer::WriteBeginRuleToLog(lexer, "NewExpression");
     }
     #endif
-    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627741);
+    soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627742);
     std::unique_ptr<IntegerLiteralNode> arraySize = std::unique_ptr<IntegerLiteralNode>();
     std::unique_ptr<IdentifierNode> objectTypeIdentifier;
     soul::parser::Match match(false);

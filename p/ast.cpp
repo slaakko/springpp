@@ -286,13 +286,13 @@ void NewArrayExprNode::Accept(Visitor& visitor)
     visitor.Visit(*this);
 }
 
-ValueTypecastNode::ValueTypecastNode(IdentifierNode* typeIdentifier_, Node* expression_, int64_t pos_) : Node(pos_), typeIdentifier(typeIdentifier_), expression(expression_)
+ValueTypecastNode::ValueTypecastNode(const std::string& typeName_, Node* expression_, int64_t pos_) : Node(pos_), typeName(typeName_), expression(expression_)
 {
 }
 
 Node* ValueTypecastNode::Clone() const
 {
-    return new ValueTypecastNode(static_cast<IdentifierNode*>(typeIdentifier->Clone()), expression->Clone(), Pos());
+    return new ValueTypecastNode(typeName, expression->Clone(), Pos());
 }
 
 void ValueTypecastNode::Accept(Visitor& visitor)

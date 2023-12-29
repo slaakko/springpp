@@ -268,13 +268,13 @@ private:
 class ValueTypecastNode : public Node
 {
 public:
-    ValueTypecastNode(IdentifierNode* typeIdentifier_, Node* expression_, int64_t pos_);
-    IdentifierNode* TypeIdentifier() const { return typeIdentifier.get(); }
+    ValueTypecastNode(const std::string& typeName_, Node* expression_, int64_t pos_);
+    const std::string& TypeName() const { return typeName; }
     Node* Expression() const { return expression.get(); }
     Node* Clone() const override;
     void Accept(Visitor& visitor) override;
 private:
-    std::unique_ptr<IdentifierNode> typeIdentifier;
+    std::string typeName;
     std::unique_ptr<Node> expression;
 };
 

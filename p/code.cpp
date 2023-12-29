@@ -290,19 +290,35 @@ void CodeGeneratorVisitor::Visit(BoundProcedureCallStatementNode& node)
     {
         ExternalSubroutine* subroutine = GetExternalSubroutine(procedure->ExternalSubroutineName());
         CallExternalInstruction* callExternalInstruction = new CallExternalInstruction();
+        if (subroutine->Id() == -1)
+        {
+            ThrowError("subroutine ID not set in external procedure call '" + subroutine->FullName() + "'", emitter.Lexer(), node.Pos());
+        }
         callExternalInstruction->SetId(subroutine->Id());
         emitter.Emit(callExternalInstruction);
     }
     else if (procedure->IsRegularProcedure())
     {
         CallProcedureInstruction* callProcedureInstruction = new CallProcedureInstruction();
+        if (procedure->ModuleId() == -1)
+        {
+            ThrowError("module ID not set in procedure call '" + procedure->FullName() + "'", emitter.Lexer(), node.Pos());
+        }
         callProcedureInstruction->SetModuleId(procedure->ModuleId());
         if (procedure->IsDeclaration())
         {
+            if (procedure->ImplementationId() == -1)
+            {
+                ThrowError("implemenation ID not set in procedure call '" + procedure->FullName() + "'", emitter.Lexer(), node.Pos());
+            }
             callProcedureInstruction->SetSubroutineId(procedure->ImplementationId());
         }
         else
         {
+            if (procedure->Id() == -1)
+            {
+                ThrowError("procedure ID not set in procedure call '" + procedure->FullName() + "'", emitter.Lexer(), node.Pos());
+            }
             callProcedureInstruction->SetSubroutineId(procedure->Id());
         }
         emitter.Emit(callProcedureInstruction);
@@ -311,6 +327,10 @@ void CodeGeneratorVisitor::Visit(BoundProcedureCallStatementNode& node)
     {
         StandardProcedure* stdProc = static_cast<StandardProcedure*>(procedure);
         CallStdProcInstruction* callStdProcInstruction = new CallStdProcInstruction();
+        if (stdProc->Id() == -1)
+        {
+            ThrowError("standard procedure ID not set in procedure call '" + procedure->FullName() + "'", emitter.Lexer(), node.Pos());
+        }
         callStdProcInstruction->SetStdProcId(stdProc->Id());
         callStdProcInstruction->SetArgumentCount(node.Arguments().size());
         emitter.Emit(callStdProcInstruction);

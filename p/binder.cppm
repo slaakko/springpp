@@ -212,7 +212,7 @@ private:
 class BoundFunctionNode : public BoundExpressionNode
 {
 public:
-    BoundFunctionNode(Function* function_, int64_t pos_);
+    BoundFunctionNode(Function* function_, const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments, int64_t pos_);
     Function* GetFunction() const { return function; }
     void Accept(BoundNodeVisitor& visitor) override;
     BoundExpressionNode* Clone() const override;
@@ -237,7 +237,7 @@ private:
 class BoundFunctionCallNode : public BoundExpressionNode
 {
 public:
-    BoundFunctionCallNode(Function* function_, int64_t pos_);
+    BoundFunctionCallNode(Function* function_, const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments, int64_t pos_);
     Function* GetFunction() const { return function; }
     void AddArgument(BoundExpressionNode* argument);
     const std::vector<std::unique_ptr<BoundExpressionNode>>& Arguments() const { return arguments; }
@@ -266,7 +266,7 @@ private:
 class BoundMethodCallNode : public BoundExpressionNode
 {
 public:
-    BoundMethodCallNode(Subroutine* method_, int64_t pos_);
+    BoundMethodCallNode(Subroutine* method_, const std::vector<std::unique_ptr<BoundExpressionNode>>& boundArguments, int64_t pos_);
     Subroutine* GetMethod() const { return method; }
     void AddArgument(BoundExpressionNode* argument);
     const std::vector<std::unique_ptr<BoundExpressionNode>>& Arguments() const { return arguments; }

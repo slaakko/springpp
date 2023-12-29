@@ -189,6 +189,12 @@ void HeapObject::Init(ExecutionContext* context)
                 SetField(i, &value, context);
                 break;
             }
+            case TypeKind::arrayType:
+            {
+                ArrayObjectPtr arrayPtr(nullptr);
+                SetField(i, &arrayPtr, context);
+                break;
+            }
         }
     }
     if (type->IsVirtual())
@@ -284,6 +290,18 @@ void HeapObject::SetField(int32_t fieldIndex, Object* object, ExecutionContext* 
         {
             StringObjectPtr* stringObjectPtr = static_cast<StringObjectPtr*>(object);
             new (static_cast<void*>(Ptr() + offset))StringObjectPtr(*stringObjectPtr);
+            break;
+        }
+        case ObjectKind::arrayObject:
+        {
+            ArrayObjectPtr arrayObjectPtr(static_cast<ArrayObject*>(object));
+            new (Ptr() + offset)ArrayObjectPtr(arrayObjectPtr);
+            break;
+        }
+        case ObjectKind::arrayObjectPtr:
+        {
+            ArrayObjectPtr* arrayObjectPtr = static_cast<ArrayObjectPtr*>(object);
+            new (Ptr() + offset)ArrayObjectPtr(*arrayObjectPtr);
             break;
         }
     }

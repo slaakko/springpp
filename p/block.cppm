@@ -36,6 +36,7 @@ public:
     void Write(Writer& writer);
     void Read(Reader& reader);
     void Resolve(Context* context);
+    Type* GetFundamentalType(TypeKind kind);
     Type* GetFundamentalType(TypeKind kind, soul::lexer::LexerBase<char>& lexer, int64_t pos) const;
     Type* GetType(const std::string& typeName) const;
     Type* GetType(const std::string& typeName, soul::lexer::LexerBase<char>& lexer, int64_t pos) const;

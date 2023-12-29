@@ -171,13 +171,22 @@ parser ExpressionParser
         ::= ID{ IdentifierNode* functionId = MakeFunctionId(context, lexer.GetToken(pos).ToString(), pos); pass = functionId != nullptr; if (pass) { return functionId; }}
         ;
 
+    TypeName(ParsingContext* context) : std::string
+        ::= TypeIdentifier(context):typeIdentifier{ return typeIdentifier->Str(); }
+        |   INTEGER{ return "integer"; }
+        |   REAL{ return "real"; }
+        |   CHAR{ return "char"; }
+        |   BOOLEAN{ return "boolean"; }
+        |   STRING{ return "string"; }
+        ;
+
     ValueTypecast(ParsingContext* context) : Node*
         ::= 
         (
-            TypeIdentifier(context):typeIdentifier LPAREN Expression(context):expression RPAREN
+            TypeName(context):typeName LPAREN Expression(context):expression RPAREN
         )
         {
-            return new ValueTypecastNode(typeIdentifier, expression, pos);
+            return new ValueTypecastNode(typeName, expression, pos);
         }
         ;
 

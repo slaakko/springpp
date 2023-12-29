@@ -10,6 +10,7 @@ import p.value;
 import p.block;
 import p.execute;
 import p.evaluator;
+import p.type;
 
 namespace p {
 
@@ -198,6 +199,15 @@ Abs::Abs() : StandardFunction("Abs")
 {
 }
 
+Type* Abs::ResultType(const std::vector<Type*>& argumentTypes) const
+{
+    if (argumentTypes.empty())
+    {
+        throw std::runtime_error("argument types empty");
+    }
+    return argumentTypes.front();
+}
+
 Value* Abs::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, soul::lexer::LexerBase<char>& lexer, int64_t pos)
 {
     if (argumentValues.size() != 1)
@@ -258,6 +268,15 @@ Succ::Succ() : StandardFunction("Succ")
 {
 }
 
+Type* Succ::ResultType(const std::vector<Type*>& argumentTypes) const
+{
+    if (argumentTypes.empty())
+    {
+        throw std::runtime_error("argument types empty");
+    }
+    return argumentTypes.front();
+}
+
 Value* Succ::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, soul::lexer::LexerBase<char>& lexer, int64_t pos)
 {
     if (argumentValues.size() != 1)
@@ -287,6 +306,15 @@ Pred::Pred() : StandardFunction("Pred")
 {
 }
 
+Type* Pred::ResultType(const std::vector<Type*>& argumentTypes) const
+{
+    if (argumentTypes.empty())
+    {
+        throw std::runtime_error("argument types empty");
+    }
+    return argumentTypes.front();
+}
+
 Value* Pred::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, soul::lexer::LexerBase<char>& lexer, int64_t pos)
 {
     if (argumentValues.size() != 1)
@@ -314,6 +342,30 @@ void Pred::Execute(ExecutionContext* context)
 
 Min::Min() : StandardFunction("Min")
 {
+}
+
+Type* Min::ResultType(const std::vector<Type*>& argumentTypes) const
+{
+    if (argumentTypes.size() != 2)
+    {
+        throw std::runtime_error("Min: two argument types expected");
+    }
+    if (argumentTypes[0]->IsIntegerType() && argumentTypes[1]->IsIntegerType())
+    {
+        return argumentTypes[0];
+    }
+    else if (argumentTypes[0]->IsRealType())
+    {
+        return argumentTypes[0];
+    }
+    else if (argumentTypes[1]->IsRealType())
+    {
+        return argumentTypes[1];
+    }
+    else
+    {
+        return argumentTypes[0];
+    }
 }
 
 void Min::Execute(ExecutionContext* context)
@@ -353,6 +405,30 @@ void Min::Execute(ExecutionContext* context)
 
 Max::Max() : StandardFunction("Max")
 {
+}
+
+Type* Max::ResultType(const std::vector<Type*>& argumentTypes) const
+{
+    if (argumentTypes.size() != 2)
+    {
+        throw std::runtime_error("Min: two argument types expected");
+    }
+    if (argumentTypes[0]->IsIntegerType() && argumentTypes[1]->IsIntegerType())
+    {
+        return argumentTypes[0];
+    }
+    else if (argumentTypes[0]->IsRealType())
+    {
+        return argumentTypes[0];
+    }
+    else if (argumentTypes[1]->IsRealType())
+    {
+        return argumentTypes[1];
+    }
+    else
+    {
+        return argumentTypes[0];
+    }
 }
 
 void Max::Execute(ExecutionContext* context)
@@ -469,11 +545,16 @@ public:
     static StandardFunctionRepository& Instance();
     void AddStandardFunction(StandardFunction* standardFunction);
     StandardFunction* GetStandardFunction(int32_t id) const;
+    StandardFunction* GetStandardFunction(const std::string& fullName) const;
+    bool ReturnTypesSet() const { return returnTypesSet; }
+    void SetReturnTypesSet() { returnTypesSet = true; }
 private:
     std::vector<std::unique_ptr<StandardFunction>> standardFunctions;
+    std::map<std::string, StandardFunction*> standardFunctionMap;
+    bool returnTypesSet;
 };
 
-StandardFunctionRepository::StandardFunctionRepository()
+StandardFunctionRepository::StandardFunctionRepository(): returnTypesSet(false)
 {
 }
 
@@ -487,6 +568,7 @@ void StandardFunctionRepository::AddStandardFunction(StandardFunction* standardF
 {
     standardFunction->SetId(standardFunctions.size());
     standardFunctions.push_back(std::unique_ptr<StandardFunction>(standardFunction));
+    standardFunctionMap[standardFunction->FullName()] = standardFunction;
 }
 
 StandardFunction* StandardFunctionRepository::GetStandardFunction(int32_t id) const
@@ -498,6 +580,19 @@ StandardFunction* StandardFunctionRepository::GetStandardFunction(int32_t id) co
     else
     {
         throw std::runtime_error("invalid standard function id " + std::to_string(id));
+    }
+}
+
+StandardFunction* StandardFunctionRepository::GetStandardFunction(const std::string& fullName) const
+{
+    auto it = standardFunctionMap.find(fullName);
+    if (it != standardFunctionMap.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        throw std::runtime_error("invalid standard function name '" + fullName + "'");
     }
 }
 
@@ -536,6 +631,24 @@ void AddStandardFunctions(Block* block)
     Sqrt* sqrt = new Sqrt();
     StandardFunctionRepository::Instance().AddStandardFunction(sqrt);
     block->AddFunction(sqrt);
+}
+
+void SetStandardFunctionReturnTypes(Block* block)
+{
+    if (StandardFunctionRepository::Instance().ReturnTypesSet()) return;
+    StandardFunctionRepository::Instance().SetReturnTypesSet();
+    Function* ord = StandardFunctionRepository::Instance().GetStandardFunction("Ord");
+    ord->GetFunctionHeading()->SetResultType(block->GetFundamentalType(TypeKind::integerType));
+    Function* chr = StandardFunctionRepository::Instance().GetStandardFunction("Chr");
+    chr->GetFunctionHeading()->SetResultType(block->GetFundamentalType(TypeKind::charType));
+    Function* sin = StandardFunctionRepository::Instance().GetStandardFunction("Sin");
+    sin->GetFunctionHeading()->SetResultType(block->GetFundamentalType(TypeKind::realType));
+    Function* cos = StandardFunctionRepository::Instance().GetStandardFunction("Cos");
+    cos->GetFunctionHeading()->SetResultType(block->GetFundamentalType(TypeKind::realType));
+    Function* arcTan = StandardFunctionRepository::Instance().GetStandardFunction("ArcTan");
+    arcTan->GetFunctionHeading()->SetResultType(block->GetFundamentalType(TypeKind::realType));
+    Function* sqrt = StandardFunctionRepository::Instance().GetStandardFunction("Sqrt");
+    sqrt->GetFunctionHeading()->SetResultType(block->GetFundamentalType(TypeKind::realType));
 }
 
 StandardFunction* GetStandardFunction(int32_t standardFunctionId)

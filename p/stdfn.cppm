@@ -90,6 +90,7 @@ public:
     int32_t ParameterCount() const { return 1; }
     Value* Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, soul::lexer::LexerBase<char>& lexer, int64_t pos) override;
     void Execute(ExecutionContext* context) override;
+    Type* ResultType(const std::vector<Type*>& argumentTypes) const override;
 };
 
 class Succ : public StandardFunction
@@ -100,6 +101,7 @@ public:
     int32_t ParameterCount() const { return 1; }
     Value* Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, soul::lexer::LexerBase<char>& lexer, int64_t pos) override;
     void Execute(ExecutionContext* context) override;
+    Type* ResultType(const std::vector<Type*>& argumentTypes) const override;
 };
 
 class Pred : public StandardFunction
@@ -110,6 +112,7 @@ public:
     int32_t ParameterCount() const { return 1; }
     Value* Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, soul::lexer::LexerBase<char>& lexer, int64_t pos) override;
     void Execute(ExecutionContext* context) override;
+    Type* ResultType(const std::vector<Type*>& argumentTypes) const override;
 };
 
 class Min : public StandardFunction
@@ -119,6 +122,7 @@ public:
     int32_t MinParameterCount() const { return 2; }
     int32_t ParameterCount() const { return 2; }
     void Execute(ExecutionContext* context) override;
+    Type* ResultType(const std::vector<Type*>& argumentTypes) const override;
 };
 
 class Max : public StandardFunction
@@ -128,6 +132,7 @@ public:
     int32_t MinParameterCount() const { return 2; }
     int32_t ParameterCount() const { return 2; }
     void Execute(ExecutionContext* context) override;
+    Type* ResultType(const std::vector<Type*>& argumentTypes) const override;
 };
 
 class Sqrt : public StandardFunction
@@ -162,5 +167,7 @@ StandardFunction* GetStandardFunction(int32_t standardFunctionId);
 
 void AddStandardProcedures(Block* block);
 StandardProcedure* GetStandardProcedure(int32_t standardProcedureId);
+
+void SetStandardFunctionReturnTypes(Block* block);
 
 } // namespace p

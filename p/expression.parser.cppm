@@ -36,6 +36,7 @@ struct ExpressionParser
     static soul::parser::Match ArgumentList(LexerT& lexer, ParsingContext* context, Node* owner);
     static soul::parser::Match Argument(LexerT& lexer, ParsingContext* context);
     static soul::parser::Match FunctionIdentifier(LexerT& lexer, ParsingContext* context);
+    static soul::parser::Match TypeName(LexerT& lexer, ParsingContext* context);
     static soul::parser::Match ValueTypecast(LexerT& lexer, ParsingContext* context);
     static soul::parser::Match TypeIdentifier(LexerT& lexer, ParsingContext* context);
     static soul::parser::Match VariableReference(LexerT& lexer, ParsingContext* context);

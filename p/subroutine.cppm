@@ -65,7 +65,8 @@ public:
     const std::string& FullName() const { return fullName; }
     const std::string& CommonName() const { return commonName; }
     void SetCommonName(const std::string& commonName_);
-    void AddParameter(const Parameter& parameter);
+    void AddParameter(Parameter& parameter);
+    void SetParamIndeces();
     const std::vector<Parameter>& Parameters() const { return parameters; }
     std::vector<Parameter>& Parameters() { return parameters; }
     void InsertThisParam();
@@ -100,6 +101,26 @@ enum class DeclarationKind
 {
     declaration, definition
 };
+
+enum class SubroutineFlags 
+{
+    none = 0, generated = 1 << 1, implementationGenerated = 1 << 2
+};
+
+constexpr SubroutineFlags operator|(SubroutineFlags left, SubroutineFlags right)
+{
+    return SubroutineFlags(int(left) | int(right));
+}
+
+constexpr SubroutineFlags operator&(SubroutineFlags left, SubroutineFlags right)
+{
+    return SubroutineFlags(int(left) & int(right));
+}
+
+constexpr SubroutineFlags operator&(SubroutineFlags flags)
+{
+    return SubroutineFlags(~int(flags));
+}
 
 class Subroutine : public util::Component
 {
@@ -155,10 +176,15 @@ public:
     void MakeVmts(Context* context);
     int32_t VmtIndex() const { return vmtIndex; }
     void SetVmtIndex(int32_t vmtIndex_) { vmtIndex = vmtIndex_; }
+    void SetGenerated() { flags = flags | SubroutineFlags::generated; }
+    bool IsGenerated() const { return (flags & SubroutineFlags::generated) != SubroutineFlags::none; }
+    void SetImplementationGenerated() { flags = flags | SubroutineFlags::implementationGenerated; }
+    bool IsImplementationGenerated() const { return (flags & SubroutineFlags::implementationGenerated) != SubroutineFlags::none; }
 private:
     SubroutineKind kind;
     DeclarationKind declarationKind;
     std::unique_ptr<SubroutineHeading> heading;
+    SubroutineFlags flags;
     bool forward;
     bool external;
     int32_t nextTempVarIndex;
@@ -256,17 +282,41 @@ private:
     std::string objectName;
 };
 
+enum class ConstructorCallKind
+{
+    baseCall = 0, thisCall = 1
+};
+
+class ConstructorCall
+{
+public:
+    ConstructorCall(ConstructorCallKind kind_);
+    ConstructorCallKind Kind() const { return kind; }
+    void AddArgument(Node* argument);
+    const std::vector<std::unique_ptr<Node>>& Arguments() const { return arguments; }
+    bool IsBaseCall() const { return kind == ConstructorCallKind::baseCall; }
+    bool IsThisCall() const { return kind == ConstructorCallKind::thisCall; }
+private:
+    ConstructorCallKind kind;
+    std::vector<std::unique_ptr<Node>> arguments;
+};
+
 class Constructor : public Subroutine
 {
 public:
     Constructor();
     Constructor(ConstructorHeading* heading_);
-    ConstructorHeading* GetConstructorHeading() const { return heading.get(); }
+    ConstructorHeading* GetConstructorHeading() const { return static_cast<ConstructorHeading*>(Heading()); }
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     void ResolveDeclaration(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos) override;
+    void SetImplementation(Constructor* implementation_) { implementation = implementation_; }
+    Constructor* GetImplementation() const { return implementation; }
+    ConstructorCall* GetConstructorCall() const { return constructorCall.get(); }
+    void SetConstructorCall(ConstructorCall * constructorCall_);
 private:
-    std::unique_ptr<ConstructorHeading> heading;
+    Constructor* implementation;
+    std::unique_ptr<ConstructorCall> constructorCall;
 };
 
 Procedure* MakeProcedure(ParsingContext* context, const std::string& fullName, soul::lexer::LexerBase<char>& lexer, int64_t pos);

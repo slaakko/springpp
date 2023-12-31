@@ -16,7 +16,8 @@ class Reader;
 
 enum class ValueKind
 {
-    none, ptrValue, booleanValue, integerValue, charValue, enumerationValue, realValue, stringValue, constantValue, arrayValue, objectValue, functionValue, genericPointerValue
+    none, ptrValue, booleanValue, integerValue, charValue, enumerationValue, realValue, stringValue, constantValue, arrayValue, objectValue, functionValue, 
+    genericPointerValue, nilValue
 };
 
 class Value : public Object
@@ -41,6 +42,7 @@ public:
     bool IsObjectValue() const { return kind == ValueKind::objectValue; }
     bool IsFunctionValue() const { return kind == ValueKind::functionValue; }
     bool IsGenericPointerValue() const { return kind == ValueKind::genericPointerValue; }
+    bool IsNilValue() const { return kind == ValueKind::nilValue; }
 private:
     ValueKind kind;
 };
@@ -244,6 +246,14 @@ public:
     std::string ToValueString() const override { return "<generic_pointer>"; }
 private:
     void* pointer;
+};
+
+class NilValue : public Value
+{
+public:
+    NilValue();
+    Object* Clone() const override;
+    std::string ToValueString() const override { return "<nil>"; }
 };
 
 ValueKind CommonType(ValueKind left, ValueKind right);

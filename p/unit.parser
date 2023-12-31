@@ -99,8 +99,12 @@ parser UnitParser
                 context->GetModulePart()->SetBlock(block); 
                 context->PushBlock(block); 
                 block->ImportModules(context);
+                GenerateImplementationIds(context, lexer, pos);
             }
             DeclarationPart(context):declarationPart
+            {
+                GenerateDefaultImplementations(context, lexer, pos);
+            }
         ;
 
     InitializationPart(ParsingContext* context)

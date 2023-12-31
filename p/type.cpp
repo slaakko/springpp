@@ -59,6 +59,13 @@ util::uuid PointerTypeId()
     return typeId;
 }
 
+util::uuid NilTypeId()
+{
+    util::uuid typeId;
+    typeId.data[15] = 7;
+    return typeId;
+}
+
 Type::Type(TypeKind kind_) : kind(kind_), name(), id()
 {
 }
@@ -145,6 +152,11 @@ StringType::StringType() : Type(TypeKind::stringType, "string")
 PointerType::PointerType() : Type(TypeKind::pointerType, "pointer")
 {
     SetId(PointerTypeId());
+}
+
+NilType::NilType() : Type(TypeKind::nilType, "nil_type")
+{
+    SetId(NilTypeId());
 }
 
 EnumeratedType::EnumeratedType() : OrdinalType(TypeKind::enumeratedType)
@@ -261,8 +273,15 @@ void ObjectType::AddFields(ObjectType* to)
     int index = 0;
     for (const auto& fieldIndex : fieldIndexMap)
     {
-        to->fieldIndexMap.insert(fieldIndex);
-        to->fieldTypes.push_back(fieldTypes[index++]);
+        if (to->fieldIndexMap.find(fieldIndex.first) == to->fieldIndexMap.end())
+        {
+            to->fieldIndexMap.insert(fieldIndex);
+            while (fieldIndex.second >= to->fieldTypes.size())
+            {
+                to->fieldTypes.push_back(nullptr);
+            }
+            to->fieldTypes[fieldIndex.second] = GetFieldType(fieldIndex.second);
+        }
     }
 }
 
@@ -350,8 +369,19 @@ void ObjectType::FinalizeLayout()
     }
 }
 
-void ObjectType::AddMethod(ParsingContext* context, SubroutineHeading* methodHeading, soul::lexer::LexerBase<char>& lexer, int64_t pos)
+void ObjectType::GenerateDefaults(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos)
 {
+    Constructor* defaultCtor = GetDefaultConstructor();
+    if (!defaultCtor)
+    {
+        Subroutine* ctorMethod = AddMethod(context, new ConstructorHeading(), lexer, pos);
+        ctorMethod->SetGenerated();
+    }
+}
+
+Subroutine* ObjectType::AddMethod(ParsingContext* context, SubroutineHeading* methodHeading, soul::lexer::LexerBase<char>& lexer, int64_t pos)
+{
+    Subroutine* method = nullptr;
     if (methodHeading->GetVirtuality() != Virtuality::none)
     {
         SetVirtual();
@@ -364,6 +394,7 @@ void ObjectType::AddMethod(ParsingContext* context, SubroutineHeading* methodHea
         Procedure* procedure = new Procedure(ProcedureKind::regularproc, procedureHeading);
         procedure->SetDeclaration();
         methods.push_back(std::unique_ptr<Subroutine>(procedure));
+        method = procedure;
     }
     else if (methodHeading->IsFunctionHeading())
     {
@@ -373,6 +404,7 @@ void ObjectType::AddMethod(ParsingContext* context, SubroutineHeading* methodHea
         Function* function = new Function(FunctionKind::regularfn, functionHeading);
         function->SetDeclaration();
         methods.push_back(std::unique_ptr<Subroutine>(function));
+        method = function;
     }
     else if (methodHeading->IsConstructorHeading())
     {
@@ -382,11 +414,20 @@ void ObjectType::AddMethod(ParsingContext* context, SubroutineHeading* methodHea
         Constructor* constructor = new Constructor(constructorHeading);
         constructor->SetDeclaration();
         methods.push_back(std::unique_ptr<Subroutine>(constructor));
+        method = constructor;
     }
     else
     {
         ThrowError("unknown heading kind", lexer, pos);
     }
+    return method;
+}
+
+Constructor* ObjectType::GetDefaultConstructor() const
+{
+    std::vector<Type*> parameterTypes;
+    parameterTypes.push_back(const_cast<ObjectType*>(this));
+    return GetConstructor(parameterTypes);
 }
 
 Constructor* ObjectType::GetConstructor(const std::vector<Type*>& parameterTypes) const
@@ -573,6 +614,8 @@ void ObjectType::Read(Reader& reader)
 
 void ObjectType::Resolve(Context* context)
 {
+    if (IsResolved()) return;
+    SetResolved();
     if (baseTypeId != util::uuid())
     {
         Type* type = context->GetBlock()->GetType(baseTypeId);
@@ -652,6 +695,30 @@ void ObjectType::MakeVmt(Context* context)
 {
     if (!IsVirtual()) return;
     p::MakeVmt(vmt, this, context);
+}
+
+bool ObjectType::IsSameOrHasBaseType(ObjectType* objectType) const
+{
+    ObjectType* thisType = const_cast<ObjectType*>(this);
+    if (thisType == objectType)
+    {
+        return true;
+    }
+    else if (baseType)
+    {
+        if (baseType->IsSameOrHasBaseType(objectType))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
 }
 
 Type* MakeSubrangeType(ParsingContext* context, Node* rangeStart, Node* rangeEnd, soul::lexer::LexerBase<char>& lexer, int64_t pos)
@@ -841,6 +908,7 @@ Type* MakeType(TypeKind kind)
         case TypeKind::realType:type = new RealType(); break;
         case TypeKind::stringType:type = new StringType(); break;
         case TypeKind::pointerType:type = new PointerType(); break;
+        case TypeKind::nilType:type = new NilType(); break;
         case TypeKind::objectType:type = new ObjectType(); break;
         case TypeKind::arrayType:type = new ArrayType(); break;
     }

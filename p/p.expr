@@ -7,7 +7,7 @@ expressions p.expr
 {
     ws = "[\n\r\t ]";
     newline = "\r\n|\n|\r";
-    comment = "\(\*([^*]|\*[^)])*\*\)";
+    comment = "\(\*([^*]|\*[^)])*\*\)|\{[^}]*\}";
     separators = "({ws}|{comment})+";
     id = "{ascii_id_start}{ascii_id_cont}*";
     dec_digits = "[0-9]+";

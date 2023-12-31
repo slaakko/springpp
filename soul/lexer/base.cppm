@@ -58,6 +58,7 @@ public:
     virtual void PreprocessCurrentToken() = 0;
     virtual void Skip(bool skip_) = 0;
     virtual bool Skipping() const = 0;
+    virtual void ThrowFarthestError() = 0;
 };
 
 } // namespace soul::lexer

@@ -1118,7 +1118,7 @@ void GraphicsMeasureStringMethod::Execute(ExecutionContext* context)
                                 {
                                     throw std::runtime_error("w not found");
                                 }
-                                int32_t h_index = sizeObjectType->GetFieldIndex("w");
+                                int32_t h_index = sizeObjectType->GetFieldIndex("h");
                                 if (h_index != -1)
                                 {
                                     RealValue hValue(h);

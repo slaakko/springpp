@@ -150,6 +150,7 @@ soul::parser::Match ProgramParser<LexerT>::Program(LexerT& lexer, ParsingContext
                     }
                     if (match.hit)
                     {
+                        GenerateDefaultImplementations(context, lexer, pos);
                         context->PopBlock();
                         context->GetModule()->Term(context);
                     }

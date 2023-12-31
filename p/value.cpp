@@ -471,6 +471,15 @@ Object* GenericPointerValue::Clone() const
     return new GenericPointerValue(pointer);
 }
 
+NilValue::NilValue() : Value(ValueKind::nilValue)
+{
+}
+
+Object* NilValue::Clone() const
+{
+    return new NilValue();
+}
+
 Value* MakeValue(ValueKind kind)
 {
     Value* value = nullptr;
@@ -514,6 +523,11 @@ Value* MakeValue(ValueKind kind)
         case ValueKind::objectValue:
         {
             value = new ObjectValue();
+            break;
+        }
+        case ValueKind::nilValue:
+        {
+            value = new NilValue();
             break;
         }
     }

@@ -31,7 +31,8 @@ enum class BoundNodeKind
     boundBinaryExprNode, boundUnaryExprNode, boundLiteralNode, boundParameterNode, boundVariableNode, boundFunctionResultNode, boundConstantNode, 
     boundConversionNode, boundValueConversionNode,
     boundProcedureNode, boundFunctionNode, boundMethodNode, boundMemberExprNode, 
-    boundFunctionCallNode, boundConstructorCallNode, boundMethodCallNode, boundNewExpressionNode, boundNewArrayExpressionNode, boundIndexExprNode, boundArrayLengthNode
+    boundFunctionCallNode, boundConstructorCallNode, boundMethodCallNode, boundNewExpressionNode, boundNewArrayExpressionNode, boundIndexExprNode, 
+    boundArrayLengthNode, boundStringLengthNode
 };
 
 class BoundNode
@@ -343,6 +344,17 @@ private:
     std::unique_ptr<BoundExpressionNode> subject;
 };
 
+class BoundStringLengthNode : public BoundExpressionNode
+{
+public:
+    BoundStringLengthNode(BoundExpressionNode* subject_, int64_t pos_, Type* integerType_);
+    void Load(Emitter* emitter) override;
+    void Accept(BoundNodeVisitor& visitor) override;
+    BoundExpressionNode* Clone() const override;
+private:
+    std::unique_ptr<BoundExpressionNode> subject;
+};
+
 class BoundStatementNode : public BoundNode
 {
 public:
@@ -398,8 +410,11 @@ public:
     BoundExpressionStatementNode(BoundExpressionNode* boundExpression_, int64_t pos_);
     BoundExpressionNode* BoundExpression() const { return boundExpression.get(); }
     void Accept(BoundNodeVisitor& visitor) override;
+    bool Pop() const { return pop; }
+    void DontPop() { pop = false; }
 private:
     std::unique_ptr<BoundExpressionNode> boundExpression;
+    bool pop;
 };
 
 class BoundIfStatementNode : public BoundStatementNode
@@ -476,6 +491,7 @@ public:
     virtual void Visit(BoundMemberExprNode& node) {}
     virtual void Visit(BoundIndexExprNode& node) {}
     virtual void Visit(BoundArrayLengthNode& node) {}
+    virtual void Visit(BoundStringLengthNode& node) {}
     virtual void Visit(BoundConstructorCallNode& node) {}
     virtual void Visit(BoundEmptyStatementNode& node) {}
     virtual void Visit(BoundCompoundStatementNode& node) {}

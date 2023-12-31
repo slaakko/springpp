@@ -44,6 +44,7 @@ struct TypeParser
     static soul::parser::Match ConstructorDeclaration(LexerT& lexer, ParsingContext* context);
     static soul::parser::Match ConstructorHeading(LexerT& lexer, ParsingContext* context);
     static soul::parser::Match ObjectName(LexerT& lexer);
+    static soul::parser::Match ConstructorCall(LexerT& lexer, ParsingContext* context);
     static soul::parser::Match ArrayType(LexerT& lexer, ParsingContext* context);
 };
 

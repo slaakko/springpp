@@ -1,0 +1,84 @@
+module Stx, id=2059828814
+implementation
+uses System, Syntax, System.Graphics, System.Graphics.Primitive
+procedure '@program'
+definition
+module id 2059828814
+id 1
+frame size: 6
+var
+  local 'x' index 0 type 'integer'
+  local 'y' index 1 type 'integer'
+  local 'bm' index 2 type 'Bitmap'
+  local 'expressionRule' index 3 type 'RuleBox'
+  local 'terminal' index 4 type 'Terminal'
+  local 'graphics' index 5 type 'Graphics'
+code
+  0 : receive(0)
+  1 : push_value(100)
+  2 : push_value(96)
+  3 : call_function(System.Graphics:MMToPixels, 1489900195, 8)
+  4 : store_local(0)
+  5 : push_value(100)
+  6 : push_value(96)
+  7 : call_function(System.Graphics:MMToPixels, 1489900195, 8)
+  8 : store_local(1)
+  9 : new_object(Bitmap)
+  10 : load_local(0)
+  11 : load_local(1)
+  12 : call_ctor(Bitmap, 1489900195, 27)
+  13 : store_local(2)
+  14 : load_local(2)
+  15 : call_external(Bitmap.GetGraphics, 0)
+  16 : store_local(5)
+  17 : load_local(5)
+  18 : load_global(1)
+  19 : call_external(Graphics.Clear, 1)
+  20 : new_object(RuleBox)
+  21 : push_value('expression')
+  22 : call_ctor(RuleBox, 746861746, 11)
+  23 : store_local(3)
+  24 : load_local(3)
+  25 : load_local(5)
+  26 : load_local(3)
+  27 : call_virtual(RuleBox.Measure, 0)
+  28 : new_object(Point)
+  29 : push_value(10)
+  30 : int_to_real
+  31 : push_value(10)
+  32 : int_to_real
+  33 : call_ctor(Point, 1205691996, 2)
+  34 : load_local(3)
+  35 : load_field(3)
+  36 : store_field(0)
+  37 : load_local(3)
+  38 : load_local(5)
+  39 : load_local(3)
+  40 : call_virtual(RuleBox.Draw, 1)
+  41 : new_object(Terminal)
+  42 : push_value(';')
+  43 : char_to_string
+  44 : call_ctor(Terminal, 746861746, 14)
+  45 : store_local(4)
+  46 : load_local(4)
+  47 : load_local(5)
+  48 : load_local(4)
+  49 : call_virtual(Terminal.Measure, 0)
+  50 : new_object(Point)
+  51 : push_value(10)
+  52 : int_to_real
+  53 : push_value(20)
+  54 : int_to_real
+  55 : call_ctor(Point, 1205691996, 2)
+  56 : load_local(4)
+  57 : load_field(3)
+  58 : store_field(0)
+  59 : load_local(4)
+  60 : load_local(5)
+  61 : load_local(4)
+  62 : call_virtual(Terminal.Draw, 1)
+  63 : load_local(2)
+  64 : push_value('C:/work/springpp/prog/Stx.png')
+  65 : call_external(Bitmap.Save, 9)
+  66 : nop
+

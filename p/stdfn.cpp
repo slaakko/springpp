@@ -385,10 +385,12 @@ void Min::Execute(ExecutionContext* context)
             case ValueKind::integerValue:
             {
                 result.reset(new IntegerValue(std::min(leftValue->ToInteger(), rightValue->ToInteger())));
+                break;
             }
             case ValueKind::realValue:
             {
                 result.reset(new RealValue(std::min(leftValue->ToReal(), rightValue->ToReal())));
+                break;
             }
             default:
             {
@@ -448,10 +450,12 @@ void Max::Execute(ExecutionContext* context)
             case ValueKind::integerValue:
             {
                 result.reset(new IntegerValue(std::max(leftValue->ToInteger(), rightValue->ToInteger())));
+                break;
             }
             case ValueKind::realValue:
             {
                 result.reset(new RealValue(std::max(leftValue->ToReal(), rightValue->ToReal())));
+                break;
             }
             default:
             {

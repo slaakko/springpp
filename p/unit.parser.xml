@@ -114,7 +114,9 @@
       <empty first="{#}"/>
      </action>
     </sequence>
-    <nonterminal first="{#, CONST, CONSTRUCTOR, FUNCTION, PROCEDURE, TYPE, VAR}" ruleName="DeclarationPart"/>
+    <action first="{#, CONST, CONSTRUCTOR, FUNCTION, PROCEDURE, TYPE, VAR}">
+     <nonterminal first="{#, CONST, CONSTRUCTOR, FUNCTION, PROCEDURE, TYPE, VAR}" ruleName="DeclarationPart"/>
+    </action>
    </sequence>
   </rule>
   <rule first="{#, BEGIN, END}" name="InitializationPart">

@@ -19,6 +19,7 @@ class Context;
 class ParsingContext;
 class ModuleMap;
 class Subroutine;
+class ObjectType;
 
 enum class ModuleKind
 {
@@ -59,6 +60,8 @@ public:
     const std::map<int32_t, Subroutine*>& SubroutineMap() const { return subroutineMap; }
     void Resolve(Context* context);
     void Print(util::CodeFormatter& formatter, ExecutionContext* context);
+    const std::vector<ObjectType*>& ObjectTypes() const { return objectTypes; }
+    void AddObjectType(ObjectType* objectType);
 private:
     ModulePartKind kind;
     Module* mod;
@@ -67,6 +70,7 @@ private:
     std::vector<Module*> importedModules;
     std::unique_ptr<Block> block;
     std::map<int32_t, Subroutine*> subroutineMap;
+    std::vector<ObjectType*> objectTypes;
 };
 
 class InterfacePart : public ModulePart

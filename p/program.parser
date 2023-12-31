@@ -37,7 +37,12 @@ parser ProgramParser
                 context->GetModulePart()->AddSubroutine(program);
             }
             Block(context, program, true):programBlock 
-            DOT{ context->PopBlock(); context->GetModule()->Term(context); }
+            DOT
+            { 
+                GenerateDefaultImplementations(context, lexer, pos);
+                context->PopBlock(); 
+                context->GetModule()->Term(context); 
+            }
         )
         ;
 

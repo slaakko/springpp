@@ -288,50 +288,20 @@ void CodeGeneratorVisitor::Visit(BoundProcedureCallStatementNode& node)
     Procedure* procedure = node.GetProcedure();
     if (procedure->IsExternal())
     {
-        ExternalSubroutine* subroutine = GetExternalSubroutine(procedure->ExternalSubroutineName());
         CallExternalInstruction* callExternalInstruction = new CallExternalInstruction();
-        if (subroutine->Id() == -1)
-        {
-            ThrowError("subroutine ID not set in external procedure call '" + subroutine->FullName() + "'", emitter.Lexer(), node.Pos());
-        }
-        callExternalInstruction->SetId(subroutine->Id());
+        callExternalInstruction->SetSubroutine(procedure);
         emitter.Emit(callExternalInstruction);
     }
     else if (procedure->IsRegularProcedure())
     {
         CallProcedureInstruction* callProcedureInstruction = new CallProcedureInstruction();
-        if (procedure->ModuleId() == -1)
-        {
-            ThrowError("module ID not set in procedure call '" + procedure->FullName() + "'", emitter.Lexer(), node.Pos());
-        }
-        callProcedureInstruction->SetModuleId(procedure->ModuleId());
-        if (procedure->IsDeclaration())
-        {
-            if (procedure->ImplementationId() == -1)
-            {
-                ThrowError("implemenation ID not set in procedure call '" + procedure->FullName() + "'", emitter.Lexer(), node.Pos());
-            }
-            callProcedureInstruction->SetSubroutineId(procedure->ImplementationId());
-        }
-        else
-        {
-            if (procedure->Id() == -1)
-            {
-                ThrowError("procedure ID not set in procedure call '" + procedure->FullName() + "'", emitter.Lexer(), node.Pos());
-            }
-            callProcedureInstruction->SetSubroutineId(procedure->Id());
-        }
+        callProcedureInstruction->SetProcedure(procedure);
         emitter.Emit(callProcedureInstruction);
     }
     else if (procedure->IsStandardProcedure())
     {
-        StandardProcedure* stdProc = static_cast<StandardProcedure*>(procedure);
         CallStdProcInstruction* callStdProcInstruction = new CallStdProcInstruction();
-        if (stdProc->Id() == -1)
-        {
-            ThrowError("standard procedure ID not set in procedure call '" + procedure->FullName() + "'", emitter.Lexer(), node.Pos());
-        }
-        callStdProcInstruction->SetStdProcId(stdProc->Id());
+        callStdProcInstruction->SetProcedure(procedure);;
         callStdProcInstruction->SetArgumentCount(node.Arguments().size());
         emitter.Emit(callStdProcInstruction);
     }
@@ -348,7 +318,7 @@ void CodeGeneratorVisitor::Visit(BoundExpressionStatementNode& node)
             emitter.Emit(new PopValueInstruction());
         }
     }
-    else
+    else if (node.Pop())
     {
         emitter.Emit(new PopValueInstruction());
     }

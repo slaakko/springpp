@@ -68,7 +68,7 @@ function Proj(u, v: Vector): Vector;
 function Rotate(v: Vector; angleRad: real): Vector;
 
 type
-  Line = object
+  LineSegment = object
     s, e: Point;
     constructor(s, e: Point);
     constructor(s: Point; v: Vector);
@@ -77,7 +77,7 @@ type
     function Length(): real;
   end;
 
-function RotateLine(line: Line; angleDeg: real): Line;
+function RotateLineSegment(line: LineSegment; angleDeg: real): LineSegment;
 
 implementation
 
@@ -319,13 +319,13 @@ begin
   Rotate := new Vector(v.x * cosTheta - v.y * sinTheta, v.x * sinTheta + v.y * cosTheta);
 end;
 
-constructor Line(s, e: Point);
+constructor LineSegment(s, e: Point);
 begin
   this.s := s;
   this.e := e;
 end;
 
-constructor Line(s: Point; v: Vector);
+constructor LineSegment(s: Point; v: Vector);
 var
   u: Vector;
 begin
@@ -334,7 +334,7 @@ begin
   this.e := u.ToPoint();
 end;
 
-procedure Line.Print();
+procedure LineSegment.Print();
 begin
   Write('{(');
   Write(s.x);
@@ -348,17 +348,17 @@ begin
   Writeln();
 end;
 
-function Line.ToVector(): Vector;
+function LineSegment.ToVector(): Vector;
 begin
   ToVector := new Vector(e.x - s.x, e.y - s.y);
 end;
 
-function Line.Length(): real;
+function LineSegment.Length(): real;
 begin
   Length := Distance(s, e);
 end;
 
-function RotateLine(line: Line; angleDeg: real): Line;
+function RotateLineSegment(line: LineSegment; angleDeg: real): LineSegment;
 var
   angleRad: real;
   v, r: Vector;
@@ -366,7 +366,7 @@ begin
   angleRad := pi / 180.0 * angleDeg;
   v := line.ToVector();  
   r := Rotate(v, angleRad);
-  RotateLine := new Line(line.s, r);
+  RotateLineSegment := new LineSegment(line.s, r);
 end;
 
 end.

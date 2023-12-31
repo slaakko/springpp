@@ -22,6 +22,7 @@ parser TypeParser
     lexer p::lexer::PLexer<char>;
 
     using ProcedureParser.ProcedureHeading;
+    using ExpressionParser.Expression;
     using ExpressionParser.ConstantExpression;
     using ExpressionParser.TypeIdentifier;
     using ExpressionParser.Identifier;
@@ -104,7 +105,9 @@ parser TypeParser
             END
         )
         {
+            context->GetModulePart()->AddObjectType(objectType);
             objectType->FinalizeLayout();
+            objectType->GenerateDefaults(context, lexer, pos);
             return p::TypePtr(objectType);
         }
         ;
@@ -173,15 +176,23 @@ parser TypeParser
         |   ConstructorHeading(context):constructorHeading{ return constructorHeading; }
         ;
 
-    ConstructorDeclaration(ParsingContext* context, var p::Constructor* constructor)
+    ConstructorDeclaration(ParsingContext* context, var std::unique_ptr<p::Constructor> constructor)
         ::= ConstructorHeading(context):constructorHeading
             { 
-                constructor = MakeConstructor(context, constructorHeading, lexer, pos); 
-                constructor->ResolveDeclaration(context, lexer, pos); 
+                constructor.reset(new p::Constructor(constructorHeading)); 
             }
+            (
+                ConstructorCall(context):constructorCall{ constructor->SetConstructorCall(constructorCall); }
+            )?
             SEMICOLON 
-            SubroutineBlock(context, constructor):subroutineBlock 
+            SubroutineBlock(context, constructor.get()):subroutineBlock 
             SEMICOLON
+            {
+                p::Constructor* ctor = constructor.get();
+                context->GetBlock()->AddConstructor(constructor.release(), lexer, pos);
+                context->GetModulePart()->AddSubroutine(ctor);
+                ctor->ResolveDeclaration(context, lexer, pos); 
+            }
         ;
 
     ConstructorHeading(ParsingContext* context, var std::unique_ptr<p::ConstructorHeading> heading) : p::ConstructorHeading*
@@ -198,6 +209,28 @@ parser TypeParser
 
     ObjectName : std::string
         ::= ID{ return lexer.GetToken(pos).ToString(); }
+        ;
+
+    ConstructorCall(ParsingContext* context, var std::unique_ptr<p::ConstructorCall> constructorCall) : p::ConstructorCall*
+        ::= 
+        (
+            COLON
+            (   BASE{ constructorCall.reset(new p::ConstructorCall(ConstructorCallKind::baseCall)); }
+            |   THIS{ constructorCall.reset(new p::ConstructorCall(ConstructorCallKind::thisCall)); }
+            )
+            LPAREN
+            (
+                Expression(context):first{ constructorCall->AddArgument(first); }
+                (
+                    COMMA
+                    Expression(context):next{ constructorCall->AddArgument(next); }
+                )*
+            )?
+            RPAREN
+        )
+        {
+            return constructorCall.release();
+        }
         ;
 
     ArrayType(ParsingContext* context) : p::TypePtr

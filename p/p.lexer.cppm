@@ -64,9 +64,9 @@ struct PLexer
                     }
                     case 4:
                     case 7:
-                    case 19:
-                    case 20:
                     case 21:
+                    case 22:
+                    case 23:
                     {
                         return 4;
                     }
@@ -94,15 +94,15 @@ struct PLexer
                     {
                         return 10;
                     }
-                    case 18:
+                    case 17:
                     {
                         return 11;
                     }
-                    case 22:
+                    case 18:
                     {
                         return 12;
                     }
-                    case 23:
+                    case 20:
                     {
                         return 13;
                     }
@@ -194,7 +194,7 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 23:
+                    case 25:
                     {
                         return 24;
                     }
@@ -251,7 +251,7 @@ struct PLexer
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
                 token.match = lexer.CurrentLexeme();
-                int64_t tokenId = GetTokenId(23, lexer);
+                int64_t tokenId = GetTokenId(19, lexer);
                 if (tokenId == soul::lexer::CONTINUE_TOKEN)
                 {
                     token.id = soul::lexer::CONTINUE_TOKEN;
@@ -272,7 +272,7 @@ struct PLexer
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
                 token.match = lexer.CurrentLexeme();
-                int64_t tokenId = GetTokenId(22, lexer);
+                int64_t tokenId = GetTokenId(18, lexer);
                 if (tokenId == soul::lexer::CONTINUE_TOKEN)
                 {
                     token.id = soul::lexer::CONTINUE_TOKEN;
@@ -293,7 +293,7 @@ struct PLexer
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
                 token.match = lexer.CurrentLexeme();
-                int64_t tokenId = GetTokenId(19, lexer);
+                int64_t tokenId = GetTokenId(15, lexer);
                 if (tokenId == soul::lexer::CONTINUE_TOKEN)
                 {
                     token.id = soul::lexer::CONTINUE_TOKEN;
@@ -314,48 +314,6 @@ struct PLexer
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
                 token.match = lexer.CurrentLexeme();
-                int64_t tokenId = GetTokenId(18, lexer);
-                if (tokenId == soul::lexer::CONTINUE_TOKEN)
-                {
-                    token.id = soul::lexer::CONTINUE_TOKEN;
-                    return -1;
-                }
-                else if (tokenId != soul::lexer::INVALID_TOKEN)
-                {
-                    token.id = tokenId;
-                }
-                else
-                {
-                    token.match = prevMatch;
-                }
-                return -1;
-            }
-            case 16:
-            {
-                auto& token = lexer.CurrentToken();
-                auto prevMatch = token.match;
-                token.match = lexer.CurrentLexeme();
-                int64_t tokenId = GetTokenId(15, lexer);
-                if (tokenId == soul::lexer::CONTINUE_TOKEN)
-                {
-                    token.id = soul::lexer::CONTINUE_TOKEN;
-                    return -1;
-                }
-                else if (tokenId != soul::lexer::INVALID_TOKEN)
-                {
-                    token.id = tokenId;
-                }
-                else
-                {
-                    token.match = prevMatch;
-                }
-                return -1;
-            }
-            case 15:
-            {
-                auto& token = lexer.CurrentToken();
-                auto prevMatch = token.match;
-                token.match = lexer.CurrentLexeme();
                 int64_t tokenId = GetTokenId(11, lexer);
                 if (tokenId == soul::lexer::CONTINUE_TOKEN)
                 {
@@ -372,7 +330,7 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 23:
+                    case 25:
                     {
                         return 25;
                     }
@@ -403,7 +361,7 @@ struct PLexer
                 }
                 return -1;
             }
-            case 14:
+            case 16:
             {
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
@@ -424,11 +382,11 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 23:
+                    case 25:
                     {
                         return 26;
                     }
-                    case 25:
+                    case 27:
                     {
                         return 27;
                     }
@@ -480,7 +438,7 @@ struct PLexer
                 }
                 return -1;
             }
-            case 13:
+            case 15:
             {
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
@@ -501,7 +459,7 @@ struct PLexer
                 }
                 return -1;
             }
-            case 12:
+            case 14:
             {
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
@@ -522,19 +480,19 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
-                        return 12;
+                        return 14;
                     }
-                    case 14:
+                    case 16:
                     {
                         return 28;
                     }
-                    case 20:
+                    case 22:
                     {
                         return 29;
                     }
-                    case 21:
+                    case 23:
                     {
                         return 30;
                     }
@@ -548,15 +506,15 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 15:
+                    case 17:
                     {
                         return 31;
                     }
-                    case 16:
+                    case 18:
                     {
                         return 32;
                     }
-                    case 22:
+                    case 24:
                     {
                         return 33;
                     }
@@ -587,7 +545,7 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
                         return 33;
                     }
@@ -601,7 +559,7 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
                         return 33;
                     }
@@ -615,7 +573,7 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
                         return 33;
                     }
@@ -629,15 +587,15 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 15:
+                    case 17:
                     {
                         return 31;
                     }
-                    case 16:
+                    case 18:
                     {
                         return 32;
                     }
-                    case 22:
+                    case 24:
                     {
                         return 33;
                     }
@@ -651,7 +609,7 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
                         return 34;
                     }
@@ -682,15 +640,15 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
                         return 34;
                     }
-                    case 20:
+                    case 22:
                     {
                         return 35;
                     }
-                    case 21:
+                    case 23:
                     {
                         return 36;
                     }
@@ -704,15 +662,15 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 15:
+                    case 17:
                     {
                         return 37;
                     }
-                    case 16:
+                    case 18:
                     {
                         return 38;
                     }
-                    case 22:
+                    case 24:
                     {
                         return 39;
                     }
@@ -743,7 +701,7 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
                         return 39;
                     }
@@ -757,7 +715,7 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
                         return 39;
                     }
@@ -771,7 +729,7 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
                         return 39;
                     }
@@ -785,15 +743,15 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 15:
+                    case 17:
                     {
                         return 37;
                     }
-                    case 16:
+                    case 18:
                     {
                         return 38;
                     }
-                    case 22:
+                    case 24:
                     {
                         return 39;
                     }
@@ -803,15 +761,15 @@ struct PLexer
                     }
                 }
             }
-            case 11:
+            case 13:
             {
                 switch (cls)
                 {
-                    case 13:
+                    case 15:
                     {
                         return 40;
                     }
-                    case 22:
+                    case 24:
                     {
                         return 41;
                     }
@@ -842,7 +800,7 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 22:
+                    case 24:
                     {
                         return 41;
                     }
@@ -856,10 +814,10 @@ struct PLexer
             {
                 switch (cls)
                 {
-                    case 19:
-                    case 20:
                     case 21:
                     case 22:
+                    case 23:
+                    case 24:
                     {
                         return 42;
                     }
@@ -890,10 +848,10 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 19:
-                    case 20:
                     case 21:
                     case 22:
+                    case 23:
+                    case 24:
                     {
                         return 42;
                     }
@@ -903,7 +861,7 @@ struct PLexer
                     }
                 }
             }
-            case 10:
+            case 12:
             {
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
@@ -924,7 +882,7 @@ struct PLexer
                 }
                 return -1;
             }
-            case 9:
+            case 11:
             {
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
@@ -945,7 +903,7 @@ struct PLexer
                 }
                 return -1;
             }
-            case 8:
+            case 10:
             {
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
@@ -966,7 +924,7 @@ struct PLexer
                 }
                 switch (cls)
                 {
-                    case 14:
+                    case 16:
                     {
                         return 43;
                     }
@@ -997,14 +955,14 @@ struct PLexer
                 }
                 return -1;
             }
-            case 7:
+            case 9:
             {
                 switch (cls)
                 {
-                    case 19:
-                    case 20:
                     case 21:
                     case 22:
+                    case 23:
+                    case 24:
                     {
                         return 44;
                     }
@@ -1035,12 +993,1348 @@ struct PLexer
                 }
                 switch (cls)
                 {
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    {
+                        return 44;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 8:
+            {
+                auto& token = lexer.CurrentToken();
+                auto prevMatch = token.match;
+                token.match = lexer.CurrentLexeme();
+                int64_t tokenId = GetTokenId(23, lexer);
+                if (tokenId == soul::lexer::CONTINUE_TOKEN)
+                {
+                    token.id = soul::lexer::CONTINUE_TOKEN;
+                    return -1;
+                }
+                else if (tokenId != soul::lexer::INVALID_TOKEN)
+                {
+                    token.id = tokenId;
+                }
+                else
+                {
+                    token.match = prevMatch;
+                }
+                return -1;
+            }
+            case 7:
+            {
+                auto& token = lexer.CurrentToken();
+                auto prevMatch = token.match;
+                token.match = lexer.CurrentLexeme();
+                int64_t tokenId = GetTokenId(22, lexer);
+                if (tokenId == soul::lexer::CONTINUE_TOKEN)
+                {
+                    token.id = soul::lexer::CONTINUE_TOKEN;
+                    return -1;
+                }
+                else if (tokenId != soul::lexer::INVALID_TOKEN)
+                {
+                    token.id = tokenId;
+                }
+                else
+                {
+                    token.match = prevMatch;
+                }
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
                     case 19:
                     case 20:
                     case 21:
                     case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
                     {
-                        return 44;
+                        return 45;
+                    }
+                    case 14:
+                    {
+                        return 46;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 46:
+            {
+                auto& token = lexer.CurrentToken();
+                auto prevMatch = token.match;
+                token.match = lexer.CurrentLexeme();
+                int64_t tokenId = GetTokenId(0, lexer);
+                if (tokenId == soul::lexer::CONTINUE_TOKEN)
+                {
+                    token.id = soul::lexer::CONTINUE_TOKEN;
+                    return -1;
+                }
+                else if (tokenId != soul::lexer::INVALID_TOKEN)
+                {
+                    token.id = tokenId;
+                }
+                else
+                {
+                    token.match = prevMatch;
+                }
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 8:
+                    case 9:
+                    {
+                        return 1;
+                    }
+                    case 10:
+                    {
+                        return 47;
+                    }
+                    case 13:
+                    {
+                        return 48;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 48:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 45;
+                    }
+                    case 14:
+                    {
+                        return 46;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 47:
+            {
+                switch (cls)
+                {
+                    case 3:
+                    {
+                        return 49;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 49:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 50;
+                    }
+                    case 3:
+                    {
+                        return 51;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 51:
+            {
+                switch (cls)
+                {
+                    case 3:
+                    {
+                        return 51;
+                    }
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 52;
+                    }
+                    case 12:
+                    {
+                        return 53;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 53:
+            {
+                auto& token = lexer.CurrentToken();
+                auto prevMatch = token.match;
+                token.match = lexer.CurrentLexeme();
+                int64_t tokenId = GetTokenId(0, lexer);
+                if (tokenId == soul::lexer::CONTINUE_TOKEN)
+                {
+                    token.id = soul::lexer::CONTINUE_TOKEN;
+                    return -1;
+                }
+                else if (tokenId != soul::lexer::INVALID_TOKEN)
+                {
+                    token.id = tokenId;
+                }
+                else
+                {
+                    token.match = prevMatch;
+                }
+                switch (cls)
+                {
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 11:
+                    case 12:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 50;
+                    }
+                    case 3:
+                    {
+                        return 51;
+                    }
+                    case 0:
+                    case 1:
+                    case 8:
+                    case 9:
+                    {
+                        return 54;
+                    }
+                    case 10:
+                    {
+                        return 55;
+                    }
+                    case 13:
+                    {
+                        return 56;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 56:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 57;
+                    }
+                    case 3:
+                    {
+                        return 58;
+                    }
+                    case 14:
+                    {
+                        return 59;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 59:
+            {
+                auto& token = lexer.CurrentToken();
+                auto prevMatch = token.match;
+                token.match = lexer.CurrentLexeme();
+                int64_t tokenId = GetTokenId(0, lexer);
+                if (tokenId == soul::lexer::CONTINUE_TOKEN)
+                {
+                    token.id = soul::lexer::CONTINUE_TOKEN;
+                    return -1;
+                }
+                else if (tokenId != soul::lexer::INVALID_TOKEN)
+                {
+                    token.id = tokenId;
+                }
+                else
+                {
+                    token.match = prevMatch;
+                }
+                switch (cls)
+                {
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 11:
+                    case 12:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 50;
+                    }
+                    case 3:
+                    {
+                        return 51;
+                    }
+                    case 0:
+                    case 1:
+                    case 8:
+                    case 9:
+                    {
+                        return 54;
+                    }
+                    case 10:
+                    {
+                        return 55;
+                    }
+                    case 13:
+                    {
+                        return 56;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 58:
+            {
+                switch (cls)
+                {
+                    case 3:
+                    {
+                        return 58;
+                    }
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 13:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 60;
+                    }
+                    case 12:
+                    {
+                        return 61;
+                    }
+                    case 14:
+                    {
+                        return 62;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 62:
+            {
+                auto& token = lexer.CurrentToken();
+                auto prevMatch = token.match;
+                token.match = lexer.CurrentLexeme();
+                int64_t tokenId = GetTokenId(0, lexer);
+                if (tokenId == soul::lexer::CONTINUE_TOKEN)
+                {
+                    token.id = soul::lexer::CONTINUE_TOKEN;
+                    return -1;
+                }
+                else if (tokenId != soul::lexer::INVALID_TOKEN)
+                {
+                    token.id = tokenId;
+                }
+                else
+                {
+                    token.match = prevMatch;
+                }
+                switch (cls)
+                {
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 11:
+                    case 12:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 50;
+                    }
+                    case 3:
+                    {
+                        return 51;
+                    }
+                    case 0:
+                    case 1:
+                    case 8:
+                    case 9:
+                    {
+                        return 54;
+                    }
+                    case 10:
+                    {
+                        return 55;
+                    }
+                    case 13:
+                    {
+                        return 56;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 61:
+            {
+                auto& token = lexer.CurrentToken();
+                auto prevMatch = token.match;
+                token.match = lexer.CurrentLexeme();
+                int64_t tokenId = GetTokenId(0, lexer);
+                if (tokenId == soul::lexer::CONTINUE_TOKEN)
+                {
+                    token.id = soul::lexer::CONTINUE_TOKEN;
+                    return -1;
+                }
+                else if (tokenId != soul::lexer::INVALID_TOKEN)
+                {
+                    token.id = tokenId;
+                }
+                else
+                {
+                    token.match = prevMatch;
+                }
+                switch (cls)
+                {
+                    case 13:
+                    {
+                        return 56;
+                    }
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 11:
+                    case 12:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 57;
+                    }
+                    case 3:
+                    {
+                        return 58;
+                    }
+                    case 14:
+                    {
+                        return 59;
+                    }
+                    case 0:
+                    case 1:
+                    case 8:
+                    case 9:
+                    {
+                        return 63;
+                    }
+                    case 10:
+                    {
+                        return 64;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 64:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 57;
+                    }
+                    case 14:
+                    {
+                        return 59;
+                    }
+                    case 3:
+                    {
+                        return 65;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 65:
+            {
+                switch (cls)
+                {
+                    case 3:
+                    {
+                        return 58;
+                    }
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 13:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 60;
+                    }
+                    case 12:
+                    {
+                        return 61;
+                    }
+                    case 14:
+                    {
+                        return 62;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 63:
+            {
+                auto& token = lexer.CurrentToken();
+                auto prevMatch = token.match;
+                token.match = lexer.CurrentLexeme();
+                int64_t tokenId = GetTokenId(0, lexer);
+                if (tokenId == soul::lexer::CONTINUE_TOKEN)
+                {
+                    token.id = soul::lexer::CONTINUE_TOKEN;
+                    return -1;
+                }
+                else if (tokenId != soul::lexer::INVALID_TOKEN)
+                {
+                    token.id = tokenId;
+                }
+                else
+                {
+                    token.match = prevMatch;
+                }
+                switch (cls)
+                {
+                    case 13:
+                    {
+                        return 56;
+                    }
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 11:
+                    case 12:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 57;
+                    }
+                    case 3:
+                    {
+                        return 58;
+                    }
+                    case 14:
+                    {
+                        return 59;
+                    }
+                    case 0:
+                    case 1:
+                    case 8:
+                    case 9:
+                    {
+                        return 63;
+                    }
+                    case 10:
+                    {
+                        return 64;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 60:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 57;
+                    }
+                    case 3:
+                    {
+                        return 58;
+                    }
+                    case 14:
+                    {
+                        return 59;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 57:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 57;
+                    }
+                    case 3:
+                    {
+                        return 58;
+                    }
+                    case 14:
+                    {
+                        return 59;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 55:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 50;
+                    }
+                    case 3:
+                    {
+                        return 66;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 66:
+            {
+                switch (cls)
+                {
+                    case 3:
+                    {
+                        return 51;
+                    }
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 52;
+                    }
+                    case 12:
+                    {
+                        return 53;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 54:
+            {
+                auto& token = lexer.CurrentToken();
+                auto prevMatch = token.match;
+                token.match = lexer.CurrentLexeme();
+                int64_t tokenId = GetTokenId(0, lexer);
+                if (tokenId == soul::lexer::CONTINUE_TOKEN)
+                {
+                    token.id = soul::lexer::CONTINUE_TOKEN;
+                    return -1;
+                }
+                else if (tokenId != soul::lexer::INVALID_TOKEN)
+                {
+                    token.id = tokenId;
+                }
+                else
+                {
+                    token.match = prevMatch;
+                }
+                switch (cls)
+                {
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 11:
+                    case 12:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 50;
+                    }
+                    case 3:
+                    {
+                        return 51;
+                    }
+                    case 0:
+                    case 1:
+                    case 8:
+                    case 9:
+                    {
+                        return 54;
+                    }
+                    case 10:
+                    {
+                        return 55;
+                    }
+                    case 13:
+                    {
+                        return 56;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 52:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 50;
+                    }
+                    case 3:
+                    {
+                        return 51;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 50:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 50;
+                    }
+                    case 3:
+                    {
+                        return 51;
+                    }
+                    default:
+                    {
+                        return -1;
+                    }
+                }
+            }
+            case 45:
+            {
+                switch (cls)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 13:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 28:
+                    case 29:
+                    case 30:
+                    case 31:
+                    case 32:
+                    case 33:
+                    {
+                        return 45;
+                    }
+                    case 14:
+                    {
+                        return 46;
                     }
                     default:
                     {
@@ -1092,459 +2386,7 @@ struct PLexer
                 {
                     case 3:
                     {
-                        return 45;
-                    }
-                    default:
-                    {
-                        return -1;
-                    }
-                }
-            }
-            case 45:
-            {
-                switch (cls)
-                {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    {
-                        return 46;
-                    }
-                    case 3:
-                    {
-                        return 47;
-                    }
-                    default:
-                    {
-                        return -1;
-                    }
-                }
-            }
-            case 47:
-            {
-                switch (cls)
-                {
-                    case 3:
-                    {
-                        return 47;
-                    }
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 11:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    {
-                        return 48;
-                    }
-                    case 12:
-                    {
                         return 49;
-                    }
-                    default:
-                    {
-                        return -1;
-                    }
-                }
-            }
-            case 49:
-            {
-                auto& token = lexer.CurrentToken();
-                auto prevMatch = token.match;
-                token.match = lexer.CurrentLexeme();
-                int64_t tokenId = GetTokenId(0, lexer);
-                if (tokenId == soul::lexer::CONTINUE_TOKEN)
-                {
-                    token.id = soul::lexer::CONTINUE_TOKEN;
-                    return -1;
-                }
-                else if (tokenId != soul::lexer::INVALID_TOKEN)
-                {
-                    token.id = tokenId;
-                }
-                else
-                {
-                    token.match = prevMatch;
-                }
-                switch (cls)
-                {
-                    case 2:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    {
-                        return 46;
-                    }
-                    case 3:
-                    {
-                        return 47;
-                    }
-                    case 0:
-                    case 1:
-                    case 8:
-                    case 9:
-                    {
-                        return 50;
-                    }
-                    case 10:
-                    {
-                        return 51;
-                    }
-                    default:
-                    {
-                        return -1;
-                    }
-                }
-            }
-            case 51:
-            {
-                switch (cls)
-                {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    {
-                        return 46;
-                    }
-                    case 3:
-                    {
-                        return 52;
-                    }
-                    default:
-                    {
-                        return -1;
-                    }
-                }
-            }
-            case 52:
-            {
-                switch (cls)
-                {
-                    case 3:
-                    {
-                        return 47;
-                    }
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 11:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    {
-                        return 48;
-                    }
-                    case 12:
-                    {
-                        return 49;
-                    }
-                    default:
-                    {
-                        return -1;
-                    }
-                }
-            }
-            case 50:
-            {
-                auto& token = lexer.CurrentToken();
-                auto prevMatch = token.match;
-                token.match = lexer.CurrentLexeme();
-                int64_t tokenId = GetTokenId(0, lexer);
-                if (tokenId == soul::lexer::CONTINUE_TOKEN)
-                {
-                    token.id = soul::lexer::CONTINUE_TOKEN;
-                    return -1;
-                }
-                else if (tokenId != soul::lexer::INVALID_TOKEN)
-                {
-                    token.id = tokenId;
-                }
-                else
-                {
-                    token.match = prevMatch;
-                }
-                switch (cls)
-                {
-                    case 2:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    {
-                        return 46;
-                    }
-                    case 3:
-                    {
-                        return 47;
-                    }
-                    case 0:
-                    case 1:
-                    case 8:
-                    case 9:
-                    {
-                        return 50;
-                    }
-                    case 10:
-                    {
-                        return 51;
-                    }
-                    default:
-                    {
-                        return -1;
-                    }
-                }
-            }
-            case 48:
-            {
-                switch (cls)
-                {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    {
-                        return 46;
-                    }
-                    case 3:
-                    {
-                        return 47;
-                    }
-                    default:
-                    {
-                        return -1;
-                    }
-                }
-            }
-            case 46:
-            {
-                switch (cls)
-                {
-                    case 0:
-                    case 1:
-                    case 2:
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                    case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                    case 17:
-                    case 18:
-                    case 19:
-                    case 20:
-                    case 21:
-                    case 22:
-                    case 23:
-                    case 24:
-                    case 25:
-                    case 26:
-                    case 27:
-                    case 28:
-                    case 29:
-                    case 30:
-                    case 31:
-                    case 32:
-                    case 33:
-                    {
-                        return 46;
-                    }
-                    case 3:
-                    {
-                        return 47;
                     }
                     default:
                     {
@@ -1575,12 +2417,12 @@ struct PLexer
                 {
                     case 4:
                     case 7:
-                    case 19:
-                    case 20:
                     case 21:
                     case 22:
+                    case 23:
+                    case 24:
                     {
-                        return 53;
+                        return 67;
                     }
                     default:
                     {
@@ -1588,7 +2430,7 @@ struct PLexer
                     }
                 }
             }
-            case 53:
+            case 67:
             {
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
@@ -1611,12 +2453,12 @@ struct PLexer
                 {
                     case 4:
                     case 7:
-                    case 19:
-                    case 20:
                     case 21:
                     case 22:
+                    case 23:
+                    case 24:
                     {
-                        return 53;
+                        return 67;
                     }
                     default:
                     {
@@ -1651,7 +2493,7 @@ struct PLexer
                 {
                     case 2:
                     {
-                        return 54;
+                        return 68;
                     }
                     case 3:
                     case 4:
@@ -1667,8 +2509,8 @@ struct PLexer
                     case 14:
                     case 15:
                     case 16:
+                    case 17:
                     case 18:
-                    case 19:
                     case 20:
                     case 21:
                     case 22:
@@ -1684,7 +2526,7 @@ struct PLexer
                     case 32:
                     case 33:
                     {
-                        return 55;
+                        return 69;
                     }
                     default:
                     {
@@ -1692,13 +2534,13 @@ struct PLexer
                     }
                 }
             }
-            case 55:
+            case 69:
             {
                 switch (cls)
                 {
                     case 2:
                     {
-                        return 54;
+                        return 68;
                     }
                     case 3:
                     case 4:
@@ -1714,8 +2556,8 @@ struct PLexer
                     case 14:
                     case 15:
                     case 16:
+                    case 17:
                     case 18:
-                    case 19:
                     case 20:
                     case 21:
                     case 22:
@@ -1731,7 +2573,7 @@ struct PLexer
                     case 32:
                     case 33:
                     {
-                        return 55;
+                        return 69;
                     }
                     default:
                     {
@@ -1739,7 +2581,7 @@ struct PLexer
                     }
                 }
             }
-            case 54:
+            case 68:
             {
                 auto& token = lexer.CurrentToken();
                 auto prevMatch = token.match;
@@ -1762,7 +2604,7 @@ struct PLexer
                 {
                     case 2:
                     {
-                        return 56;
+                        return 70;
                     }
                     default:
                     {
@@ -1770,13 +2612,13 @@ struct PLexer
                     }
                 }
             }
-            case 56:
+            case 70:
             {
                 switch (cls)
                 {
                     case 2:
                     {
-                        return 54;
+                        return 68;
                     }
                     case 3:
                     case 4:
@@ -1792,8 +2634,8 @@ struct PLexer
                     case 14:
                     case 15:
                     case 16:
+                    case 17:
                     case 18:
-                    case 19:
                     case 20:
                     case 21:
                     case 22:
@@ -1809,7 +2651,7 @@ struct PLexer
                     case 32:
                     case 33:
                     {
-                        return 55;
+                        return 69;
                     }
                     default:
                     {
@@ -1847,21 +2689,11 @@ struct PLexer
                     }
                     case 10:
                     {
-                        return 57;
+                        return 47;
                     }
-                    default:
+                    case 13:
                     {
-                        return -1;
-                    }
-                }
-            }
-            case 57:
-            {
-                switch (cls)
-                {
-                    case 3:
-                    {
-                        return 45;
+                        return 48;
                     }
                     default:
                     {

@@ -107,4 +107,8 @@ void CompileStatementPart(ParsingContext* context, CompoundStatementNode* compou
 
 void NoSubroutineBlock(soul::lexer::LexerBase<char>& lexer, int64_t pos);
 
+void GenerateImplementationIds(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos);
+
+void GenerateDefaultImplementations(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos);
+
 } // namespace p

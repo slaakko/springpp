@@ -480,39 +480,14 @@ void BoundFunctionCallNode::Load(Emitter* emitter)
     }
     if (function->IsExternal())
     {
-        ExternalSubroutine* subroutine = GetExternalSubroutine(function->ExternalSubroutineName());
         CallExternalInstruction* callExternalInstruction = new CallExternalInstruction();
-        if (subroutine->Id() == -1)
-        {
-            ThrowError("subroutine ID not set in external function call '" + subroutine->FullName() + "'", emitter->Lexer(), Pos());
-        }
-        callExternalInstruction->SetId(subroutine->Id());
+        callExternalInstruction->SetSubroutine(function);
         emitter->Emit(callExternalInstruction);
     }
     else if (function->IsRegularFunction())
     {
         CallFunctionInstruction* callFunctionInstruction = new CallFunctionInstruction();
-        if (function->ModuleId() == -1)
-        {
-            ThrowError("module ID not set in function call '" + function->FullName() + "'", emitter->Lexer(), Pos());
-        }
-        callFunctionInstruction->SetModuleId(function->ModuleId());
-        if (function->IsDeclaration())
-        {
-            if (function->ImplementationId() == -1)
-            {
-                ThrowError("implementation ID not set in function call '" + function->FullName() + "'", emitter->Lexer(), Pos());
-            }
-            callFunctionInstruction->SetSubroutineId(function->ImplementationId());
-        }
-        else
-        {
-            if (function->Id() == -1)
-            {
-                ThrowError("implementation ID not set in function call '" + function->FullName() + "'", emitter->Lexer(), Pos());
-            }
-            callFunctionInstruction->SetSubroutineId(function->Id());
-        }
+        callFunctionInstruction->SetFunction(function);
         emitter->Emit(callFunctionInstruction);
     }
     else if (function->IsStandardFunction())
@@ -565,27 +540,7 @@ void BoundConstructorCallNode::Load(Emitter* emitter)
         argument->Load(emitter);
     }
     CallConstructorInstruction* callConstructorInstruction = new CallConstructorInstruction();
-    if (constructor->ModuleId() == -1)
-    {
-        ThrowError("constructor module ID not set", emitter->Lexer(), Pos());
-    }
-    callConstructorInstruction->SetModuleId(constructor->ModuleId());
-    if (constructor->IsDeclaration())
-    {
-        if (constructor->ImplementationId() == -1)
-        {
-            ThrowError("constructor implementation ID not set", emitter->Lexer(), Pos());
-        }
-        callConstructorInstruction->SetSubroutineId(constructor->ImplementationId());
-    }
-    else
-    {
-        if (constructor->Id() == -1)
-        {
-            ThrowError("constructor ID not set", emitter->Lexer(), Pos());
-        }
-        callConstructorInstruction->SetSubroutineId(constructor->Id());
-    }
+    callConstructorInstruction->SetConstructor(constructor);
     emitter->Emit(callConstructorInstruction);
 }
 
@@ -656,65 +611,20 @@ void BoundMethodCallNode::Load(Emitter* emitter)
     {
         if (method->IsExternal())
         {
-            ExternalSubroutine* subroutine = GetExternalSubroutine(method->ExternalSubroutineName());
             CallExternalInstruction* callExternalInstruction = new CallExternalInstruction();
-            if (subroutine->Id() == -1)
-            {
-                ThrowError("external method '" + method->FullName() + "' subroutine ID not set", emitter->Lexer(), Pos());
-            }
-            callExternalInstruction->SetId(subroutine->Id());
+            callExternalInstruction->SetSubroutine(method);
             emitter->Emit(callExternalInstruction);
         }
         else if (method->IsProcedure())
         {
             CallProcedureInstruction* callProcedureInstruction = new CallProcedureInstruction();
-            if (method->ModuleId() == -1)
-            {
-                ThrowError("method '" + method->FullName() + "' module ID not set", emitter->Lexer(), Pos());
-            }
-            callProcedureInstruction->SetModuleId(method->ModuleId());
-            if (method->IsDeclaration())
-            {
-                if (method->ImplementationId() == -1)
-                {
-                    ThrowError("method '" + method->FullName() + "' implementation ID not set", emitter->Lexer(), Pos());
-                }
-                callProcedureInstruction->SetSubroutineId(method->ImplementationId());
-            }
-            else
-            {
-                if (method->Id() == -1)
-                {
-                    ThrowError("method '" + method->FullName() + "' ID not set", emitter->Lexer(), Pos());
-                }
-                callProcedureInstruction->SetSubroutineId(method->Id());
-            }
+            callProcedureInstruction->SetProcedure(static_cast<Procedure*>(method));
             emitter->Emit(callProcedureInstruction);
         }
         else if (method->IsFunction())
         {
             CallFunctionInstruction* callFunctionInstruction = new CallFunctionInstruction();
-            if (method->ModuleId() == -1)
-            {
-                ThrowError("method '" + method->FullName() + "' module ID not set", emitter->Lexer(), Pos());
-            }
-            callFunctionInstruction->SetModuleId(method->ModuleId());
-            if (method->IsDeclaration())
-            {
-                if (method->ImplementationId() == -1)
-                {
-                    ThrowError("method '" + method->FullName() + "' implementation ID not set", emitter->Lexer(), Pos());
-                }
-                callFunctionInstruction->SetSubroutineId(method->ImplementationId());
-            }
-            else
-            {
-                if (method->Id() == -1)
-                {
-                    ThrowError("method '" + method->FullName() + "' ID not set", emitter->Lexer(), Pos());
-                }
-                callFunctionInstruction->SetSubroutineId(method->Id());
-            }
+            callFunctionInstruction->SetFunction(static_cast<Function*>(method));
             emitter->Emit(callFunctionInstruction);
         }
     }
@@ -876,6 +786,27 @@ BoundExpressionNode* BoundArrayLengthNode::Clone() const
     return new BoundArrayLengthNode(subject->Clone(), Pos(), GetType());
 }
 
+BoundStringLengthNode::BoundStringLengthNode(BoundExpressionNode* subject_, int64_t pos_, Type* integerType_) :
+    BoundExpressionNode(BoundNodeKind::boundStringLengthNode, pos_, integerType_), subject(subject_)
+{
+}
+
+void BoundStringLengthNode::Load(Emitter* emitter)
+{
+    subject->Load(emitter);
+    emitter->Emit(new StringLengthInstruction());
+}
+
+void BoundStringLengthNode::Accept(BoundNodeVisitor& visitor)
+{
+    visitor.Visit(*this);
+}
+
+BoundExpressionNode* BoundStringLengthNode::Clone() const
+{
+    return new BoundStringLengthNode(subject->Clone(), Pos(), GetType());
+}
+
 BoundStatementNode::BoundStatementNode(BoundNodeKind kind_, int64_t pos_) : BoundNode(kind_, pos_)
 {
 }
@@ -929,7 +860,7 @@ void BoundProcedureCallStatementNode::Accept(BoundNodeVisitor& visitor)
 }
 
 BoundExpressionStatementNode::BoundExpressionStatementNode(BoundExpressionNode* boundExpression_, int64_t pos_) : 
-    BoundStatementNode(BoundNodeKind::boundExpressionStatementNode, pos_), boundExpression(boundExpression_)
+    BoundStatementNode(BoundNodeKind::boundExpressionStatementNode, pos_), boundExpression(boundExpression_), pop(true)
 {
 }
 
@@ -1198,7 +1129,7 @@ void ExpressionBinder::Visit(BaseNode& node)
 
 void ExpressionBinder::Visit(NilNode& node)
 {
-
+    boundExpressionNode.reset(new BoundLiteralNode(node.Pos(), context->GetBlock()->GetType("nil_type"), new NilValue()));
 }
 
 void ExpressionBinder::Visit(NewExprNode& node)
@@ -1268,10 +1199,14 @@ void ExpressionBinder::Visit(InvokeExprNode& node)
     else if (subjectNode->IsBoundFunctionNode())
     {
         BoundFunctionNode* boundFunctionNode = static_cast<BoundFunctionNode*>(subjectNode.get());
-        if (boundFunctionNode->GetFunction()->MinParameterCount() > boundArguments.size() && 
-            boundFunctionNode->GetFunction()->Heading()->GetObjectType() == this->subroutine->Heading()->GetObjectType())
+        if (boundFunctionNode->GetFunction()->MinParameterCount() > boundArguments.size())
         {
-            boundArguments.insert(boundArguments.begin(), std::unique_ptr<BoundExpressionNode>(new BoundParameterNode(node.Pos(), boundFunctionNode->GetFunction()->Heading()->ThisParam())));
+            ObjectType* objectType = boundFunctionNode->GetFunction()->Heading()->GetObjectType();
+            if (this->subroutine->Heading()->GetObjectType()->IsSameOrHasBaseType(objectType))
+            {
+                boundArguments.insert(boundArguments.begin(), std::unique_ptr<BoundExpressionNode>(
+                    new BoundParameterNode(node.Pos(), boundFunctionNode->GetFunction()->Heading()->ThisParam(), objectType)));
+            }
         }
         if (boundFunctionNode->GetFunction()->MinParameterCount() > boundArguments.size())
         {
@@ -1352,6 +1287,16 @@ void ExpressionBinder::Visit(DotNode& node)
         else
         {
             Subroutine* method = objectType->GetMethod(node.Id()->Str());
+            if (node.Subject()->IsBaseNode())
+            {
+                while (!method && objectType->BaseType())
+                {
+                    objectType = objectType->BaseType();
+                    method = objectType->GetMethod(node.Id()->Str());
+                    boundExpressionNode.reset(new BoundParameterNode(node.Pos(), subroutine->Heading()->ThisParam(), objectType));
+                    boundExpressionNode->SetArgumentFlags(ArgumentFlags::thisOrBaseArgument);
+                }
+            }
             if (method)
             {
                 boundExpressionNode.reset(new BoundMethodNode(boundExpressionNode.release(), method, node.Pos()));
@@ -1372,6 +1317,18 @@ void ExpressionBinder::Visit(DotNode& node)
         else
         {
             ThrowError("array.Length expected", lexer, node.Pos());
+        }
+    }
+    else if (boundExpressionNode->GetType()->IsStringType())
+    {
+        if (node.Id()->Str() == "Length")
+        {
+            Type* integerType = context->GetBlock()->GetType("integer", lexer, node.Pos());
+            boundExpressionNode.reset(new BoundStringLengthNode(boundExpressionNode.release(), node.Pos(), integerType));
+        }
+        else
+        {
+            ThrowError("string.Length expected", lexer, node.Pos());
         }
     }
     else
@@ -1518,6 +1475,89 @@ void StatementBinder::Visit(EmptyStatementNode& node)
 void StatementBinder::Visit(CompoundStatementNode& node)
 {
     std::unique_ptr<BoundCompoundStatementNode> boundCompoundStatement(new BoundCompoundStatementNode(node.Pos()));
+    if (subroutine && subroutine->IsConstructor())
+    {
+        Constructor* constructor = static_cast<Constructor*>(subroutine);
+        ObjectType* objectType = constructor->Heading()->GetObjectType();
+        if (!objectType)
+        {
+            ThrowError("object type for constructor not set", lexer, node.Pos());
+        }
+        ConstructorCall* constructorCall = constructor->GetConstructorCall();
+        if (constructorCall)
+        {
+            std::vector<std::unique_ptr<BoundExpressionNode>> arguments;
+            Constructor* constructorToCall = nullptr;
+            if (constructorCall->IsBaseCall())
+            {
+                if (objectType->BaseType())
+                {
+                    arguments.push_back(std::unique_ptr<BoundExpressionNode>(new BoundParameterNode(node.Pos(), subroutine->Heading()->ThisParam(), objectType->BaseType())));
+                }
+                else
+                {
+                    ThrowError("object type '" + objectType->Name() + "' has no base type", lexer, node.Pos());
+                }
+            }
+            else if (constructorCall->IsThisCall())
+            {
+                arguments.push_back(std::unique_ptr<BoundExpressionNode>(new BoundParameterNode(node.Pos(), subroutine->Heading()->ThisParam())));
+            }
+            for (const auto& argument : constructorCall->Arguments())
+            {
+                std::unique_ptr<BoundExpressionNode> boundArgument = BindExpression(context, subroutine, lexer, argument.get());
+                arguments.push_back(std::move(boundArgument));
+            }
+            std::vector<Type*> argumentTypes;
+            for (const auto& arg : arguments)
+            {
+                argumentTypes.push_back(arg->GetType());
+            }
+            if (constructorCall->IsBaseCall())
+            {
+                constructorToCall = objectType->BaseType()->GetConstructor(argumentTypes);
+                if (!constructorToCall)
+                {
+                    ThrowError("base type '" + objectType->BaseType()->Name() + "' has no matching constructor", lexer, node.Pos());
+                }
+            }
+            else if (constructorCall->IsThisCall())
+            {
+                constructorToCall = objectType->GetConstructor(argumentTypes);
+                if (!constructorToCall)
+                {
+                    ThrowError("type '" + objectType->Name() + "' has no matching constructor", lexer, node.Pos());
+                }
+            }
+            BoundConstructorCallNode* boundConstructorCall = new BoundConstructorCallNode(constructorToCall, node.Pos());
+            for (auto& arg : arguments)
+            {
+                boundConstructorCall->AddArgument(arg.release());
+            }
+            BoundExpressionStatementNode* boundExpressionStatementNode(new BoundExpressionStatementNode(boundConstructorCall, node.Pos()));
+            boundExpressionStatementNode->DontPop();
+            boundCompoundStatement->AddStatement(boundExpressionStatementNode);
+        }
+        else
+        {
+            if (objectType)
+            {
+                if (objectType->BaseType())
+                {
+                    Constructor* baseConstructor = objectType->BaseType()->GetDefaultConstructor();
+                    if (!baseConstructor)
+                    {
+                        ThrowError("base type '" + objectType->BaseType()->Name() + "' has no default constructor", lexer, node.Pos());
+                    }
+                    BoundConstructorCallNode* boundConstructorCall = new BoundConstructorCallNode(baseConstructor, node.Pos());
+                    boundConstructorCall->AddArgument(new BoundParameterNode(node.Pos(), subroutine->Heading()->ThisParam(), objectType->BaseType()));
+                    BoundExpressionStatementNode* boundExpressionStatementNode(new BoundExpressionStatementNode(boundConstructorCall, node.Pos()));
+                    boundExpressionStatementNode->DontPop();
+                    boundCompoundStatement->AddStatement(boundExpressionStatementNode);
+                }
+            }
+        }
+    }
     for (const auto& statement : node.Statements())
     {
         statement->Accept(*this);

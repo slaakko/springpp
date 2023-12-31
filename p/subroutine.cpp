@@ -77,14 +77,29 @@ SubroutineHeading::SubroutineHeading(SubroutineHeadingKind kind_, const std::str
 {
 }
 
-void SubroutineHeading::AddParameter(const Parameter& parameter)
+void SubroutineHeading::AddParameter(Parameter& parameter)
 {
+    if (parameter.Index() == -1)
+    {
+        parameter.SetIndex(parameters.size());
+    }
     parameters.push_back(parameter);
 }
 
 void SubroutineHeading::InsertThisParam()
 {
-    parameters.insert(parameters.begin(), Parameter("this", ParameterQualifier::valueParam, objectType));
+    Parameter thisParam("this", ParameterQualifier::valueParam, objectType);
+    parameters.insert(parameters.begin(), thisParam);
+    SetParamIndeces();
+}
+
+void SubroutineHeading::SetParamIndeces()
+{
+    int32_t index = 0;
+    for (auto& parameter : parameters)
+    {
+        parameter.SetIndex(index++);
+    }
 }
 
 std::vector<Type*> SubroutineHeading::ParameterTypes() const
@@ -182,7 +197,7 @@ void SubroutineHeading::Print(util::CodeFormatter& formatter)
 }
 
 Subroutine::Subroutine(SubroutineKind kind_, SubroutineHeading* heading_) : 
-    kind(kind_), declarationKind(DeclarationKind::definition), forward(false), external(false), nextTempVarIndex(0), heading(heading_), 
+    kind(kind_), declarationKind(DeclarationKind::definition), forward(false), flags(SubroutineFlags::none), external(false), nextTempVarIndex(0), heading(heading_), 
     moduleId(-1), id(-1), implementationId(-1), vmtIndex(-1), frameSize(0), numBasicBlocks(0), code(nullptr)
 {
 }
@@ -207,6 +222,7 @@ void Subroutine::Write(Writer& writer)
     writer.GetBinaryWriter().Write(static_cast<uint8_t>(declarationKind));
     writer.GetBinaryWriter().Write(static_cast<uint8_t>(heading->Kind()));
     heading->Write(writer);
+    writer.GetBinaryWriter().Write(static_cast<uint8_t>(flags));
     writer.GetBinaryWriter().Write(forward);
     writer.GetBinaryWriter().Write(external);
     bool hasBlock = block != nullptr;
@@ -254,6 +270,7 @@ void Subroutine::Read(Reader& reader)
     }
     }
     heading->Read(reader);
+    flags = static_cast<SubroutineFlags>(reader.GetBinaryReader().ReadByte());
     forward = reader.GetBinaryReader().ReadBool();
     external = reader.GetBinaryReader().ReadBool();
     bool hasBlock = reader.GetBinaryReader().ReadBool();
@@ -310,11 +327,7 @@ void Subroutine::AddParameters(Block* block)
 
 void Subroutine::SetParamIndeces()
 {
-    int32_t paramIndex = 0;
-    for (auto& parameter : heading->Parameters())
-    {
-        parameter.SetIndex(paramIndex++);
-    }
+    heading->SetParamIndeces();
 }
 
 Variable* Subroutine::MakeTempVar(Block* block, Type* type)
@@ -770,11 +783,20 @@ void ConstructorHeading::Read(Reader& reader)
     objectName = reader.GetBinaryReader().ReadUtf8String();
 }
 
-Constructor::Constructor() : Subroutine(SubroutineKind::constructor, new ConstructorHeading())
+ConstructorCall::ConstructorCall(ConstructorCallKind kind_) : kind(kind_)
 {
 }
 
-Constructor::Constructor(ConstructorHeading* heading_) : Subroutine(SubroutineKind::constructor, heading_)
+void ConstructorCall::AddArgument(Node* argument)
+{
+    arguments.push_back(std::unique_ptr<Node>(argument));
+}
+
+Constructor::Constructor() : Subroutine(SubroutineKind::constructor, new ConstructorHeading()), implementation(nullptr)
+{
+}
+
+Constructor::Constructor(ConstructorHeading* heading_) : Subroutine(SubroutineKind::constructor, heading_), implementation(nullptr)
 {
 }
 
@@ -786,6 +808,11 @@ void Constructor::Write(Writer& writer)
 void Constructor::Read(Reader& reader)
 {
     Subroutine::Read(reader);
+}
+
+void Constructor::SetConstructorCall(ConstructorCall* constructorCall_)
+{
+    constructorCall.reset(constructorCall_);
 }
 
 void Constructor::ResolveDeclaration(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos)

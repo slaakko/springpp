@@ -46,6 +46,7 @@ public:
     virtual Node* Clone() const = 0;
     virtual void Accept(Visitor& visitor) = 0;
     virtual void AddNode(Node* node, soul::lexer::LexerBase<char>& lexer, int64_t pos);
+    virtual bool IsBaseNode() const { return false; }
 private:
     int64_t pos;
 };
@@ -231,6 +232,7 @@ public:
     BaseNode(int64_t pos_);
     Node* Clone() const override;
     void Accept(Visitor& visitor) override;
+    bool IsBaseNode() const override { return true; }
 };
 
 class NilNode : public Node

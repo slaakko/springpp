@@ -747,10 +747,6 @@ IdentifierNode* MakeProcedureId(ParsingContext* context, const std::string& proc
 
 IdentifierNode* MakeFunctionId(ParsingContext* context, const std::string& functionName, int64_t pos)
 {
-    if (functionName == "GetGraphics")
-    {
-        int x = 0;
-    }
     Function* function = context->GetBlock()->GetFunction(functionName);
     if (function)
     {

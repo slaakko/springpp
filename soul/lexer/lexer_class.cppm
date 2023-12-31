@@ -409,7 +409,7 @@ public:
         std::string parserStateStr = GetParserStateStr();
         return "parsing error at '" + fileName + ":" + std::to_string(GetLine(pos)) + "':\n" + ErrorLines(pos) + parserStateStr;
     }
-    void ThrowFarthestError()
+    void ThrowFarthestError() override
     {
         std::cout.flush();
         soul::ast::SourcePos sourcePos = GetSourcePos(farthestPos);

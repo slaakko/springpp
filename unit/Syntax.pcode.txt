@@ -1,0 +1,563 @@
+module Syntax, id=746861746
+interface
+uses System, System.Graphics, System.Graphics.Primitive
+type
+  object type 'SyntaxShape'
+    virtual
+    base type 'CompoundShape'
+    fields:
+      '@vmt' index 0 type 'null'
+      'bounds' index 3 type 'Rect'
+      'components' index 2 type 'ShapeArray'
+      'count' index 1 type 'integer'
+      'padding' index 4 type 'Padding'
+    methods:
+      constructor
+      declaration
+      parameter 'this' index 0 type 'SyntaxShape'
+      object type 'SyntaxShape'
+      module id 746861746
+      implementation id 2
+      frame size: 0
+
+      constructor
+      declaration
+      parameter 'this' index 0 type 'SyntaxShape'
+      parameter 'padding' index 1 type 'Padding'
+      object type 'SyntaxShape'
+      module id 746861746
+      implementation id 1
+      frame size: 0
+
+      procedure 'Measure'
+      declaration
+      override
+      common name 'Measure'
+      parameter 'this' index 0 type 'SyntaxShape'
+      parameter 'graphics' index 1 type 'Graphics'
+      object type 'SyntaxShape'
+      module id 746861746
+      implementation id 3
+      frame size: 0
+
+      function 'Bounds'
+      declaration
+      override
+      common name 'Bounds'
+      parameter 'this' index 0 type 'SyntaxShape'
+      object type 'SyntaxShape'
+      module id 746861746
+      implementation id 4
+      frame size: 0
+
+      function 'Left'
+      declaration
+      virtual
+      common name 'Left'
+      parameter 'this' index 0 type 'SyntaxShape'
+      object type 'SyntaxShape'
+      module id 746861746
+      implementation id 5
+      frame size: 0
+
+      function 'Top'
+      declaration
+      virtual
+      common name 'Top'
+      parameter 'this' index 0 type 'SyntaxShape'
+      object type 'SyntaxShape'
+      module id 746861746
+      implementation id 6
+      frame size: 0
+
+      function 'Right'
+      declaration
+      virtual
+      common name 'Right'
+      parameter 'this' index 0 type 'SyntaxShape'
+      object type 'SyntaxShape'
+      module id 746861746
+      implementation id 7
+      frame size: 0
+
+      function 'Bottom'
+      declaration
+      virtual
+      common name 'Bottom'
+      parameter 'this' index 0 type 'SyntaxShape'
+      object type 'SyntaxShape'
+      module id 746861746
+      implementation id 8
+      frame size: 0
+
+      function 'ContentOrigin'
+      declaration
+      virtual
+      common name 'ContentOrigin'
+      parameter 'this' index 0 type 'SyntaxShape'
+      object type 'SyntaxShape'
+      module id 746861746
+      implementation id 9
+      frame size: 0
+
+  object type 'RuleBox'
+    virtual
+    base type 'SyntaxShape'
+    fields:
+      '@vmt' index 0 type 'null'
+      'bounds' index 3 type 'Rect'
+      'components' index 2 type 'ShapeArray'
+      'count' index 1 type 'integer'
+      'padding' index 4 type 'Padding'
+      'ruleName' index 5 type 'string'
+    methods:
+      constructor
+      declaration
+      parameter 'this' index 0 type 'RuleBox'
+      parameter 'ruleName' index 1 type 'string'
+      object type 'RuleBox'
+      module id 746861746
+      implementation id 10
+      frame size: 0
+
+      procedure 'Measure'
+      declaration
+      override
+      common name 'Measure'
+      parameter 'this' index 0 type 'RuleBox'
+      parameter 'graphics' index 1 type 'Graphics'
+      object type 'RuleBox'
+      module id 746861746
+      implementation id 11
+      frame size: 0
+
+      procedure 'Draw'
+      declaration
+      override
+      common name 'Draw'
+      parameter 'this' index 0 type 'RuleBox'
+      parameter 'graphics' index 1 type 'Graphics'
+      object type 'RuleBox'
+      module id 746861746
+      implementation id 12
+      frame size: 0
+
+      constructor
+      declaration
+      parameter 'this' index 0 type 'RuleBox'
+      object type 'RuleBox'
+      module id 746861746
+      implementation id 0
+      frame size: 0
+
+var
+  global 'font' index 4 type 'Font'
+  global 'boldFont' index 5 type 'Font'
+  global 'noPadding' index 6 type 'Padding'
+  global 'ruleBoxPadding' index 7 type 'Padding'
+implementation
+uses System
+procedure 'SyntaxShape.Measure'
+definition
+common name 'Measure'
+parameter 'this' index 0 type 'SyntaxShape'
+parameter 'graphics' index 1 type 'Graphics'
+object type 'SyntaxShape'
+module id 746861746
+id 3
+frame size: 2
+code
+  0 : receive(2)
+  1 : load_local(0)
+  2 : load_local(1)
+  3 : call_procedure(System.Graphics:CompoundShape.Measure, 1489900195, 43)
+  4 : load_local(0)
+  5 : load_field(3)
+  6 : load_field(1)
+  7 : load_field(0)
+  8 : load_local(0)
+  9 : load_field(4)
+  10 : call_function(System.Graphics:Padding.Horizontal, 1489900195, 16)
+  11 : plus_real
+  12 : load_local(0)
+  13 : load_field(3)
+  14 : load_field(1)
+  15 : store_field(0)
+  16 : load_local(0)
+  17 : load_field(3)
+  18 : load_field(1)
+  19 : load_field(1)
+  20 : load_local(0)
+  21 : load_field(4)
+  22 : call_function(System.Graphics:Padding.Vertical, 1489900195, 17)
+  23 : plus_real
+  24 : load_local(0)
+  25 : load_field(3)
+  26 : load_field(1)
+  27 : store_field(1)
+  28 : nop
+
+procedure 'RuleBox.Measure'
+definition
+common name 'Measure'
+parameter 'this' index 0 type 'RuleBox'
+parameter 'graphics' index 1 type 'Graphics'
+object type 'RuleBox'
+module id 746861746
+id 11
+frame size: 3
+var
+  local 'size' index 2 type 'Size'
+code
+  0 : receive(2)
+  1 : load_local(0)
+  2 : load_local(1)
+  3 : call_procedure(Syntax:SyntaxShape.Measure, 746861746, 3)
+  4 : load_local(1)
+  5 : load_local(0)
+  6 : load_field(5)
+  7 : load_global(4)
+  8 : call_external(Graphics.MeasureString, 4)
+  9 : store_local(2)
+  10 : load_local(0)
+  11 : load_field(3)
+  12 : load_local(2)
+  13 : call_procedure(System.Graphics.Primitive:Rect.SetSize, 1205691996, 12)
+  14 : nop
+
+procedure 'RuleBox.Draw'
+definition
+common name 'Draw'
+parameter 'this' index 0 type 'RuleBox'
+parameter 'graphics' index 1 type 'Graphics'
+object type 'RuleBox'
+module id 746861746
+id 12
+frame size: 2
+code
+  0 : receive(2)
+  1 : load_local(0)
+  2 : load_local(1)
+  3 : call_procedure(System.Graphics:CompoundShape.Draw, 1489900195, 44)
+  4 : load_local(1)
+  5 : load_local(0)
+  6 : load_field(5)
+  7 : load_global(4)
+  8 : load_global(3)
+  9 : load_local(0)
+  10 : call_function(Syntax:SyntaxShape.ContentOrigin, 746861746, 9)
+  11 : call_external(Graphics.DrawString, 5)
+  12 : load_local(1)
+  13 : load_global(2)
+  14 : load_local(0)
+  15 : load_field(3)
+  16 : call_external(Graphics.DrawRectangle, 3)
+  17 : nop
+
+function 'SyntaxShape.Bounds'
+definition
+common name 'Bounds'
+parameter 'this' index 0 type 'SyntaxShape'
+object type 'SyntaxShape'
+module id 746861746
+id 4
+frame size: 2
+var
+  local '@result' index 1 type 'Rect'
+code
+  0 : receive(1)
+  1 : load_local(0)
+  2 : load_field(3)
+  3 : store_local(1)
+  4 : nop
+  5 : load_result_var(1)
+
+function 'SyntaxShape.Left'
+definition
+common name 'Left'
+parameter 'this' index 0 type 'SyntaxShape'
+object type 'SyntaxShape'
+module id 746861746
+id 5
+frame size: 2
+var
+  local '@result' index 1 type 'Point'
+code
+  0 : receive(1)
+  1 : new_object(Point)
+  2 : load_local(0)
+  3 : load_field(3)
+  4 : load_field(0)
+  5 : load_field(0)
+  6 : load_local(0)
+  7 : load_field(3)
+  8 : load_field(0)
+  9 : load_field(1)
+  10 : load_local(0)
+  11 : load_field(3)
+  12 : load_field(1)
+  13 : load_field(1)
+  14 : push_value(2)
+  15 : int_to_real
+  16 : fractional_divide_real
+  17 : plus_real
+  18 : call_ctor(Point, 1205691996, 2)
+  19 : store_local(1)
+  20 : nop
+  21 : load_result_var(1)
+
+function 'SyntaxShape.Top'
+definition
+common name 'Top'
+parameter 'this' index 0 type 'SyntaxShape'
+object type 'SyntaxShape'
+module id 746861746
+id 6
+frame size: 2
+var
+  local '@result' index 1 type 'Point'
+code
+  0 : receive(1)
+  1 : new_object(Point)
+  2 : load_local(0)
+  3 : load_field(3)
+  4 : load_field(0)
+  5 : load_field(0)
+  6 : load_local(0)
+  7 : load_field(3)
+  8 : load_field(1)
+  9 : load_field(0)
+  10 : push_value(2)
+  11 : int_to_real
+  12 : fractional_divide_real
+  13 : plus_real
+  14 : load_local(0)
+  15 : load_field(3)
+  16 : load_field(0)
+  17 : load_field(1)
+  18 : call_ctor(Point, 1205691996, 2)
+  19 : store_local(1)
+  20 : nop
+  21 : load_result_var(1)
+
+function 'SyntaxShape.Right'
+definition
+common name 'Right'
+parameter 'this' index 0 type 'SyntaxShape'
+object type 'SyntaxShape'
+module id 746861746
+id 7
+frame size: 2
+var
+  local '@result' index 1 type 'Point'
+code
+  0 : receive(1)
+  1 : new_object(Point)
+  2 : load_local(0)
+  3 : load_field(3)
+  4 : load_field(0)
+  5 : load_field(0)
+  6 : load_local(0)
+  7 : load_field(3)
+  8 : load_field(1)
+  9 : load_field(0)
+  10 : plus_real
+  11 : load_local(0)
+  12 : load_field(3)
+  13 : load_field(0)
+  14 : load_field(1)
+  15 : load_local(0)
+  16 : load_field(3)
+  17 : load_field(1)
+  18 : load_field(1)
+  19 : push_value(2)
+  20 : int_to_real
+  21 : fractional_divide_real
+  22 : plus_real
+  23 : call_ctor(Point, 1205691996, 2)
+  24 : store_local(1)
+  25 : nop
+  26 : load_result_var(1)
+
+function 'SyntaxShape.Bottom'
+definition
+common name 'Bottom'
+parameter 'this' index 0 type 'SyntaxShape'
+object type 'SyntaxShape'
+module id 746861746
+id 8
+frame size: 2
+var
+  local '@result' index 1 type 'Point'
+code
+  0 : receive(1)
+  1 : new_object(Point)
+  2 : load_local(0)
+  3 : load_field(3)
+  4 : load_field(0)
+  5 : load_field(0)
+  6 : load_local(0)
+  7 : load_field(3)
+  8 : load_field(1)
+  9 : load_field(0)
+  10 : push_value(2)
+  11 : int_to_real
+  12 : fractional_divide_real
+  13 : plus_real
+  14 : load_local(0)
+  15 : load_field(3)
+  16 : load_field(0)
+  17 : load_field(1)
+  18 : load_local(0)
+  19 : load_field(3)
+  20 : load_field(1)
+  21 : load_field(1)
+  22 : plus_real
+  23 : call_ctor(Point, 1205691996, 2)
+  24 : store_local(1)
+  25 : nop
+  26 : load_result_var(1)
+
+function 'SyntaxShape.ContentOrigin'
+definition
+common name 'ContentOrigin'
+parameter 'this' index 0 type 'SyntaxShape'
+object type 'SyntaxShape'
+module id 746861746
+id 9
+frame size: 3
+var
+  local 'contentOrigin' index 1 type 'Point'
+  local '@result' index 2 type 'Point'
+code
+  0 : receive(1)
+  1 : new_object(Point)
+  2 : load_local(0)
+  3 : load_field(3)
+  4 : load_field(0)
+  5 : load_field(0)
+  6 : load_local(0)
+  7 : load_field(3)
+  8 : load_field(0)
+  9 : load_field(1)
+  10 : call_ctor(Point, 1205691996, 2)
+  11 : store_local(1)
+  12 : load_local(1)
+  13 : load_local(0)
+  14 : load_field(4)
+  15 : load_field(0)
+  16 : load_local(0)
+  17 : load_field(4)
+  18 : load_field(1)
+  19 : call_procedure(System.Graphics.Primitive:Point.Offset, 1205691996, 4)
+  20 : load_local(1)
+  21 : store_local(2)
+  22 : nop
+  23 : load_result_var(2)
+
+constructor
+definition
+parameter 'this' index 0 type 'RuleBox'
+object type 'RuleBox'
+module id 746861746
+id 0
+frame size: 0
+code
+  0 : receive(1)
+  1 : load_local(0)
+  2 : call_ctor(SyntaxShape, 746861746, 2)
+
+constructor
+definition
+parameter 'this' index 0 type 'SyntaxShape'
+parameter 'padding' index 1 type 'Padding'
+object type 'SyntaxShape'
+module id 746861746
+id 1
+frame size: 2
+code
+  0 : receive(2)
+  1 : load_local(0)
+  2 : call_ctor(CompoundShape, 1489900195, 41)
+  3 : new_object(Rect)
+  4 : call_ctor(Rect, 1205691996, 8)
+  5 : load_local(0)
+  6 : store_field(3)
+  7 : load_local(1)
+  8 : load_local(0)
+  9 : store_field(4)
+  10 : nop
+
+constructor
+definition
+parameter 'this' index 0 type 'SyntaxShape'
+object type 'SyntaxShape'
+module id 746861746
+id 2
+frame size: 1
+code
+  0 : receive(1)
+  1 : load_local(0)
+  2 : load_global(6)
+  3 : call_ctor(SyntaxShape, 746861746, 1)
+  4 : nop
+
+constructor
+definition
+parameter 'this' index 0 type 'RuleBox'
+parameter 'ruleName' index 1 type 'string'
+object type 'RuleBox'
+module id 746861746
+id 10
+frame size: 2
+code
+  0 : receive(2)
+  1 : load_local(0)
+  2 : load_global(7)
+  3 : call_ctor(SyntaxShape, 746861746, 1)
+  4 : load_local(1)
+  5 : load_local(0)
+  6 : store_field(5)
+  7 : nop
+
+procedure 'Syntax.init'
+definition
+module id 746861746
+id 13
+frame size: 4
+code
+  0 : receive(0)
+  1 : new_object(Font)
+  2 : push_value('Arial')
+  3 : push_value(11)
+  4 : int_to_real
+  5 : push_value(0)
+  6 : call_ctor(Font, 1489900195, 14)
+  7 : store_global(4)
+  8 : new_object(Font)
+  9 : push_value('Arial')
+  10 : push_value(11)
+  11 : int_to_real
+  12 : push_value(1)
+  13 : call_ctor(Font, 1489900195, 14)
+  14 : store_global(5)
+  15 : new_object(Padding)
+  16 : push_value(0)
+  17 : int_to_real
+  18 : push_value(0)
+  19 : int_to_real
+  20 : push_value(0)
+  21 : int_to_real
+  22 : push_value(0)
+  23 : int_to_real
+  24 : call_ctor(Padding, 1489900195, 15)
+  25 : store_global(6)
+  26 : new_object(Padding)
+  27 : push_value(1.500000)
+  28 : push_value(1.500000)
+  29 : push_value(1.500000)
+  30 : push_value(1.500000)
+  31 : call_ctor(Padding, 1489900195, 15)
+  32 : store_global(7)
+  33 : nop
+

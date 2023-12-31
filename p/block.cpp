@@ -40,6 +40,7 @@ void Block::AddFundamentalTypes()
     AddType(new RealType());
     AddType(new StringType());
     AddType(new PointerType());
+    AddType(new NilType());
 }
 
 Type* Block::GetFundamentalType(TypeKind kind)
@@ -52,6 +53,7 @@ Type* Block::GetFundamentalType(TypeKind kind)
         case TypeKind::realType: return GetType("real");
         case TypeKind::stringType: return GetType("string");
         case TypeKind::pointerType: return GetType("pointer");
+        case TypeKind::nilType: return GetType("nil_type");
     }
     throw std::runtime_error("fundamental type " + std::to_string(static_cast<int>(kind)) + " not found");
 }
@@ -608,19 +610,22 @@ void Block::AddConstructor(Constructor* constructor, soul::lexer::LexerBase<char
         int32_t n = ctor->Heading()->Parameters().size();
         if (n == constructor->Heading()->Parameters().size())
         {
-            bool equal = true;
-            for (int32_t i = 0; i < n; ++i)
+            if (constructor->Heading()->GetObjectType() == ctor->Heading()->GetObjectType())
             {
-                const Parameter& param = ctor->Heading()->Parameters()[i];
-                if (param.GetType() != constructor->Heading()->Parameters()[i].GetType())
+                bool equal = true;
+                for (int32_t i = 0; i < n; ++i)
                 {
-                    equal = false;
-                    break;
+                    const Parameter& param = ctor->Heading()->Parameters()[i];
+                    if (param.GetType() != constructor->Heading()->Parameters()[i].GetType())
+                    {
+                        equal = false;
+                        break;
+                    }
                 }
-            }
-            if (equal)
-            {
-                ThrowError("constructor " + std::to_string(constructors.size()) + " not unique", lexer, pos);
+                if (equal)
+                {
+                    ThrowError("constructor " + std::to_string(constructors.size()) + " not unique", lexer, pos);
+                }
             }
         }
     }
@@ -1111,7 +1116,100 @@ void CompileStatementPart(ParsingContext* context, CompoundStatementNode* compou
 
 void NoSubroutineBlock(soul::lexer::LexerBase<char>& lexer, int64_t pos)
 {
-    ThrowError("block expected", lexer, pos);
+    lexer.ThrowFarthestError();
+}
+
+void GenerateImplementationIds(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos)
+{
+    Module* mod = context->GetModule();
+    std::vector<ObjectType*> objectTypes;
+    ModulePart* interfacePart = mod->GetInterfacePart();
+    if (interfacePart)
+    {
+        for (ObjectType* objectType : interfacePart->ObjectTypes())
+        {
+            objectTypes.push_back(objectType);
+        }
+    }
+    ModulePart* implementationPart = mod->GetImplementationPart();
+    if (implementationPart)
+    {
+        for (ObjectType* objectType : implementationPart->ObjectTypes())
+        {
+            objectTypes.push_back(objectType);
+        }
+    }
+    for (ObjectType* objectType : objectTypes)
+    {
+        Constructor* defaultCtor = objectType->GetDefaultConstructor();
+        if (defaultCtor)
+        {
+            if (defaultCtor->IsGenerated() && !defaultCtor->IsImplementationGenerated())
+            {
+                defaultCtor->SetImplementationGenerated();
+                int32_t moduleId = mod->Id();
+                Constructor* ctorImplementation = MakeConstructor(context, lexer, pos);
+                ctorImplementation->Heading()->SetObjectType(objectType);
+                ctorImplementation->Heading()->InsertThisParam();
+                defaultCtor->SetModuleId(moduleId);
+                defaultCtor->SetImplementationId(ctorImplementation->Id());
+                defaultCtor->SetImplementation(ctorImplementation);
+            }
+        }
+    }
+}
+
+void GenerateDefaultImplementations(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos)
+{
+    GenerateImplementationIds(context, lexer, pos);
+    Module* mod = context->GetModule();
+    std::vector<ObjectType*> objectTypes;
+    ModulePart* interfacePart = mod->GetInterfacePart();
+    if (interfacePart)
+    {
+        for (ObjectType* objectType : interfacePart->ObjectTypes())
+        {
+            objectTypes.push_back(objectType);
+        }
+    }
+    ModulePart* implementationPart = mod->GetImplementationPart();
+    if (implementationPart)
+    {
+        for (ObjectType* objectType : implementationPart->ObjectTypes())
+        {
+            objectTypes.push_back(objectType);
+        }
+    }
+    for (ObjectType* objectType : objectTypes)
+    {
+        Constructor* defaultCtor = objectType->GetDefaultConstructor();
+        if (defaultCtor)
+        {
+            if (defaultCtor->IsGenerated())
+            {
+                Constructor* implementation = defaultCtor->GetImplementation();
+                if (!implementation)
+                {
+                    ThrowError("implementation not generated for generated constructor", lexer, pos);
+                }
+                BoundCompoundStatementNode compoundStatement(pos);
+                if (objectType->BaseType())
+                {
+                    Constructor* baseConstructor = objectType->BaseType()->GetDefaultConstructor();
+                    if (!baseConstructor)
+                    {
+                        ThrowError("base type '" + objectType->BaseType()->Name() + "' has no default constructor", lexer, pos);
+                    }
+                    BoundConstructorCallNode* boundConstructorCall = new BoundConstructorCallNode(baseConstructor, pos);
+                    boundConstructorCall->AddArgument(new BoundParameterNode(pos, implementation->Heading()->ThisParam(), objectType->BaseType()));
+                    BoundExpressionStatementNode* boundExpressionStatementNode(new BoundExpressionStatementNode(boundConstructorCall, pos));
+                    boundExpressionStatementNode->DontPop();
+                    compoundStatement.AddStatement(boundExpressionStatementNode);
+                }
+                GenerateCode(implementation, context->GetBlock(), &compoundStatement, lexer, pos, context);
+            }
+        }
+    }
 }
 
 } // namespace p

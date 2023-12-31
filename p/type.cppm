@@ -25,7 +25,7 @@ class Reader;
 
 enum class TypeKind
 {
-    none, booleanType, integerType, charType, enumeratedType, subrangeType, realType, stringType, objectType, arrayType, pointerType
+    none, booleanType, integerType, charType, enumeratedType, subrangeType, realType, stringType, objectType, arrayType, pointerType, nilType
 };
 
 util::uuid BooleanTypeId();
@@ -34,6 +34,7 @@ util::uuid CharTypeId();
 util::uuid RealTypeId();
 util::uuid StringTypeId();
 util::uuid PointerTypeId();
+util::uuid NilTypeId();
 
 class BoundExpressionNode;
 
@@ -201,9 +202,15 @@ public:
     PointerType();
 };
 
+class NilType : public Type
+{
+public:
+    NilType();
+};
+
 enum class ObjectTypeFlags
 {
-    none = 0, isVirtual = 1 << 0, vmtComputed = 1 << 1
+    none = 0, isVirtual = 1 << 0, vmtComputed = 1 << 1, resolved = 1 << 2
 };
 
 constexpr ObjectTypeFlags operator|(ObjectTypeFlags left, ObjectTypeFlags right)
@@ -237,10 +244,11 @@ public:
     Type* GetFieldType(int32_t fieldIndex) const;
     void FinalizeLayout();
     const std::vector<std::unique_ptr<Subroutine>>& Methods() const { return methods; }
-    void AddMethod(ParsingContext* context, SubroutineHeading* methodHeading, soul::lexer::LexerBase<char>& lexer, int64_t pos);
+    Subroutine* AddMethod(ParsingContext* context, SubroutineHeading* methodHeading, soul::lexer::LexerBase<char>& lexer, int64_t pos);
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     void Resolve(Context* context) override;
+    Constructor* GetDefaultConstructor() const;
     Constructor* GetConstructor(const std::vector<Type*>& parameterTypes) const;
     Constructor* GetConstructor(std::vector<std::unique_ptr<BoundExpressionNode>>& arguments, soul::lexer::LexerBase<char>& lexer, int64_t pos) const;
     Subroutine* GetMethod(const std::string& methodName) const;
@@ -251,6 +259,10 @@ public:
     void CheckInterface() override;
     void MakeVmt(Context* context) override;
     Vmt* GetVmtPtr() const { return const_cast<Vmt*>(&vmt); }
+    void GenerateDefaults(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos);
+    bool IsResolved() const { return (flags & ObjectTypeFlags::resolved) != ObjectTypeFlags::none; }
+    void SetResolved() { flags = flags | ObjectTypeFlags::resolved; }
+    bool IsSameOrHasBaseType(ObjectType* objectType) const;
 private:
     ObjectTypeFlags flags;
     ObjectType* baseType;

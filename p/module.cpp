@@ -138,6 +138,11 @@ Subroutine* ModulePart::GetSubroutine(int32_t subroutineId) const
     }
 }
 
+void ModulePart::AddObjectType(ObjectType* objectType)
+{
+    objectTypes.push_back(objectType);
+}
+
 void ModulePart::Resolve(Context* context)
 {
     for (const auto& mod : importedModules)

@@ -78,6 +78,13 @@ type
     function Bounds(): Rect; virtual;
   end;
 
+  Line = object(Shape)
+    routingPoints: PointArray;
+    constructor(routingPoints: PointArray);
+    procedure Draw(graphics: Graphics); override;
+    function Bounds(): Rect; override;
+  end;
+
   Arrow = object(Shape)
     routingPoints: PointArray;
     lineArrowWidth, lineArrowHeight: real;
@@ -107,6 +114,7 @@ var
 function MMToPixels(mm: real; dpi: real): integer;
 function PixelsToMM(pixels: integer; dpi: real): real;
 procedure DrawArrowLine(graphics: Graphics; s, e: Point; lineArrowWidth, lineArrowHeight: real);
+procedure DrawRoundedRectangle(graphics: Graphics; rect: Rect);
 
 implementation
 
@@ -197,27 +205,32 @@ procedure Bitmap.Save(fileName: string); external;
 
 procedure DrawArrowLine(graphics: Graphics; s, e: Point; lineArrowWidth, lineArrowHeight: real);
 var
-  arrowLine, arrowStartLine, arrowEndLine, leftArrowLine, rightArrowLine: Line;
+  arrowLine, arrowStartLine, arrowEndLine, leftArrowLine, rightArrowLine: LineSegment;
   av, uv, la, ra: Vector;
   a: real;
   points: PointArray;
 begin
-  arrowLine := new Line(e, s);
+  arrowLine := new LineSegment(e, s);
   av := arrowLine.ToVector();
   a := lineArrowWidth * Sqrt(3) / 2;
   uv := Product(a, Unit(av));
-  arrowStartLine := new Line(e, uv);
-  arrowEndLine := new Line(arrowStartLine.e, e);
-  la := Product(lineArrowHeight / 2, Unit(RotateLine(arrowEndLine, 90.0).ToVector()));
-  ra := Product(lineArrowHeight / 2, Unit(RotateLine(arrowEndLine, -90.0).ToVector()));
-  leftArrowLine := new Line(arrowEndLine.s, la);
-  rightArrowLine := new Line(arrowEndLine.s, ra);
+  arrowStartLine := new LineSegment(e, uv);
+  arrowEndLine := new LineSegment(arrowStartLine.e, e);
+  la := Product(lineArrowHeight / 2, Unit(RotateLineSegment(arrowEndLine, 90.0).ToVector()));
+  ra := Product(lineArrowHeight / 2, Unit(RotateLineSegment(arrowEndLine, -90.0).ToVector()));
+  leftArrowLine := new LineSegment(arrowEndLine.s, la);
+  rightArrowLine := new LineSegment(arrowEndLine.s, ra);
   points := new Point[3];
   points[0] := e;
   points[1] := leftArrowLine.e;
   points[2] := rightArrowLine.e;
   graphics.FillPolygon(blackBrush, points);
   graphics.DrawLine(blackPen, arrowEndLine.s, arrowLine.e);
+end;
+
+procedure DrawRoundedRectangle(graphics: Graphics; rect: Rect);
+begin
+  { todo }
 end;
 
 constructor Shape();
@@ -235,6 +248,53 @@ end;
 function Shape.Bounds(): Rect;
 begin
   Bounds := new Rect();
+end;
+
+constructor Line(routingPoints: PointArray);
+begin
+  this.routingPoints := routingPoints;
+end;
+
+procedure Line.Draw(graphics: Graphics); 
+var 
+  i, n: integer;
+  s, e: Point;
+begin
+  n := routingPoints.Length;
+  if n > 1 then
+  begin
+    for i := 1 to n - 1 do
+    begin
+      s := routingPoints[i - 1];
+      e := routingPoints[i];
+      graphics.DrawLine(blackPen, s, e);
+    end;
+  end;
+end;
+
+function Line.Bounds(): Rect; 
+var
+  i, n: integer;
+  p: Point;
+  minX, maxX, minY, maxY: real;
+begin
+  minX := 9999999999;
+  maxX := -1;
+  minY := 9999999999;
+  maxY := -1;
+  n := routingPoints.Length;
+  if n > 0 then
+  begin
+    for i := 0 to n - 1 do
+    begin
+      p := routingPoints[i];
+      minX := Min(p.x, minX);
+      maxX := Max(p.x, maxX);
+      minY := Min(p.y, minY);
+      maxY := Max(p.y, maxY);
+    end;
+    Bounds := new Rect(new Point(minX, minY), new Size(maxX - minX, maxY - minY));
+  end else Bounds := new Rect();
 end;
 
 constructor Arrow(routingPoints: PointArray);

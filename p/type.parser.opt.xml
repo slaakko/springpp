@@ -282,14 +282,25 @@
    <sequence first="{CONSTRUCTOR}">
     <sequence first="{CONSTRUCTOR}">
      <sequence first="{CONSTRUCTOR}">
-      <action first="{CONSTRUCTOR}">
-       <nonterminal first="{CONSTRUCTOR}" ruleName="ConstructorHeading"/>
-      </action>
+      <sequence first="{CONSTRUCTOR}">
+       <action first="{CONSTRUCTOR}">
+        <nonterminal first="{CONSTRUCTOR}" ruleName="ConstructorHeading"/>
+       </action>
+       <optional first="{#, COLON}">
+        <group first="{COLON}">
+         <action first="{COLON}">
+          <nonterminal first="{COLON}" ruleName="ConstructorCall"/>
+         </action>
+        </group>
+       </optional>
+      </sequence>
       <token first="{SEMICOLON}" name="SEMICOLON"/>
      </sequence>
      <nonterminal first="{#, BEGIN, CONST, CONSTRUCTOR, EXTERNAL, FORWARD, FUNCTION, PROCEDURE, TYPE, VAR}" ruleName="SubroutineBlock"/>
     </sequence>
-    <token first="{SEMICOLON}" name="SEMICOLON"/>
+    <action first="{SEMICOLON}">
+     <token first="{SEMICOLON}" name="SEMICOLON"/>
+    </action>
    </sequence>
   </rule>
   <rule first="{CONSTRUCTOR}" name="ConstructorHeading">
@@ -316,6 +327,56 @@
   <rule first="{ID}" name="ObjectName">
    <action first="{ID}">
     <token first="{ID}" name="ID"/>
+   </action>
+  </rule>
+  <rule first="{COLON}" name="ConstructorCall">
+   <action first="{COLON}">
+    <group first="{COLON}">
+     <sequence first="{COLON}">
+      <sequence first="{COLON}">
+       <sequence first="{COLON}">
+        <sequence first="{COLON}">
+         <token first="{COLON}" name="COLON"/>
+         <group first="{BASE, THIS}">
+          <switch first="{BASE, THIS}">
+           <case first="{BASE}">
+            <action first="{BASE}">
+             <token first="{BASE}" name="BASE"/>
+            </action>
+           </case>
+           <case first="{THIS}">
+            <action first="{THIS}">
+             <token first="{THIS}" name="THIS"/>
+            </action>
+           </case>
+          </switch>
+         </group>
+        </sequence>
+        <token first="{LPAREN}" name="LPAREN"/>
+       </sequence>
+       <optional first="{#, AND, BASE, BOOLEAN, CHAR, COMMA, CONTROL_STRING, DIV, DOT, EQUAL, FALSE, GREATER, GREATER_EQUAL, ID, INTEGER, INTEGER_LITERAL, LBRACKET, LESS, LESS_EQUAL, LPAREN, MINUS, MOD, NEW, NIL, NOT, NOT_EQUAL, OR, PLUS, QUOTED_STRING, REAL, REAL_LITERAL, SHL, SHR, SLASH, STAR, STRING, THIS, TRUE, XOR}">
+        <group first="{#, AND, BASE, BOOLEAN, CHAR, COMMA, CONTROL_STRING, DIV, DOT, EQUAL, FALSE, GREATER, GREATER_EQUAL, ID, INTEGER, INTEGER_LITERAL, LBRACKET, LESS, LESS_EQUAL, LPAREN, MINUS, MOD, NEW, NIL, NOT, NOT_EQUAL, OR, PLUS, QUOTED_STRING, REAL, REAL_LITERAL, SHL, SHR, SLASH, STAR, STRING, THIS, TRUE, XOR}">
+         <sequence first="{#, AND, BASE, BOOLEAN, CHAR, COMMA, CONTROL_STRING, DIV, DOT, EQUAL, FALSE, GREATER, GREATER_EQUAL, ID, INTEGER, INTEGER_LITERAL, LBRACKET, LESS, LESS_EQUAL, LPAREN, MINUS, MOD, NEW, NIL, NOT, NOT_EQUAL, OR, PLUS, QUOTED_STRING, REAL, REAL_LITERAL, SHL, SHR, SLASH, STAR, STRING, THIS, TRUE, XOR}">
+          <action first="{#, AND, BASE, BOOLEAN, CHAR, CONTROL_STRING, DIV, DOT, EQUAL, FALSE, GREATER, GREATER_EQUAL, ID, INTEGER, INTEGER_LITERAL, LBRACKET, LESS, LESS_EQUAL, LPAREN, MINUS, MOD, NEW, NIL, NOT, NOT_EQUAL, OR, PLUS, QUOTED_STRING, REAL, REAL_LITERAL, SHL, SHR, SLASH, STAR, STRING, THIS, TRUE, XOR}">
+           <nonterminal first="{#, AND, BASE, BOOLEAN, CHAR, CONTROL_STRING, DIV, DOT, EQUAL, FALSE, GREATER, GREATER_EQUAL, ID, INTEGER, INTEGER_LITERAL, LBRACKET, LESS, LESS_EQUAL, LPAREN, MINUS, MOD, NEW, NIL, NOT, NOT_EQUAL, OR, PLUS, QUOTED_STRING, REAL, REAL_LITERAL, SHL, SHR, SLASH, STAR, STRING, THIS, TRUE, XOR}" ruleName="Expression"/>
+          </action>
+          <kleene first="{#, COMMA}">
+           <group first="{COMMA}">
+            <sequence first="{COMMA}">
+             <token first="{COMMA}" name="COMMA"/>
+             <action first="{#, AND, BASE, BOOLEAN, CHAR, CONTROL_STRING, DIV, DOT, EQUAL, FALSE, GREATER, GREATER_EQUAL, ID, INTEGER, INTEGER_LITERAL, LBRACKET, LESS, LESS_EQUAL, LPAREN, MINUS, MOD, NEW, NIL, NOT, NOT_EQUAL, OR, PLUS, QUOTED_STRING, REAL, REAL_LITERAL, SHL, SHR, SLASH, STAR, STRING, THIS, TRUE, XOR}">
+              <nonterminal first="{#, AND, BASE, BOOLEAN, CHAR, CONTROL_STRING, DIV, DOT, EQUAL, FALSE, GREATER, GREATER_EQUAL, ID, INTEGER, INTEGER_LITERAL, LBRACKET, LESS, LESS_EQUAL, LPAREN, MINUS, MOD, NEW, NIL, NOT, NOT_EQUAL, OR, PLUS, QUOTED_STRING, REAL, REAL_LITERAL, SHL, SHR, SLASH, STAR, STRING, THIS, TRUE, XOR}" ruleName="Expression"/>
+             </action>
+            </sequence>
+           </group>
+          </kleene>
+         </sequence>
+        </group>
+       </optional>
+      </sequence>
+      <token first="{RPAREN}" name="RPAREN"/>
+     </sequence>
+    </group>
    </action>
   </rule>
   <rule first="{ARRAY}" name="ArrayType">

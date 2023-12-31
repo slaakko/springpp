@@ -15,12 +15,15 @@ class Value;
 class Writer;
 class Reader;
 class Subroutine;
+class Procedure;
+class Function;
+class Constructor;
 
 enum class InstructionKind
 {
     nop, load_local, store_local, load_global, store_global, 
-    load_result_var, push_value, pop_value, load_field, store_field, load_element, store_element, array_length, receive, jump, branch,
-    call_procedure, call_function, call_stdfn, call_stdproc, call_virtual, call_external, new_object, new_array, call_ctor,
+    load_result_var, push_value, pop_value, load_field, store_field, load_element, store_element, array_length, string_length, receive, jump, branch,
+    call_procedure, call_function, call_stdfn, call_stdproc, call_virtual, call_external, call_ctor, new_object, new_array,
     equal_bool, not_equal_bool, and_bool, or_bool, xor_bool, not_bool,
     equal_int, not_equal_int, less_int, greater_int, less_or_equal_int, greater_or_equal_int,
     plus_int, minus_int, mul_int, fractional_divide_int, div_int, mod_int, and_int, or_int, xor_int, shl_int, shr_int, not_int, unary_plus_int, unary_minus_int,
@@ -189,6 +192,13 @@ public:
     Instruction* Execute(ExecutionContext* context) override;
 };
 
+class StringLengthInstruction : public Instruction
+{
+public:
+    StringLengthInstruction();
+    Instruction* Execute(ExecutionContext* context) override;
+};
+
 class ReceiveInstruction : public Instruction
 {
 public:
@@ -242,13 +252,13 @@ class CallProcedureInstruction : public Instruction
 {
 public:
     CallProcedureInstruction();
-    void SetModuleId(int32_t moduleId_);
-    void SetSubroutineId(int32_t subroutineId_);
+    void SetProcedure(Procedure* procedure_);
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     std::string ToString(ExecutionContext* context) const override;
     Instruction* Execute(ExecutionContext* context) override;
 private:
+    Procedure* procedure;
     int32_t moduleId;
     int32_t subroutineId;
 };
@@ -257,13 +267,14 @@ class CallStdProcInstruction : public Instruction
 {
 public:
     CallStdProcInstruction();
-    void SetStdProcId(int32_t stdprocId_);
+    void SetProcedure(Procedure* procedure_);
     void SetArgumentCount(int32_t argumentCount_);
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     std::string ToString(ExecutionContext* context) const override;
     Instruction* Execute(ExecutionContext* context) override;
 private:
+    Procedure* procedure;
     int32_t stdprocId;
     int32_t argumentCount;
 };
@@ -272,13 +283,13 @@ class CallFunctionInstruction : public Instruction
 {
 public:
     CallFunctionInstruction();
-    void SetModuleId(int32_t moduleId_);
-    void SetSubroutineId(int32_t subroutineId_);
+    void SetFunction(Function* function_);
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     std::string ToString(ExecutionContext* context) const override;
     Instruction* Execute(ExecutionContext* context) override;
 private:
+    Function* function;
     int32_t moduleId;
     int32_t subroutineId;
 };
@@ -302,15 +313,16 @@ class CallVirtualInstruction : public Instruction
 {
 public:
     CallVirtualInstruction();
-    void SetMethod(Subroutine* method_) { method = method_; }
+    void SetMethod(Subroutine* method_);
     Subroutine* GetMethod() const { return method; }
-    void SetMethodIndex(int32_t methodIndex_);
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     std::string ToString(ExecutionContext* context) const override;
     Instruction* Execute(ExecutionContext* context) override;
 private:
     Subroutine* method;
+    int32_t moduleId;
+    int32_t methodId;
     int32_t methodIndex;
 };
 
@@ -318,13 +330,14 @@ class CallExternalInstruction : public Instruction
 {
 public:
     CallExternalInstruction();
-    void SetId(int32_t id_) { id = id_; }
+    void SetSubroutine(Subroutine* subroutine_);
     int32_t Id() const { return id; }
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     std::string ToString(ExecutionContext* context) const override;
     Instruction* Execute(ExecutionContext* context) override;
 private:
+    Subroutine* subroutine;
     int32_t id;
 };
 
@@ -363,13 +376,13 @@ class CallConstructorInstruction : public Instruction
 {
 public:
     CallConstructorInstruction();
-    void SetModuleId(int32_t moduleId_);
-    void SetSubroutineId(int32_t subroutineId_);
+    void SetConstructor(Constructor* constructor_);
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     std::string ToString(ExecutionContext* context) const override;
     Instruction* Execute(ExecutionContext* context) override;
 private:
+    Constructor* constructor;
     int32_t moduleId;
     int32_t subroutineId;
 };

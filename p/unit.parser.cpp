@@ -720,6 +720,7 @@ soul::parser::Match UnitParser<LexerT>::ImplementationPart(LexerT& lexer, Parsin
                         context->GetModulePart()->SetBlock(block);
                         context->PushBlock(block);
                         block->ImportModules(context);
+                        GenerateImplementationIds(context, lexer, pos);
                     }
                     *parentMatch7 = match;
                 }
@@ -734,7 +735,17 @@ soul::parser::Match UnitParser<LexerT>::ImplementationPart(LexerT& lexer, Parsin
         soul::parser::Match match(false);
         soul::parser::Match* parentMatch8 = &match;
         {
-            soul::parser::Match match = BlockParser<LexerT>::DeclarationPart(lexer, context);
+            soul::parser::Match match(false);
+            soul::parser::Match* parentMatch9 = &match;
+            {
+                int64_t pos = lexer.GetPos();
+                soul::parser::Match match = BlockParser<LexerT>::DeclarationPart(lexer, context);
+                if (match.hit)
+                {
+                    GenerateDefaultImplementations(context, lexer, pos);
+                }
+                *parentMatch9 = match;
+            }
             *parentMatch8 = match;
         }
         *parentMatch0 = match;

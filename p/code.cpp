@@ -56,7 +56,7 @@ void JumpNextPatch::Apply()
 }
 
 Emitter::Emitter(soul::lexer::LexerBase<char>& lexer_, int64_t pos, Context* context_) : 
-    lexer(lexer_), currentSubroutine(nullptr), currentBasicBlock(nullptr), instructionIndex(0), context(context_)
+    lexer(lexer_), currentSubroutine(nullptr), currentBasicBlock(nullptr), instructionIndex(0), context(context_), openBasicBlocks(0)
 {
 }
 
@@ -74,8 +74,19 @@ void Emitter::PushBasicBlock(BasicBlock* basicBlock)
 
 void Emitter::PopBasicBlock()
 {
+    while (openBasicBlocks > 0)
+    {
+        currentBasicBlock = basicBlockStack.top();
+        basicBlockStack.pop();
+        --openBasicBlocks;
+    }
     currentBasicBlock = basicBlockStack.top();
     basicBlockStack.pop();
+}
+
+void Emitter::IncrementOpenBasicBlocks()
+{ 
+    ++openBasicBlocks; 
 }
 
 void Emitter::Emit(Instruction* instruction)
@@ -120,6 +131,7 @@ public:
     void Visit(BoundConstantNode& node) override;
     void Visit(BoundConversionNode& node) override;
     void Visit(BoundValueConversionNode& node) override;
+    void Visit(BoundVariableTypecastNode& node) override;
     void Visit(BoundProcedureNode& node) override;
     void Visit(BoundFunctionNode& node) override;
     void Visit(BoundMethodNode& node) override;
@@ -137,6 +149,7 @@ public:
     void Visit(BoundIfStatementNode& node) override;
     void Visit(BoundWhileStatementNode& node) override;
     void Visit(BoundRepeatStatementNode& node) override;
+    void Visit(BoundCaseStatementNode& node) override;
     void Visit(BoundReturnFunctionResultStatementNode& node) override;
 private:
     Subroutine* subroutine;
@@ -191,19 +204,24 @@ void CodeGeneratorVisitor::Visit(BoundValueConversionNode& node)
     node.Load(&emitter);
 }
 
+void CodeGeneratorVisitor::Visit(BoundVariableTypecastNode& node)
+{
+    node.Load(&emitter);
+}
+
 void CodeGeneratorVisitor::Visit(BoundProcedureNode& node) 
 {
-    ThrowError("cannot generate code for bound procedure node", emitter.Lexer(), node.Pos());
+    ThrowError("error: cannot generate code for bound procedure node", emitter.Lexer(), node.Pos());
 }
 
 void CodeGeneratorVisitor::Visit(BoundFunctionNode& node)
 {
-    ThrowError("cannot generate code for bound function node", emitter.Lexer(), node.Pos());
+    ThrowError("error: cannot generate code for bound function node", emitter.Lexer(), node.Pos());
 }
 
 void CodeGeneratorVisitor::Visit(BoundMethodNode& node)
 {
-    ThrowError("cannot generate code for bound method node", emitter.Lexer(), node.Pos());
+    ThrowError("error: cannot generate code for bound method node", emitter.Lexer(), node.Pos());
 }
 
 void CodeGeneratorVisitor::Visit(BoundFunctionCallNode& node)
@@ -326,9 +344,15 @@ void CodeGeneratorVisitor::Visit(BoundExpressionStatementNode& node)
 
 void CodeGeneratorVisitor::Visit(BoundIfStatementNode& node)
 {
+    JumpInstruction* jumpInstruction = new JumpInstruction();
+    emitter.Emit(jumpInstruction);
+    BasicBlock* p = emitter.GetCurrentSubroutine()->AddBasicBlock();
+    emitter.PushBasicBlock(p);
     node.Condition()->Load(&emitter);
+    jumpInstruction->SetTarget(p->First());
     BranchInstruction* branchInstruction = new BranchInstruction();
     emitter.Emit(branchInstruction);
+    emitter.PopBasicBlock();
     BasicBlock* t = emitter.GetCurrentSubroutine()->AddBasicBlock();
     emitter.PushBasicBlock(t);
     node.ThenStatement()->Accept(*this);
@@ -349,6 +373,7 @@ void CodeGeneratorVisitor::Visit(BoundIfStatementNode& node)
     }
     BasicBlock* r = emitter.GetCurrentSubroutine()->AddBasicBlock();
     emitter.PushBasicBlock(r);
+    emitter.IncrementOpenBasicBlocks();
     emitter.EnqueuePatch(new JumpNextPatch(r, jumpThenNext));
     if (jumpElseNext)
     {
@@ -381,11 +406,14 @@ void CodeGeneratorVisitor::Visit(BoundWhileStatementNode& node)
     emitter.PopBasicBlock();
     BasicBlock* r = emitter.GetCurrentSubroutine()->AddBasicBlock();
     emitter.PushBasicBlock(r);
+    emitter.IncrementOpenBasicBlocks();
     emitter.EnqueuePatch(new BranchFalsePatch(r, branchInstruction));
 }
 
 void CodeGeneratorVisitor::Visit(BoundRepeatStatementNode& node)
 {
+    JumpInstruction* jumpInstruction = new JumpInstruction();
+    emitter.Emit(jumpInstruction);
     BasicBlock* p = emitter.GetCurrentSubroutine()->AddBasicBlock();
     emitter.PushBasicBlock(p);
     for (const auto& statement : node.Statements())
@@ -396,10 +424,53 @@ void CodeGeneratorVisitor::Visit(BoundRepeatStatementNode& node)
     BranchInstruction* branchInstruction = new BranchInstruction();
     emitter.Emit(branchInstruction);
     branchInstruction->SetFalseNext(p->First());
+    jumpInstruction->SetTarget(p->First());
     emitter.PopBasicBlock();
     BasicBlock* r = emitter.GetCurrentSubroutine()->AddBasicBlock();
     emitter.PushBasicBlock(r);
+    emitter.IncrementOpenBasicBlocks();
     emitter.EnqueuePatch(new BranchTruePatch(r, branchInstruction));
+}
+
+void CodeGeneratorVisitor::Visit(BoundCaseStatementNode& node)
+{
+    std::vector<JumpInstruction*> jumps;
+    node.Condition()->Load(&emitter);
+    CaseInstruction* caseInstruction = new CaseInstruction();
+    emitter.Emit(caseInstruction);
+    for (const auto& caseNode : node.Cases())
+    {
+        RangeList& rangeList = caseInstruction->AddRangeList();
+        for (const auto& caseRange : caseNode->Ranges())
+        {
+            int32_t first = caseRange->RangeStart()->GetValue()->ToInteger();
+            int32_t last = caseRange->RangeEnd()->GetValue()->ToInteger();
+            Range range(first, last);
+            rangeList.AddRange(range);
+            BasicBlock* r = emitter.GetCurrentSubroutine()->AddBasicBlock();
+            emitter.PushBasicBlock(r);
+            caseNode->Statement()->Accept(*this);
+            JumpInstruction* jumpInstruction = new JumpInstruction();
+            emitter.Emit(jumpInstruction);
+            jumps.push_back(jumpInstruction);
+            emitter.PopBasicBlock();
+            rangeList.SetNext(r->First());
+        }
+    }
+    BasicBlock* e = emitter.GetCurrentSubroutine()->AddBasicBlock();
+    emitter.PushBasicBlock(e);
+    node.ElsePart()->Accept(*this);
+    JumpInstruction* jumpInstruction = new JumpInstruction();
+    emitter.Emit(jumpInstruction);
+    jumps.push_back(jumpInstruction);
+    emitter.PopBasicBlock();
+    caseInstruction->SetElseInst(e->First());
+    BasicBlock* r = emitter.GetCurrentSubroutine()->AddBasicBlock();
+    emitter.PushBasicBlock(r);
+    for (auto& jump : jumps)
+    {
+        emitter.EnqueuePatch(new JumpNextPatch(r, jump));
+    }
 }
 
 void CodeGeneratorVisitor::Visit(BoundReturnFunctionResultStatementNode& node)

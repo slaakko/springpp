@@ -54,6 +54,7 @@ soul::parser::Match FunctionParser<LexerT>::FunctionDeclaration(LexerT& lexer, P
                     if (match.hit)
                     {
                         function = MakeFunction(context, functionHeading.release(), lexer, pos);
+                        function->SetLevel(context->GetBlock()->Level() + 1);
                     }
                     *parentMatch3 = match;
                 }

@@ -10,8 +10,20 @@ import p.execute;
 
 namespace p {
 
-ParsingContext::ParsingContext() : mod(new Module()), modulePart(nullptr), flags(Flags::none), currentValue(nullptr), emitter(nullptr)
+ParsingContext::ParsingContext() : mod(new Module()), modulePart(nullptr), flags(Flags::none), currentValue(nullptr), emitter(nullptr), constructor(nullptr), node(nullptr)
 {
+}
+
+void ParsingContext::PushNode(Node* node_)
+{
+    nodeStack.push(node);
+    node = node_;
+}
+
+void ParsingContext::PopNode()
+{
+    node = nodeStack.top();
+    nodeStack.pop();
 }
 
 void ParsingContext::SetModulePart(ModulePart* modulePart_)
@@ -56,6 +68,18 @@ void ParsingContext::PopCurrentValue()
 {
     currentValue = valueStack.top();
     valueStack.pop();
+}
+
+void ParsingContext::PushConstructor(Constructor* constructor_)
+{
+    constructorStack.push(constructor);
+    constructor = constructor_;
+}
+
+void ParsingContext::PopConstructor()
+{
+    constructor = constructorStack.top();
+    constructorStack.pop();
 }
 
 } // namespace p

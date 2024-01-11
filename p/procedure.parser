@@ -27,6 +27,7 @@ parser ProcedureParser
         ::= ProcedureHeading(context):procedureHeading
             { 
                 procedure = MakeProcedure(context, procedureHeading, lexer, pos); 
+                procedure->SetLevel(context->GetBlock()->Level() + 1);
             }
             SEMICOLON 
             SubroutineBlock(context, procedure):subroutineBlock

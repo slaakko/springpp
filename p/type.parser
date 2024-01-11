@@ -180,10 +180,12 @@ parser TypeParser
         ::= ConstructorHeading(context):constructorHeading
             { 
                 constructor.reset(new p::Constructor(constructorHeading)); 
+                context->PushConstructor(constructor.get());
             }
             (
                 ConstructorCall(context):constructorCall{ constructor->SetConstructorCall(constructorCall); }
             )?
+            empty{ context->PopConstructor(); }
             SEMICOLON 
             SubroutineBlock(context, constructor.get()):subroutineBlock 
             SEMICOLON

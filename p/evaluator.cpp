@@ -61,7 +61,7 @@ void EvaluatorVisitor::Visit(BinaryExprNode& node)
     ValueKind kind = CommonType(leftValue->Kind(), rightValue->Kind());
     if (kind == ValueKind::none)
     {
-        ThrowError("invalid binary operation operands", lexer, node.Pos());
+        ThrowError("error: invalid binary operation operands", lexer, node.Pos());
     }
     switch (kind)
     {
@@ -96,7 +96,7 @@ void EvaluatorVisitor::Visit(BinaryExprNode& node)
                 }
                 default:
                 {
-                    ThrowError("invalid Boolean binary operation", lexer, node.Pos());
+                    ThrowError("error: invalid Boolean binary operation", lexer, node.Pos());
                     break;
                 }
             }
@@ -193,7 +193,7 @@ void EvaluatorVisitor::Visit(BinaryExprNode& node)
                 }
                 default:
                 {
-                    ThrowError("invalid integer binary operation", lexer, node.Pos());
+                    ThrowError("error: invalid integer binary operation", lexer, node.Pos());
                     break;
                 }
             }
@@ -215,7 +215,7 @@ void EvaluatorVisitor::Visit(BinaryExprNode& node)
                 }
                 default:
                 {
-                    ThrowError("invalid character binary operation", lexer, node.Pos());
+                    ThrowError("error: invalid character binary operation", lexer, node.Pos());
                     break;
                 }
             }
@@ -277,7 +277,7 @@ void EvaluatorVisitor::Visit(BinaryExprNode& node)
                 }
                 default:
                 {
-                    ThrowError("invalid real binary operation", lexer, node.Pos());
+                    ThrowError("error: invalid real binary operation", lexer, node.Pos());
                     break;
                 }
             }
@@ -324,7 +324,7 @@ void EvaluatorVisitor::Visit(BinaryExprNode& node)
                 }
                 default:
                 {
-                    ThrowError("invalid string binary operation", lexer, node.Pos());
+                    ThrowError("error: invalid string binary operation", lexer, node.Pos());
                     break;
                 }
             }
@@ -352,7 +352,7 @@ void EvaluatorVisitor::Visit(UnaryExprNode& node)
                 }
                 default:
                 {
-                    ThrowError("invalid Boolean unary operation", lexer, node.Pos());
+                    ThrowError("error: invalid Boolean unary operation", lexer, node.Pos());
                 }
             }
             break;
@@ -378,7 +378,7 @@ void EvaluatorVisitor::Visit(UnaryExprNode& node)
                 }
                 default:
                 {
-                    ThrowError("invalid integer unary operation", lexer, node.Pos());
+                    ThrowError("error: invalid integer unary operation", lexer, node.Pos());
                 }
             }
             break;
@@ -399,14 +399,14 @@ void EvaluatorVisitor::Visit(UnaryExprNode& node)
                 }
                 default:
                 {
-                    ThrowError("invalid real unary operation", lexer, node.Pos());
+                    ThrowError("error: invalid real unary operation", lexer, node.Pos());
                 }
             }
             break;
         }
         default:
         {
-            ThrowError("invalid unary operation operand", lexer, node.Pos());
+            ThrowError("error: invalid unary operation operand", lexer, node.Pos());
         }
     }
 }
@@ -459,7 +459,7 @@ void EvaluatorVisitor::Visit(IdentifierNode& node)
         }
         default:
         {
-            ThrowError("constant or function identifier expected", lexer, node.Pos());
+            ThrowError("error: constant or function identifier expected", lexer, node.Pos());
             break;
         }
     }
@@ -467,42 +467,42 @@ void EvaluatorVisitor::Visit(IdentifierNode& node)
 
 void EvaluatorVisitor::Visit(QualifiedIdNode& node)
 {
-    ThrowError("constant identifier expected", lexer, node.Pos());
+    ThrowError("error: constant identifier expected", lexer, node.Pos());
 }
 
 void EvaluatorVisitor::Visit(ThisNode& node)
 {
-    ThrowError("'this' cannot be evaluated statically", lexer, node.Pos());
+    ThrowError("error: 'this' cannot be evaluated statically", lexer, node.Pos());
 }
 
 void EvaluatorVisitor::Visit(BaseNode& node)
 {
-    ThrowError("'base' cannot be evaluated statically", lexer, node.Pos());
+    ThrowError("error: 'base' cannot be evaluated statically", lexer, node.Pos());
 }
 
 void EvaluatorVisitor::Visit(NilNode& node)
 {
-    ThrowError("nil cannot be evaluated statically", lexer, node.Pos());
+    ThrowError("error: nil cannot be evaluated statically", lexer, node.Pos());
 }
 
 void EvaluatorVisitor::Visit(NewExprNode& node)
 {
-    ThrowError("new cannot be evaluated statically", lexer, node.Pos());
+    ThrowError("error: new cannot be evaluated statically", lexer, node.Pos());
 }
 
 void EvaluatorVisitor::Visit(NewArrayExprNode& node)
 {
-    ThrowError("new array cannot be evaluated statically", lexer, node.Pos());
+    ThrowError("error: new array cannot be evaluated statically", lexer, node.Pos());
 }
 
 void EvaluatorVisitor::Visit(ValueTypecastNode& node)
 {
-    ThrowError("value cast cannot be evaluated statically", lexer, node.Pos()); // todo
+    ThrowError("error: value cast cannot be evaluated statically", lexer, node.Pos()); // todo
 }
 
 void EvaluatorVisitor::Visit(VariableTypecastNode& node)
 {
-    ThrowError("variable cast cannot be evaluated statically", lexer, node.Pos());
+    ThrowError("error: variable cast cannot be evaluated statically", lexer, node.Pos());
 }
 
 void EvaluatorVisitor::Visit(InvokeExprNode& node)
@@ -524,18 +524,18 @@ void EvaluatorVisitor::Visit(InvokeExprNode& node)
     }
     else
     {
-        ThrowError("function value expected", lexer, node.Pos());
+        ThrowError("error: function value expected", lexer, node.Pos());
     }
 }
 
 void EvaluatorVisitor::Visit(IndexExprNode& node) 
 {
-    ThrowError("variable cast cannot be evaluated statically", lexer, node.Pos());
+    ThrowError("error: variable cast cannot be evaluated statically", lexer, node.Pos());
 }
 
 void EvaluatorVisitor::Visit(DotNode& node)
 {
-    ThrowError("variable cast cannot be evaluated statically", lexer, node.Pos());
+    ThrowError("error: variable cast cannot be evaluated statically", lexer, node.Pos());
 }
 
 Value* Evaluate(Node* node, soul::lexer::LexerBase<char>& lexer, Block* block)

@@ -47,6 +47,9 @@ type
     function ToPoint(): Point;
   end;
 
+type
+  Direction = (noDir, north, east, south, west);
+
 function Distance(s, e: Point): real;
 
 function Union(a, b: Rect): Rect;
@@ -66,6 +69,8 @@ function ProjectionFactor(u, v: Vector): real;
 function Proj(u, v: Vector): Vector;
 
 function Rotate(v: Vector; angleRad: real): Vector;
+
+function GetDirection(source, target: Point): Direction;
 
 type
   LineSegment = object
@@ -317,6 +322,37 @@ begin
   cosTheta := Cos(angleRad);
   sinTheta := Sin(angleRad);
   Rotate := new Vector(v.x * cosTheta - v.y * sinTheta, v.x * sinTheta + v.y * cosTheta);
+end;
+
+function GetDirection(source, target: Point): Direction;
+var
+  v, u: Vector;
+  direction: Direction;
+begin
+  v := new Vector(target.x - source.x, target.y - source.y);
+  if v.x >= 0 then 
+  begin
+    if v.y >= 0 then 
+    begin 
+      u := new Vector(1, -1);
+      if Dot(v, u) >= 0 then direction := east else direction := south;
+    end else
+    begin
+      u := new Vector(-1, -1);
+      if Dot(v, u) >= 0 then direction := north else direction := east;
+    end
+  end else
+  begin
+    if v.y >= 0 then 
+    begin
+      u := new Vector(1, 1);
+      if Dot(v, u) >= 0 then direction := south else direction := west;
+    end else
+    begin
+      u := new Vector(-1, 1);
+      if Dot(v, u) >= 0 then direction := west else direction := north;
+    end
+  end;
 end;
 
 constructor LineSegment(s, e: Point);

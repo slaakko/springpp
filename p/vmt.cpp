@@ -24,7 +24,7 @@ void Vmt::AddMethod(Subroutine* method)
     {
         if (method->VmtIndex() != methods.size())
         {
-            throw std::runtime_error("error: method '" + method->FullName() + "' has conflicting VMT index " + std::to_string(method->VmtIndex()) +
+            throw std::runtime_error("error: method '" + method->InfoName() + "' has conflicting VMT index " + std::to_string(method->VmtIndex()) +
                 "; would be given VMT index " + std::to_string(methods.size()));
         }
     }
@@ -112,7 +112,7 @@ void InitVmt(Vmt& vmt, ObjectType* objectType, Context* context)
             Subroutine* prevMethod = vmt.GetMethod(method->CommonName());
             if (prevMethod)
             {
-                throw std::runtime_error("error: object type '" + objectType->Name() + "' overrides method '" + prevMethod->FullName() + 
+                throw std::runtime_error("error: object type '" + objectType->Name() + "' overrides method '" + prevMethod->InfoName() +
                     "'; method should be declared 'override'");
             }
             else
@@ -130,7 +130,7 @@ void InitVmt(Vmt& vmt, ObjectType* objectType, Context* context)
             }
             else
             {
-                throw std::runtime_error("error: object type '" + objectType->Name() + "' declares method '" + method->FullName() + 
+                throw std::runtime_error("error: object type '" + objectType->Name() + "' declares method '" + method->InfoName() +
                     "' as 'override' but no suitable method found to override");
             }
         }

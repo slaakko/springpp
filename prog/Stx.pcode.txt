@@ -5,14 +5,19 @@ procedure '@program'
 definition
 module id 2059828814
 id 1
-frame size: 6
+frame size: 11
 var
   local 'x' index 0 type 'integer'
   local 'y' index 1 type 'integer'
   local 'bm' index 2 type 'Bitmap'
-  local 'expressionRule' index 3 type 'RuleBox'
-  local 'terminal' index 4 type 'Terminal'
-  local 'graphics' index 5 type 'Graphics'
+  local 'graphics' index 3 type 'Graphics'
+  local 'title' index 4 type 'DiagramTitle'
+  local 'expressionRule' index 5 type 'RuleBox'
+  local 'terminal' index 6 type 'Terminal'
+  local 'terminal2' index 7 type 'Terminal'
+  local 'keyword' index 8 type 'Keyword'
+  local 'diagram' index 9 type 'Diagram'
+  local 'row1' index 10 type 'SyntaxRow'
 code
   0 : receive(0)
   1 : push_value(100)
@@ -30,55 +35,135 @@ code
   13 : store_local(2)
   14 : load_local(2)
   15 : call_external(Bitmap.GetGraphics, 0)
-  16 : store_local(5)
-  17 : load_local(5)
+  16 : store_local(3)
+  17 : load_local(3)
   18 : load_global(1)
   19 : call_external(Graphics.Clear, 1)
-  20 : new_object(RuleBox)
-  21 : push_value('expression')
-  22 : call_ctor(RuleBox, 746861746, 11)
-  23 : store_local(3)
-  24 : load_local(3)
-  25 : load_local(5)
-  26 : load_local(3)
-  27 : call_virtual(RuleBox.Measure, 0)
+  20 : new_object(DiagramTitle)
+  21 : push_value('constant-expression')
+  22 : call_ctor(DiagramTitle, 746861746, 14)
+  23 : store_local(4)
+  24 : load_local(4)
+  25 : load_local(3)
+  26 : load_local(4)
+  27 : call_virtual(DiagramTitle.Measure, 0)
   28 : new_object(Point)
   29 : push_value(10)
   30 : int_to_real
   31 : push_value(10)
   32 : int_to_real
   33 : call_ctor(Point, 1205691996, 2)
-  34 : load_local(3)
+  34 : load_local(4)
   35 : load_field(3)
   36 : store_field(0)
-  37 : load_local(3)
-  38 : load_local(5)
-  39 : load_local(3)
-  40 : call_virtual(RuleBox.Draw, 1)
-  41 : new_object(Terminal)
-  42 : push_value(';')
-  43 : char_to_string
-  44 : call_ctor(Terminal, 746861746, 14)
-  45 : store_local(4)
-  46 : load_local(4)
+  37 : load_local(4)
+  38 : load_local(3)
+  39 : load_local(4)
+  40 : call_virtual(DiagramTitle.Draw, 1)
+  41 : new_object(RuleBox)
+  42 : push_value('expression')
+  43 : call_ctor(RuleBox, 746861746, 18)
+  44 : store_local(5)
+  45 : load_local(5)
+  46 : load_local(3)
   47 : load_local(5)
-  48 : load_local(4)
-  49 : call_virtual(Terminal.Measure, 0)
-  50 : new_object(Point)
-  51 : push_value(10)
-  52 : int_to_real
-  53 : push_value(20)
-  54 : int_to_real
-  55 : call_ctor(Point, 1205691996, 2)
-  56 : load_local(4)
-  57 : load_field(3)
-  58 : store_field(0)
-  59 : load_local(4)
+  48 : call_virtual(RuleBox.Measure, 0)
+  49 : new_object(Point)
+  50 : push_value(10)
+  51 : int_to_real
+  52 : push_value(20)
+  53 : int_to_real
+  54 : call_ctor(Point, 1205691996, 2)
+  55 : load_local(5)
+  56 : load_field(3)
+  57 : store_field(0)
+  58 : load_local(5)
+  59 : load_local(3)
   60 : load_local(5)
-  61 : load_local(4)
-  62 : call_virtual(Terminal.Draw, 1)
-  63 : load_local(2)
-  64 : push_value('C:/work/springpp/prog/Stx.png')
-  65 : call_external(Bitmap.Save, 9)
-  66 : nop
+  61 : call_virtual(RuleBox.Draw, 1)
+  62 : new_object(Terminal)
+  63 : push_value(';')
+  64 : char_to_string
+  65 : call_ctor(Terminal, 746861746, 22)
+  66 : store_local(6)
+  67 : load_local(6)
+  68 : load_local(3)
+  69 : load_local(6)
+  70 : call_virtual(Terminal.Measure, 0)
+  71 : new_object(Point)
+  72 : push_value(10)
+  73 : int_to_real
+  74 : push_value(30)
+  75 : int_to_real
+  76 : call_ctor(Point, 1205691996, 2)
+  77 : load_local(6)
+  78 : load_field(3)
+  79 : store_field(0)
+  80 : load_local(6)
+  81 : load_local(3)
+  82 : load_local(6)
+  83 : call_virtual(Terminal.Draw, 1)
+  84 : new_object(Terminal)
+  85 : push_value('<=')
+  86 : call_ctor(Terminal, 746861746, 22)
+  87 : store_local(7)
+  88 : load_local(7)
+  89 : load_local(3)
+  90 : load_local(7)
+  91 : call_virtual(Terminal.Measure, 0)
+  92 : new_object(Point)
+  93 : push_value(10)
+  94 : int_to_real
+  95 : push_value(40)
+  96 : int_to_real
+  97 : call_ctor(Point, 1205691996, 2)
+  98 : load_local(7)
+  99 : load_field(3)
+  100 : store_field(0)
+  101 : load_local(7)
+  102 : load_local(3)
+  103 : load_local(7)
+  104 : call_virtual(Terminal.Draw, 1)
+  105 : new_object(Keyword)
+  106 : push_value('keyword')
+  107 : call_ctor(Keyword, 746861746, 26)
+  108 : store_local(8)
+  109 : load_local(8)
+  110 : load_local(3)
+  111 : load_local(8)
+  112 : call_virtual(Keyword.Measure, 0)
+  113 : new_object(Point)
+  114 : push_value(10)
+  115 : int_to_real
+  116 : push_value(50)
+  117 : int_to_real
+  118 : call_ctor(Point, 1205691996, 2)
+  119 : load_local(8)
+  120 : load_field(3)
+  121 : store_field(0)
+  122 : load_local(8)
+  123 : load_local(3)
+  124 : load_local(8)
+  125 : call_virtual(Keyword.Draw, 1)
+  126 : new_object(Diagram)
+  127 : new_object(DiagramTitle)
+  128 : push_value('term')
+  129 : call_ctor(DiagramTitle, 746861746, 14)
+  130 : call_ctor(Diagram, 746861746, 31)
+  131 : store_local(9)
+  132 : new_object(SyntaxRow)
+  133 : call_ctor(SyntaxRow, 746861746, 30)
+  134 : store_local(10)
+  135 : load_local(10)
+  136 : new_object(RuleBox)
+  137 : push_value('factor')
+  138 : call_ctor(RuleBox, 746861746, 18)
+  139 : call_procedure(System.Graphics:CompoundShape.Add, 1489900195, 43)
+  140 : load_local(9)
+  141 : load_local(10)
+  142 : call_procedure(System.Graphics:CompoundShape.Add, 1489900195, 43)
+  143 : load_local(2)
+  144 : push_value('C:/work/springpp/prog/Stx.png')
+  145 : call_external(Bitmap.Save, 9)
+  146 : nop
 

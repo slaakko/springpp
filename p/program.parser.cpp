@@ -111,6 +111,7 @@ soul::parser::Match ProgramParser<LexerT>::Program(LexerT& lexer, ParsingContext
                                 context->GetModulePart()->SetBlock(block);
                                 context->PushBlock(block);
                                 program = MakeProcedure(context, "@program", lexer, pos);
+                                program->SetLevel(0);
                                 context->GetModulePart()->AddSubroutine(program);
                             }
                             *parentMatch10 = match;

@@ -2913,6 +2913,35 @@ soul::parser::Match ExpressionParser<LexerT>::TypeName(LexerT& lexer, ParsingCon
             }
             break;
         }
+        case POINTER:
+        {
+            soul::parser::Match match(false);
+            soul::parser::Match* parentMatch7 = &match;
+            {
+                int64_t pos = lexer.GetPos();
+                soul::parser::Match match(false);
+                if (*lexer == POINTER)
+                {
+                    ++lexer;
+                    match.hit = true;
+                }
+                if (match.hit)
+                {
+                    {
+                        #ifdef SOUL_PARSER_DEBUG_SUPPORT
+                        if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "TypeName");
+                        #endif
+                        return soul::parser::Match(true, new soul::parser::Value<std::string>("pointer"));
+                    }
+                }
+                *parentMatch7 = match;
+            }
+            if (match.hit)
+            {
+                *parentMatch0 = match;
+            }
+            break;
+        }
     }
     #ifdef SOUL_PARSER_DEBUG_SUPPORT
     if (parser_debug_write_to_log)
@@ -3693,7 +3722,7 @@ soul::parser::Match ExpressionParser<LexerT>::VariableTypecast(LexerT& lexer, Pa
     }
     #endif
     soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627741);
-    std::unique_ptr<IdentifierNode> typeIdentifier;
+    std::unique_ptr<soul::parser::Value<std::string>> typeName;
     std::unique_ptr<Node> variableReference;
     soul::parser::Match match(false);
     soul::parser::Match* parentMatch0 = &match;
@@ -3711,8 +3740,8 @@ soul::parser::Match ExpressionParser<LexerT>::VariableTypecast(LexerT& lexer, Pa
                     soul::parser::Match match(false);
                     soul::parser::Match* parentMatch4 = &match;
                     {
-                        soul::parser::Match match = ExpressionParser<LexerT>::TypeIdentifier(lexer, context);
-                        typeIdentifier.reset(static_cast<IdentifierNode*>(match.value));
+                        soul::parser::Match match = ExpressionParser<LexerT>::TypeName(lexer, context);
+                        typeName.reset(static_cast<soul::parser::Value<std::string>*>(match.value));
                         *parentMatch4 = match;
                     }
                     if (match.hit)
@@ -3768,7 +3797,7 @@ soul::parser::Match ExpressionParser<LexerT>::VariableTypecast(LexerT& lexer, Pa
                 #ifdef SOUL_PARSER_DEBUG_SUPPORT
                 if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "VariableTypecast");
                 #endif
-                return soul::parser::Match(true, new VariableTypecastNode(typeIdentifier.release(), variableReference.release(), pos));
+                return soul::parser::Match(true, new VariableTypecastNode(typeName->value, variableReference.release(), pos));
             }
         }
         *parentMatch0 = match;
@@ -3800,8 +3829,8 @@ soul::parser::Match ExpressionParser<LexerT>::NewExpression(LexerT& lexer, Parsi
     }
     #endif
     soul::lexer::RuleGuard<LexerT> ruleGuard(lexer, 2310102263856627742);
-    std::unique_ptr<IntegerLiteralNode> arraySize = std::unique_ptr<IntegerLiteralNode>();
-    std::unique_ptr<IdentifierNode> objectTypeIdentifier;
+    std::unique_ptr<soul::parser::Value<std::string>> type;
+    std::unique_ptr<Node> arraySize;
     soul::parser::Match match(false);
     soul::parser::Match* parentMatch0 = &match;
     {
@@ -3821,8 +3850,8 @@ soul::parser::Match ExpressionParser<LexerT>::NewExpression(LexerT& lexer, Parsi
             soul::parser::Match match(false);
             soul::parser::Match* parentMatch2 = &match;
             {
-                soul::parser::Match match = TypeParser<LexerT>::ObjectTypeIdentifier(lexer, context);
-                objectTypeIdentifier.reset(static_cast<IdentifierNode*>(match.value));
+                soul::parser::Match match = ExpressionParser<LexerT>::TypeName(lexer, context);
+                type.reset(static_cast<soul::parser::Value<std::string>*>(match.value));
                 *parentMatch2 = match;
             }
             *parentMatch1 = match;
@@ -3860,22 +3889,8 @@ soul::parser::Match ExpressionParser<LexerT>::NewExpression(LexerT& lexer, Parsi
                             soul::parser::Match match(false);
                             soul::parser::Match* parentMatch8 = &match;
                             {
-                                soul::parser::Match match(false);
-                                soul::parser::Match* parentMatch9 = &match;
-                                {
-                                    int64_t pos = lexer.GetPos();
-                                    soul::parser::Match match(false);
-                                    if (*lexer == INTEGER_LITERAL)
-                                    {
-                                        ++lexer;
-                                        match.hit = true;
-                                    }
-                                    if (match.hit)
-                                    {
-                                        arraySize.reset(ParseIntegerLiteral(lexer, lexer.GetToken(pos), pos));
-                                    }
-                                    *parentMatch9 = match;
-                                }
+                                soul::parser::Match match = ExpressionParser<LexerT>::Expression(lexer, context);
+                                arraySize.reset(static_cast<Node*>(match.value));
                                 *parentMatch8 = match;
                             }
                             *parentMatch7 = match;
@@ -3885,10 +3900,10 @@ soul::parser::Match ExpressionParser<LexerT>::NewExpression(LexerT& lexer, Parsi
                     if (match.hit)
                     {
                         soul::parser::Match match(false);
-                        soul::parser::Match* parentMatch10 = &match;
+                        soul::parser::Match* parentMatch9 = &match;
                         {
                             soul::parser::Match match(false);
-                            soul::parser::Match* parentMatch11 = &match;
+                            soul::parser::Match* parentMatch10 = &match;
                             {
                                 int64_t pos = lexer.GetPos();
                                 soul::parser::Match match(false);
@@ -3903,12 +3918,12 @@ soul::parser::Match ExpressionParser<LexerT>::NewExpression(LexerT& lexer, Parsi
                                         #ifdef SOUL_PARSER_DEBUG_SUPPORT
                                         if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "NewExpression");
                                         #endif
-                                        return soul::parser::Match(true, new NewArrayExprNode(objectTypeIdentifier.release(), arraySize.release(), pos));
+                                        return soul::parser::Match(true, new NewArrayExprNode(type->value, arraySize.release(), pos));
                                     }
                                 }
-                                *parentMatch11 = match;
+                                *parentMatch10 = match;
                             }
-                            *parentMatch10 = match;
+                            *parentMatch9 = match;
                         }
                         *parentMatch6 = match;
                     }
@@ -3916,11 +3931,11 @@ soul::parser::Match ExpressionParser<LexerT>::NewExpression(LexerT& lexer, Parsi
                     if (!match.hit)
                     {
                         soul::parser::Match match(false);
-                        soul::parser::Match* parentMatch12 = &match;
+                        soul::parser::Match* parentMatch11 = &match;
                         lexer.SetPos(save);
                         {
                             soul::parser::Match match(false);
-                            soul::parser::Match* parentMatch13 = &match;
+                            soul::parser::Match* parentMatch12 = &match;
                             {
                                 int64_t pos = lexer.GetPos();
                                 soul::parser::Match match(true);
@@ -3930,12 +3945,12 @@ soul::parser::Match ExpressionParser<LexerT>::NewExpression(LexerT& lexer, Parsi
                                         #ifdef SOUL_PARSER_DEBUG_SUPPORT
                                         if (parser_debug_write_to_log) soul::lexer::WriteSuccessToLog(lexer, parser_debug_match_pos, "NewExpression");
                                         #endif
-                                        return soul::parser::Match(true, new NewExprNode(objectTypeIdentifier.release(), pos));
+                                        return soul::parser::Match(true, new NewExprNode(type->value, pos));
                                     }
                                 }
-                                *parentMatch13 = match;
+                                *parentMatch12 = match;
                             }
-                            *parentMatch12 = match;
+                            *parentMatch11 = match;
                         }
                         *parentMatch5 = match;
                     }

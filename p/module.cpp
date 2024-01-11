@@ -369,7 +369,7 @@ void Module::Load(const std::string& fromFilePath, Context* context)
         reader.PushBlock(context->GetBlock());
         initBlock->Read(reader);
         reader.PopBlock();
-        init = initBlock->GetProcedure(Name() + ".init");
+        init = initBlock->GetProcedure(Name() + ".@init");
     }
 }
 
@@ -457,7 +457,7 @@ void Module::Print(const std::string& textFilePath, ExecutionContext* context)
 
 void Module::SetInit(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos)
 {
-    init = MakeProcedure(context, Name() + ".init", lexer, pos);
+    init = MakeProcedure(context, Name() + ".@init", lexer, pos);
 }
 
 void Module::MakeInitBlock(Block* parent)

@@ -97,7 +97,7 @@ Value* Ord::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, 
 {
     if (argumentValues.size() != 1)
     {
-        ThrowError("'Ord' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
+        ThrowError("error: 'Ord' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
     }
     Value* value = argumentValues[0]->GetValue();
     switch (value->Kind())
@@ -111,7 +111,7 @@ Value* Ord::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, 
         }
         default:
         {
-            ThrowError("invalid 'Ord' function argument type", lexer, pos);
+            ThrowError("error: invalid 'Ord' function argument type", lexer, pos);
         }
     }
     return nullptr;
@@ -133,7 +133,7 @@ Value* Chr::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, 
 {
     if (argumentValues.size() != 1)
     {
-        ThrowError("'Chr' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
+        ThrowError("error: 'Chr' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
     }
     Value* value = argumentValues[0]->GetValue();
     switch (value->Kind())
@@ -143,13 +143,13 @@ Value* Chr::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, 
             int32_t intval = value->ToInteger();
             if (intval < 0 || intval > 255)
             {
-                ThrowError("invalid 'Chr' function argument", lexer, pos);
+                ThrowError("error: invalid 'Chr' function argument", lexer, pos);
             }
             return new CharValue(static_cast<char>(intval));
         }
         default:
         {
-            ThrowError("invalid 'Chr' function argument type", lexer, pos);
+            ThrowError("error: invalid 'Chr' function argument type", lexer, pos);
         }
     }
     return nullptr;
@@ -212,7 +212,7 @@ Value* Abs::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, 
 {
     if (argumentValues.size() != 1)
     {
-        ThrowError("'Abs' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
+        ThrowError("error: 'Abs' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
     }
     Value* value = argumentValues[0]->GetValue();
     switch (value->Kind())
@@ -227,7 +227,7 @@ Value* Abs::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, 
         }
         default:
         {
-            ThrowError("invalid 'Abs' function argument type", lexer, pos);
+            ThrowError("error: invalid 'Abs' function argument type", lexer, pos);
         }
     }
     return nullptr;
@@ -281,7 +281,7 @@ Value* Succ::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues,
 {
     if (argumentValues.size() != 1)
     {
-        ThrowError("'Succ' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
+        ThrowError("error: 'Succ' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
     }
     Value* value = argumentValues[0]->GetValue();
     return value->Succ();
@@ -319,7 +319,7 @@ Value* Pred::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues,
 {
     if (argumentValues.size() != 1)
     {
-        ThrowError("'Pred' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
+        ThrowError("error: 'Pred' function takes one argument, " + std::to_string(argumentValues.size()) + " arguments supplied", lexer, pos);
     }
     Value* value = argumentValues[0]->GetValue();
     return value->Pred();
@@ -512,6 +512,11 @@ void Write::Execute(ExecutionContext* context)
             Value* value = static_cast<Value*>(arg);
             p::WriteValue(value);
         }
+        else if (arg->IsStringObject())
+        {
+            StringObject* string = static_cast<StringObject*>(arg);
+            std::cout << string->Value();
+        }
     }
 }
 
@@ -537,6 +542,11 @@ void Writeln::Execute(ExecutionContext* context)
         {
             Value* value = static_cast<Value*>(arg);
             p::WriteValue(value);
+        }
+        else if (arg->IsStringObject())
+        {
+            StringObject* string = static_cast<StringObject*>(arg);
+            std::cout << string->Value();
         }
     }
     std::cout << "\n";

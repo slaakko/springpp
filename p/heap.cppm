@@ -10,7 +10,7 @@ import std.core;
 
 export namespace p {
 
-const int32_t defaultHeapSize = 4096 * 1024;
+const int32_t defaultHeapSize = 16384 * 1024;
 
 class Heap
 {

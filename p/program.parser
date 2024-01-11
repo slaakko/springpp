@@ -34,6 +34,7 @@ parser ProgramParser
                 context->GetModulePart()->SetBlock(block); 
                 context->PushBlock(block);
                 program = MakeProcedure(context, "@program", lexer, pos); 
+                program->SetLevel(0);
                 context->GetModulePart()->AddSubroutine(program);
             }
             Block(context, program, true):programBlock 

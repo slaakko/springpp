@@ -43,6 +43,7 @@ public:
     bool IsFunctionValue() const { return kind == ValueKind::functionValue; }
     bool IsGenericPointerValue() const { return kind == ValueKind::genericPointerValue; }
     bool IsNilValue() const { return kind == ValueKind::nilValue; }
+    bool IsNilObject() const override { return kind == ValueKind::nilValue; }
 private:
     ValueKind kind;
 };

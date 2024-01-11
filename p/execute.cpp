@@ -9,14 +9,32 @@ import p.value;
 
 namespace p {
 
-Frame::Frame(int32_t size_) : size(size_), mem(static_cast<uint8_t*>(malloc(size * valueSize)))
+Frame::Frame(int32_t size_, const std::vector<Parameter>& parameters) : size(size_), mem(static_cast<uint8_t*>(malloc(size * valueSize)))
 {
     std::memset(mem, 0, size * valueSize);
+    parameterQualifiers.resize(size);
+    int32_t n = parameters.size();
+    for (int32_t i = 0; i < n; ++i)
+    {
+        const auto& parameter = parameters[i];
+        parameterQualifiers[i] = parameter.Qualifier();
+    }
+    owners.resize(size);
 }
 
 Frame::~Frame()
 {
     free(mem);
+}
+
+const OwnerIndex& Frame::GetOwner(int32_t index)
+{
+    return owners[index];
+}
+
+void Frame::SetOwner(int32_t index, const OwnerIndex& ownerIndex)
+{
+    owners[index] = ownerIndex;
 }
 
 Object* Frame::GetObject(int32_t index)
@@ -28,7 +46,18 @@ Object* Frame::GetObject(int32_t index)
         {
             return nullptr;
         }
-        return static_cast<Object*>(static_cast<void*>(addr));
+        Object* object = static_cast<Object*>(static_cast<void*>(addr));
+        const OwnerIndex& ownerIndex = GetOwner(index);
+        if (ownerIndex.IsDefault())
+        {
+            object->SetOwner(this);
+            object->SetOwnerIndex(index);
+        }
+        else
+        {
+            object = ownerIndex.owner->GetObject(ownerIndex.index);
+        }
+        return object;
     }
     else
     {
@@ -40,6 +69,19 @@ void Frame::SetObject(int32_t index, Object* object, ExecutionContext* context)
 {
     if (index >= 0 && index < size)
     {
+        if (parameterQualifiers[index] == ParameterQualifier::varParam)
+        {
+            const OwnerIndex& ownerIndex = GetOwner(index);
+            if (!ownerIndex.IsDefault())
+            {
+                ownerIndex.owner->SetObject(ownerIndex.index, object, context);
+            }
+            else
+            {
+                OwnerIndex ownerIndex(object->Owner(), object->OwnerIndex());
+                SetOwner(index, ownerIndex);
+            }
+        }
         uint8_t* addr = mem + index * valueSize;
         void* ptr = static_cast<void*>(addr);
         switch (object->Kind())
@@ -53,6 +95,13 @@ void Frame::SetObject(int32_t index, Object* object, ExecutionContext* context)
                     {
                         BooleanValue* booleanValue = static_cast<BooleanValue*>(value);
                         new (ptr)BooleanValue(*booleanValue);
+                        break;
+                    }
+                    case ValueKind::enumerationValue:
+                    {
+                        EnumerationValue* enumerationValue = static_cast<EnumerationValue*>(value);
+                        IntegerValue integerValue(enumerationValue->GetIntegerValue());
+                        new (ptr)IntegerValue(integerValue);
                         break;
                     }
                     case ValueKind::integerValue:
@@ -126,6 +175,12 @@ void Frame::SetObject(int32_t index, Object* object, ExecutionContext* context)
                 new (ptr)StringObjectPtr(*stringObjectPtr);
                 break;
             }
+            case ObjectKind::nilObject:
+            {
+                HeapObjectPtr heapObjectPtr(static_cast<HeapObject*>(object));
+                new (ptr)HeapObjectPtr(heapObjectPtr);
+                break;
+            }
         }
     }
     else
@@ -174,6 +229,34 @@ Frame* ExecutionContext::CurrentFrame()
         throw std::runtime_error("current_frame: frames empty");
     }
     return frames.back().get();
+}
+
+Frame* ExecutionContext::ParentFrame(int32_t parentLevel)
+{
+    if (parentLevel >= 0 && parentLevel < parentFrames.size())
+    {
+        if (!parentFrames[parentLevel])
+        {
+            throw std::runtime_error("parent_frame: parent frame " + std::to_string(parentLevel) + " is null");
+        }
+        return parentFrames[parentLevel];
+    }
+    else
+    {
+        throw std::runtime_error("parent_frame: invalid parent level " + std::to_string(parentLevel));
+    }
+}
+
+void ExecutionContext::SetParentFrame(int32_t parentLevel, Frame* frame)
+{
+    while (parentLevel != -1 && parentLevel >= parentFrames.size())
+    {
+        parentFrames.push_back(nullptr);
+    }
+    if (parentLevel != -1)
+    {
+        parentFrames[parentLevel] = frame;
+    }
 }
 
 void ExecutionContext::PushFrame(Frame* frame)

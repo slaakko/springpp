@@ -34,11 +34,11 @@ std::string VariableKindStr(VariableKind kind)
     return std::string();
 }
 
-Variable::Variable() : kind(VariableKind::local), name(), index(-1), type(nullptr)
+Variable::Variable() : kind(VariableKind::local), name(), index(-1), type(nullptr), block(nullptr)
 {
 }
 
-Variable::Variable(const std::string& name_) : kind(VariableKind::local), name(name_), index(-1), type(nullptr)
+Variable::Variable(const std::string& name_) : kind(VariableKind::local), name(name_), index(-1), type(nullptr), block(nullptr)
 {
 }
 
@@ -116,7 +116,7 @@ Variable* GlobalVariableMap::GetVariable(int32_t index) const
 
 void GlobalVariableMap::AllocateFrame()
 {
-    globalFrame.reset(new Frame(variableMap.size()));
+    globalFrame.reset(new Frame(variableMap.size(), std::vector<Parameter>()));
 }
 
 Object* GlobalVariableMap::GetObject(int32_t index) const

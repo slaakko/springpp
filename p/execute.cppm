@@ -20,16 +20,29 @@ namespace execute {}
 
 class ExecutionContext;
 
+struct OwnerIndex
+{
+    OwnerIndex() : owner(nullptr), index(-1) {}
+    OwnerIndex(Frame* owner_, int32_t index_) : owner(owner_), index(index_) {}
+    bool IsDefault() const { return owner == nullptr; }
+    Frame* owner;
+    int32_t index;
+};
+
 class Frame
 {
 public:
-    Frame(int32_t size_);
+    Frame(int32_t size_, const std::vector<Parameter>& parameters);
     ~Frame();
     Object* GetObject(int32_t index);
     void SetObject(int32_t index, Object* object, ExecutionContext* context);
+    const OwnerIndex& GetOwner(int32_t index);
+    void SetOwner(int32_t index, const OwnerIndex& ownerIndex);
 private:
     int32_t size;
     uint8_t* mem;
+    std::vector<ParameterQualifier> parameterQualifiers;
+    std::vector<OwnerIndex> owners;
 };
 
 class Stack
@@ -49,6 +62,8 @@ public:
     ExecutionContext();
     Stack* GetStack() { return &stack; }
     Frame* CurrentFrame();
+    Frame* ParentFrame(int32_t parentLevel);
+    void SetParentFrame(int32_t parentLevel, Frame* frame);
     Heap* GetHeap() const { return heap; }
     void SetHeap(Heap* heap_) { heap = heap_; }
     void PushFrame(Frame* frame);
@@ -66,6 +81,7 @@ public:
 private:
     Stack stack;
     std::vector<std::unique_ptr<Frame>> frames;
+    std::vector<Frame*> parentFrames;
     Subroutine* currentSubroutine;
     std::stack<Subroutine*> subroutineStack;
     Instruction* next;

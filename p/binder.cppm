@@ -27,9 +27,9 @@ class BoundNodeVisitor;
 enum class BoundNodeKind
 {
     boundCompoundStatementNode, boundEmptyStatementNode, boundAssignmentStatementNode, boundProcedureCallStatementNode, boundExpressionStatementNode, 
-    boundIfStatementNode, boundWhileStatementNode, boundRepeatStatementNode, boundReturnFunctionResultStatementNode,
+    boundIfStatementNode, boundWhileStatementNode, boundRepeatStatementNode, boundRangeNode, boundCaseNode, boundCaseStatementNode, boundReturnFunctionResultStatementNode,
     boundBinaryExprNode, boundUnaryExprNode, boundLiteralNode, boundParameterNode, boundVariableNode, boundFunctionResultNode, boundConstantNode, 
-    boundConversionNode, boundValueConversionNode,
+    boundConversionNode, boundValueConversionNode, boundVariableTypecastNode,
     boundProcedureNode, boundFunctionNode, boundMethodNode, boundMemberExprNode, 
     boundFunctionCallNode, boundConstructorCallNode, boundMethodCallNode, boundNewExpressionNode, boundNewArrayExpressionNode, boundIndexExprNode, 
     boundArrayLengthNode, boundStringLengthNode
@@ -82,6 +82,7 @@ public:
     virtual void Load(Emitter* emitter);
     virtual void Store(Emitter* emitter);
     virtual BoundExpressionNode* Clone() const = 0;
+    virtual bool IsConst() const { return false; }
     void SetArgumentFlags(ArgumentFlags argumentFlags_) { argumentFlags = argumentFlags_; }
     ArgumentFlags GetArgumentFlags() const { return argumentFlags; }
 private:
@@ -136,6 +137,7 @@ public:
     void Store(Emitter* emitter) override;
     void Accept(BoundNodeVisitor& visitor) override;
     BoundExpressionNode* Clone() const override;
+    bool IsConst() const override;
 private:
     Parameter* parameter;
 };
@@ -149,6 +151,7 @@ public:
     void Store(Emitter* emitter) override;
     void Accept(BoundNodeVisitor& visitor) override;
     BoundExpressionNode* Clone() const override;
+    bool IsConst() const override;
 private:
     Variable* variable;
 };
@@ -197,6 +200,17 @@ public:
     BoundExpressionNode* Clone() const override;
 private:
     std::unique_ptr<BoundExpressionNode> operand;
+};
+
+class BoundVariableTypecastNode : public BoundExpressionNode
+{
+public:
+    BoundVariableTypecastNode(BoundExpressionNode* var_, Type* type_, int64_t pos_);
+    void Load(Emitter* emitter) override;
+    void Accept(BoundNodeVisitor& visitor) override;
+    BoundExpressionNode* Clone() const override;
+private:
+    std::unique_ptr<BoundExpressionNode> var;
 };
 
 class BoundProcedureNode : public BoundExpressionNode
@@ -294,15 +308,15 @@ private:
 class BoundNewArrayExpressionNode : public BoundExpressionNode
 {
 public:
-    BoundNewArrayExpressionNode(ObjectType* objectType_, int32_t arraySize_, ArrayType* arrayType_, int64_t pos_);
-    ObjectType* GetObjectType() const { return objectType; }
-    int32_t ArraySize() const { return arraySize; }
+    BoundNewArrayExpressionNode(Type* elementType_, BoundExpressionNode* arraySize_, ArrayType* arrayType_, int64_t pos_);
+    Type* ElementType() const { return elementType; }
+    BoundExpressionNode* ArraySize() const { return arraySize.get(); }
     void Load(Emitter* emitter) override;
     void Accept(BoundNodeVisitor& visitor) override;
     BoundExpressionNode* Clone() const override;
 private:
-    ObjectType* objectType;
-    int32_t arraySize;
+    Type* elementType;
+    std::unique_ptr<BoundExpressionNode> arraySize;
 };
 
 class BoundMemberExprNode : public BoundExpressionNode
@@ -457,6 +471,49 @@ private:
     std::unique_ptr<BoundExpressionNode> condition;
 };
 
+class BoundRangeNode : public BoundNode
+{
+public:
+    BoundRangeNode(int64_t pos_, Value* rangeStart_, Value* rangeEnd_);
+    void Accept(BoundNodeVisitor& visitor) override;
+    Value* RangeStart() const { return rangeStart.get(); }
+    Value* RangeEnd() const { return rangeEnd.get(); }
+private:
+    std::unique_ptr<Value> rangeStart;
+    std::unique_ptr<Value> rangeEnd;
+};
+
+class BoundCaseNode : public BoundNode
+{
+public:
+    BoundCaseNode(int64_t pos_);
+    BoundStatementNode* Statement() const { return statement.get(); }
+    void SetStatement(BoundStatementNode* boundStatement);
+    const std::vector<std::unique_ptr<BoundRangeNode>>& Ranges() const { return ranges; }
+    void AddRange(BoundRangeNode* range);
+    void Accept(BoundNodeVisitor& visitor) override;
+private:
+    std::vector<std::unique_ptr<BoundRangeNode>> ranges;
+    std::unique_ptr<BoundStatementNode> statement;
+};
+
+class BoundCaseStatementNode : public BoundStatementNode
+{
+public:
+    BoundCaseStatementNode(int64_t pos_);
+    BoundExpressionNode* Condition() const { return condition.get(); }
+    void SetCondition(BoundExpressionNode* condition_);
+    void Accept(BoundNodeVisitor& visitor) override;
+    void AddCase(BoundCaseNode* caseNode);
+    const std::vector<std::unique_ptr<BoundCaseNode>>& Cases() const { return cases; }
+    BoundStatementNode* ElsePart() const { return elsePart.get(); }
+    void SetElsePart(BoundStatementNode* elsePart_);
+private:
+    std::unique_ptr<BoundExpressionNode> condition;
+    std::vector<std::unique_ptr<BoundCaseNode>> cases;
+    std::unique_ptr<BoundStatementNode> elsePart;
+};
+
 class BoundReturnFunctionResultStatementNode : public BoundStatementNode
 {
 public:
@@ -481,6 +538,7 @@ public:
     virtual void Visit(BoundConstantNode& node) {}
     virtual void Visit(BoundConversionNode& node) {}
     virtual void Visit(BoundValueConversionNode& node) {}
+    virtual void Visit(BoundVariableTypecastNode& node) {}
     virtual void Visit(BoundProcedureNode& node) {}
     virtual void Visit(BoundFunctionNode& node) {}
     virtual void Visit(BoundMethodNode& node) {}
@@ -501,9 +559,15 @@ public:
     virtual void Visit(BoundIfStatementNode& node) {}
     virtual void Visit(BoundWhileStatementNode& node) {}
     virtual void Visit(BoundRepeatStatementNode& node) {}
+    virtual void Visit(BoundRangeNode& node) {}
+    virtual void Visit(BoundCaseNode& node) {}
+    virtual void Visit(BoundCaseStatementNode& node) {}
     virtual void Visit(BoundReturnFunctionResultStatementNode& node) {}
 };
 
 std::unique_ptr<BoundCompoundStatementNode> Bind(ParsingContext* context, CompoundStatementNode* compoundStatement, Subroutine* subroutine, soul::lexer::LexerBase<char>& lexer);
+
+std::unique_ptr<BoundCompoundStatementNode> Bind(ParsingContext* context, CompoundStatementNode* compoundStatement, Subroutine* subroutine, soul::lexer::LexerBase<char>& lexer,
+    int level_);
 
 } // namespace p

@@ -28,6 +28,7 @@ parser FunctionParser
         ::= FunctionHeading(context):functionHeading
             { 
                 function = MakeFunction(context, functionHeading, lexer, pos); 
+                function->SetLevel(context->GetBlock()->Level() + 1);
             }
             SEMICOLON 
             SubroutineBlock(context, function):subroutineBlock

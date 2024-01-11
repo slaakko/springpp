@@ -27,7 +27,7 @@ class Context;
 
 enum class ParameterQualifier
 {
-    varParam, constParam, valueParam
+    valueParam, varParam, constParam
 };
 
 class Parameter : public Variable
@@ -39,6 +39,8 @@ public:
     void Write(Writer& writer);
     void Read(Reader& reader);
     void Print(util::CodeFormatter& formatter);
+    bool IsVarParam() const { return qualifier == ParameterQualifier::varParam; }
+    bool IsConst() const override { return qualifier == ParameterQualifier::constParam;  }
 private:
     ParameterQualifier qualifier;
 };
@@ -139,8 +141,10 @@ public:
     DeclarationKind GetDeclarationKind() const { return declarationKind; }
     bool IsDeclaration() const { return declarationKind == DeclarationKind::declaration; }
     bool IsDefinition() const { return declarationKind == DeclarationKind::definition; }
-    void SetDeclaration() { declarationKind = DeclarationKind::declaration; }
+    void SetAsDeclaration() { declarationKind = DeclarationKind::declaration; }
     SubroutineHeading* Heading() const { return heading.get(); }
+    void SetDeclaration(Subroutine* declaration_) { declaration = declaration_; }
+    Subroutine* GetDeclaration() const { return declaration; }
     void SetForward() { forward = true; }
     bool IsForward() const { return forward; }
     void SetExternal() { external = true; }
@@ -149,6 +153,7 @@ public:
     Block* GetBlock() const { return block.get(); }
     const std::string& FullName() const { return heading->FullName(); }
     const std::string& CommonName() const { return heading->CommonName(); }
+    virtual std::string InfoName() const { return FullName(); }
     const std::vector<Parameter>& Parameters() const { return heading->Parameters(); }
     std::vector<Parameter>& Parameters() { return heading->Parameters(); }
     virtual int32_t MinParameterCount() const { return heading->Parameters().size(); }
@@ -180,13 +185,18 @@ public:
     bool IsGenerated() const { return (flags & SubroutineFlags::generated) != SubroutineFlags::none; }
     void SetImplementationGenerated() { flags = flags | SubroutineFlags::implementationGenerated; }
     bool IsImplementationGenerated() const { return (flags & SubroutineFlags::implementationGenerated) != SubroutineFlags::none; }
+    bool IsVirtualOrOverride() const { return heading->GetVirtuality() != Virtuality::none; }
+    int32_t Level() const { return level; }
+    void SetLevel(int32_t level_) { level = level_; }
 private:
     SubroutineKind kind;
     DeclarationKind declarationKind;
     std::unique_ptr<SubroutineHeading> heading;
+    Subroutine* declaration;
     SubroutineFlags flags;
     bool forward;
     bool external;
+    int32_t level;
     int32_t nextTempVarIndex;
     std::unique_ptr<Block> block;
     int32_t moduleId;
@@ -220,6 +230,7 @@ public:
     ProcedureKind Kind() const { return kind; }
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
+    std::string InfoName() const override;
     const ProcedureHeading* GetProcedureHeading() const { return static_cast<const ProcedureHeading*>(Heading()); }
     bool IsStandardProcedure() const { return kind == ProcedureKind::standardproc; }
     bool IsRegularProcedure() const { return kind == ProcedureKind::regularproc; }
@@ -257,6 +268,7 @@ public:
     Function(FunctionKind kind_, FunctionHeading* heading_);
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
+    std::string InfoName() const override;
     FunctionKind FnKind() const { return fnkind; }
     const FunctionHeading* GetFunctionHeading() const { return static_cast<const FunctionHeading*>(Heading()); }
     FunctionHeading* GetFunctionHeading() { return static_cast<FunctionHeading*>(Heading()); }
@@ -310,6 +322,7 @@ public:
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     void ResolveDeclaration(ParsingContext* context, soul::lexer::LexerBase<char>& lexer, int64_t pos) override;
+    std::string InfoName() const override;
     void SetImplementation(Constructor* implementation_) { implementation = implementation_; }
     Constructor* GetImplementation() const { return implementation; }
     ConstructorCall* GetConstructorCall() const { return constructorCall.get(); }

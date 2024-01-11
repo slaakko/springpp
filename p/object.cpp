@@ -21,7 +21,7 @@ bool HasNullContent(uint8_t* addr)
     return true;
 }
 
-Object::Object(ObjectKind kind_) : kind(kind_)
+Object::Object(ObjectKind kind_) : kind(kind_), owner(nullptr), ownerIndex(-1)
 {
 }
 
@@ -85,44 +85,6 @@ void PtrObject::SetObject(Object* object_)
     object = object_; 
 }
 
-VarObject::VarObject(Object** localObject_) : Object(ObjectKind::varObject), localObject(localObject_)
-{
-}
-
-Object* VarObject::Clone() const
-{
-    return new VarObject(localObject);
-}
-
-Object* VarObject::GetObject() 
-{ 
-    return (*localObject)->GetObject(); 
-}
-
-void VarObject::SetObject(Object* value_) 
-{ 
-    (*localObject)->SetObject(value_); 
-}
-
-ConstObject::ConstObject(Object* object_) : Object(ObjectKind::constObject), object(object_)
-{
-}
-
-Object* ConstObject::Clone() const
-{
-    return new ConstObject(object);
-}
-
-Object* ConstObject::GetObject()
-{ 
-    return object->GetObject(); 
-}
-
-void ConstObject::SetObject(Object* object_)
-{
-    throw std::runtime_error("cannot store to a constant");
-}
-
 HeapObject::HeapObject(ObjectType* type_, int32_t fieldCount_, int32_t collection_) : 
     Object(ObjectKind::heapObject), type(type_), fieldCount(fieldCount_), collection(collection_)
 {
@@ -173,14 +135,12 @@ void HeapObject::Init(ExecutionContext* context)
             }
             case TypeKind::stringType:
             {
-                StringObjectPtr stringPtr(nullptr);
-                SetField(i, &stringPtr, context);
+                SetField(i, NilObject::Ptr(), context);
                 break;
             }
             case TypeKind::objectType:
             {
-                HeapObjectPtr objectPtr(nullptr);
-                SetField(i, &objectPtr, context);
+                SetField(i, NilObject::Ptr(), context);
                 break;
             }
             case TypeKind::pointerType:
@@ -304,6 +264,12 @@ void HeapObject::SetField(int32_t fieldIndex, Object* object, ExecutionContext* 
             new (Ptr() + offset)ArrayObjectPtr(*arrayObjectPtr);
             break;
         }
+        case ObjectKind::nilObject:
+        {
+            HeapObjectPtr heapObjectPtr(static_cast<HeapObject*>(object));
+            new (static_cast<void*>(Ptr() + offset))HeapObjectPtr(heapObjectPtr);
+            break;
+        }
     }
 }
 
@@ -383,16 +349,14 @@ void ArrayObject::Init(ExecutionContext* context)
                 SetElement(i, &value, context);
                 break;
             }
-            case TypeKind::objectType:
-            {
-                HeapObjectPtr objectPtr(nullptr);
-                SetElement(i, &objectPtr, context);
-                break;
-            }
             case TypeKind::stringType:
             {
-                StringObjectPtr objectPtr(nullptr);
-                SetElement(i, &objectPtr, context);
+                SetElement(i, NilObject::Ptr(), context);
+                break;
+            }
+            case TypeKind::objectType:
+            {
+                SetElement(i, NilObject::Ptr(), context);
                 break;
             }
         }
@@ -458,6 +422,11 @@ void ArrayObject::SetElement(int32_t elementIndex, Object* element, ExecutionCon
                     new (static_cast<void*>(Ptr() + offset))GenericPointerValue(*pointerValue);
                     break;
                 }
+                default:
+                {
+                    int x = 0;
+                    break;
+                }
             }
             break;
         }
@@ -471,6 +440,41 @@ void ArrayObject::SetElement(int32_t elementIndex, Object* element, ExecutionCon
         {
             HeapObjectPtr* heapObjectPtr = static_cast<HeapObjectPtr*>(element);
             new (static_cast<void*>(Ptr() + offset))HeapObjectPtr(*heapObjectPtr);
+            break;
+        }
+        case ObjectKind::nilObject:
+        {
+            HeapObjectPtr heapObjectPtr(static_cast<HeapObject*>(element));
+            new (static_cast<void*>(Ptr() + offset))HeapObjectPtr(heapObjectPtr);
+            break;
+        }
+        case ObjectKind::arrayObject:
+        {
+            ArrayObjectPtr arrayObjectPtr(static_cast<ArrayObject*>(element));
+            new (static_cast<void*>(Ptr() + offset))ArrayObjectPtr(arrayObjectPtr);
+            break;
+        }
+        case ObjectKind::arrayObjectPtr:
+        {
+            ArrayObjectPtr arrayObjectPtr(static_cast<ArrayObject*>(element));
+            new (static_cast<void*>(Ptr() + offset))ArrayObjectPtr(arrayObjectPtr);
+            break;
+        }
+        case ObjectKind::stringObject:
+        {
+            StringObjectPtr stringObjectPtr(static_cast<StringObject*>(element));
+            new (static_cast<void*>(Ptr() + offset))StringObjectPtr(stringObjectPtr);
+            break;
+        }
+        case ObjectKind::stringObjectPtr:
+        {
+            StringObjectPtr* stringObjectPtr = static_cast<StringObjectPtr*>(element);
+            new (static_cast<void*>(Ptr() + offset))StringObjectPtr(*stringObjectPtr);
+            break;
+        }
+        default:
+        {
+            int x = 0;
             break;
         }
     }
@@ -563,6 +567,21 @@ void StringObjectPtr::SetObject(Object* value_)
 StringObject* StringObjectPtr::ToStringObject(ExecutionContext* context) 
 {
     return GetObject()->ToStringObject(context);
+}
+
+NilObject::NilObject() : Object(ObjectKind::nilObject)
+{
+}
+
+Object* NilObject::Clone() const
+{
+    return const_cast<NilObject*>(this);
+}
+
+Object* NilObject::Ptr()
+{
+    static NilObject instance;
+    return &instance;
 }
 
 } // namespace p

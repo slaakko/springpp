@@ -19,10 +19,10 @@ void TerminateApplication()
     util::Done();
 }
 
-void Run(const std::string& filePath)
+void Run(const std::string& filePath, int32_t heapSize)
 {
     p::Init();
-    p::Heap heap;
+    p::Heap heap(heapSize);
     p::ModuleMap moduleMap;
     p::Module mod;
     p::ExecutionContext context;
@@ -54,9 +54,15 @@ void PrintHelp()
 {
     std::cout << "Usage: rp [options] FILE.pcode" << "\n";
     std::cout << "Run p-language pcode program file FILE.pcode" << "\n";
+    std::cout << "\n";
     std::cout << "Options:" << "\n";
+    std::cout << "\n";
     std::cout << "--help | -h" << "\n";
     std::cout << "  Print help and exit." << "\n";
+    std::cout << "\n";
+    std::cout << "--heap-size=SIZE_MB | -s=SIZE_MB" << "\n";
+    std::cout << "  Set heap size to SIZE_MB megabytes." << "\n";
+    std::cout << "  Default heap size is 16 megabytes." << "\n";
     std::cout << "\n";
 }
 
@@ -65,37 +71,82 @@ int main(int argc, const char** argv)
     try
     {
         InitApplication();
+        int32_t heapSize = p::defaultHeapSize;
         std::string filePath;
         for (int i = 1; i < argc; ++i)
         {
             std::string arg = argv[i];
             if (arg.starts_with("--"))
             {
-                if (arg == "--help")
+                if (arg.find('=') != std::string::npos)
                 {
-                    PrintHelp();
-                    return 0;
+                    std::vector<std::string> components = util::Split(arg, '=');
+                    if (components.size() == 2)
+                    {
+                        if (components[0] == "--heap-size")
+                        {
+                            heapSize = 1024 * 1024 * std::stoi(components[1]);
+                        }
+                        else
+                        {
+                            throw std::runtime_error("unknown option '" + arg + "'");
+                        }
+                    }
+                    else
+                    {
+                        throw std::runtime_error("invalid option '" + arg + "'");
+                    }
                 }
                 else
                 {
-                    throw std::runtime_error("unknown option '" + arg + "'");
+                    if (arg == "--help")
+                    {
+                        PrintHelp();
+                        return 0;
+                    }
+                    else
+                    {
+                        throw std::runtime_error("unknown option '" + arg + "'");
+                    }
                 }
             }
             else if (arg.starts_with("-"))
             {
                 std::string options(arg.substr(1));
-                for (char o : options)
+                if (options.find('=') != std::string::npos)
                 {
-                    switch (o)
+                    std::vector<std::string> components = util::Split(arg, '=');
+                    if (components.size() == 2)
                     {
-                        case 'h':
+                        if (components[0] == "s")
                         {
-                            PrintHelp();
-                            return 0;
+                            heapSize = 1024 * 1024 * std::stoi(components[1]);
                         }
-                        default:
+                        else
                         {
-                            throw std::runtime_error("unknown option '-" + std::string(1, o) + "'");
+                            throw std::runtime_error("unknown option '" + arg + "'");
+                        }
+                    }
+                    else
+                    {
+                        throw std::runtime_error("invalid option '" + arg + "'");
+                    }
+                }
+                else
+                {
+                    for (char o : options)
+                    {
+                        switch (o)
+                        {
+                            case 'h':
+                            {
+                                PrintHelp();
+                                return 0;
+                            }
+                            default:
+                            {
+                                throw std::runtime_error("unknown option '-" + std::string(1, o) + "'");
+                            }
                         }
                     }
                 }
@@ -107,7 +158,7 @@ int main(int argc, const char** argv)
         }
         if (!filePath.empty())
         {
-            Run(filePath);
+            Run(filePath, heapSize);
         }
         else
         {

@@ -69,6 +69,7 @@ parser UnitParser
             { 
                 context->GetModulePart()->LoadModules(context); 
                 Block* block = new Block(context->GetBlock()); 
+                block->SetLevel(0);
                 context->GetModulePart()->SetBlock(block); 
                 context->PushBlock(block); 
                 block->ImportModules(context);
@@ -83,8 +84,8 @@ parser UnitParser
         ;
 
     ProcedureAndFunctionHeadingPart(ParsingContext* context, var p::Procedure* procedure, var p::Function* function)
-        ::= (   ProcedureHeading(context):procedureHeading{ procedure = MakeProcedure(context, procedureHeading, lexer, pos); procedure->SetDeclaration(); }
-            |   FunctionHeading(context):functionHeading{ function = MakeFunction(context, functionHeading, lexer, pos); function->SetDeclaration(); }
+        ::= (   ProcedureHeading(context):procedureHeading{ procedure = MakeProcedure(context, procedureHeading, lexer, pos); procedure->SetAsDeclaration(); }
+            |   FunctionHeading(context):functionHeading{ function = MakeFunction(context, functionHeading, lexer, pos); function->SetAsDeclaration(); }
             ) 
             SEMICOLON
         ;
@@ -96,6 +97,7 @@ parser UnitParser
             { 
                 context->GetModulePart()->LoadModules(context); 
                 Block* block = new Block(context->GetBlock()); 
+                block->SetLevel(0);
                 context->GetModulePart()->SetBlock(block); 
                 context->PushBlock(block); 
                 block->ImportModules(context);

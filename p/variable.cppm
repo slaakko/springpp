@@ -36,11 +36,14 @@ public:
     bool IsParameter() const { return kind == VariableKind::parameter; }
     bool IsGlobal() const { return kind == VariableKind::global; }
     virtual ~Variable();
+    virtual bool IsConst() const { return false; }
     const std::string& Name() const { return name; }
     int32_t Index() const { return index; }
     void SetIndex(int32_t index_) { index = index_; }
     Type* GetType() const { return type; }
     void SetType(Type* type_);
+    Block* GetBlock() const { return block; }
+    void SetBlock(Block* block_) { block = block_; }
     void Write(Writer& writer);
     void Read(Reader& reader);
     void Resolve(Context* context);
@@ -51,6 +54,7 @@ private:
     int32_t index;
     Type* type;
     util::uuid typeId;
+    Block* block;
 };
 
 class GlobalVariableMap

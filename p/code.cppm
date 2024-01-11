@@ -67,6 +67,7 @@ public:
     BasicBlock* CurrentBasicBlock() const { return currentBasicBlock; }
     void PushBasicBlock(BasicBlock* basicBlock);
     void PopBasicBlock();
+    void IncrementOpenBasicBlocks();
     void EnqueuePatch(Patch* patch);
     void ApplyPatches();
     Context* GetContext() const { return context; }
@@ -78,6 +79,7 @@ private:
     std::stack<BasicBlock*> basicBlockStack;
     std::map<BasicBlock*, std::vector<std::unique_ptr<Patch>>> patchMap;
     Context* context;
+    int32_t openBasicBlocks;
 };
 
 void GenerateCode(Subroutine* subroutine, Block* block, BoundCompoundStatementNode* boundCompoundStatementNode, soul::lexer::LexerBase<char>& lexer, int64_t pos, Context* context);

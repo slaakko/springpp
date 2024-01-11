@@ -31,7 +31,7 @@ public:
     Block(Block* parent_);
     void AddFundamentalTypes();
     void AddOperatorFunctions();
-    void SetSubroutine(Subroutine* subroutine_) { subroutine = subroutine_; }
+    void SetSubroutine(Subroutine* subroutine_);
     Subroutine* GetSubroutine() const { return subroutine; }
     void Write(Writer& writer);
     void Read(Reader& reader);
@@ -71,9 +71,12 @@ public:
     void Print(util::CodeFormatter& formatter, ExecutionContext* context);
     void CheckInterface();
     void MakeVmts(Context* context);
+    int32_t Level() const { return level; }
+    void SetLevel(int32_t level_) { level = level_; }
 private:
     Block* parent;
     Subroutine* subroutine;
+    int32_t level;
     std::set<Module*> importedModules;
     std::map<std::string, Type*> typeMap;
     std::vector<std::unique_ptr<Type>> types;

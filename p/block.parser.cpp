@@ -61,6 +61,7 @@ soul::parser::Match BlockParser<LexerT>::Block(LexerT& lexer, ParsingContext* co
                         {
                             block.reset(new p::Block(context->GetBlock()));
                             block->SetSubroutine(subroutine);
+                            block->SetLevel(subroutine->Level());
                             subroutine->AddParameters(block.get());
                             context->PushBlock(block.get());
                             if (root)

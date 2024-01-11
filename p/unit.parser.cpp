@@ -429,6 +429,7 @@ soul::parser::Match UnitParser<LexerT>::InterfacePart(LexerT& lexer, ParsingCont
                     {
                         context->GetModulePart()->LoadModules(context);
                         Block *block = new Block(context->GetBlock());
+                        block->SetLevel(0);
                         context->GetModulePart()->SetBlock(block);
                         context->PushBlock(block);
                         block->ImportModules(context);
@@ -573,7 +574,7 @@ soul::parser::Match UnitParser<LexerT>::ProcedureAndFunctionHeadingPart(LexerT& 
                         if (match.hit)
                         {
                             procedure = MakeProcedure(context, procedureHeading.release(), lexer, pos);
-                            procedure->SetDeclaration();
+                            procedure->SetAsDeclaration();
                         }
                         *parentMatch3 = match;
                     }
@@ -594,7 +595,7 @@ soul::parser::Match UnitParser<LexerT>::ProcedureAndFunctionHeadingPart(LexerT& 
                         if (match.hit)
                         {
                             function = MakeFunction(context, functionHeading.release(), lexer, pos);
-                            function->SetDeclaration();
+                            function->SetAsDeclaration();
                         }
                         *parentMatch4 = match;
                     }
@@ -717,6 +718,7 @@ soul::parser::Match UnitParser<LexerT>::ImplementationPart(LexerT& lexer, Parsin
                     {
                         context->GetModulePart()->LoadModules(context);
                         Block *block = new Block(context->GetBlock());
+                        block->SetLevel(0);
                         context->GetModulePart()->SetBlock(block);
                         context->PushBlock(block);
                         block->ImportModules(context);

@@ -13,10 +13,11 @@ class ObjectType;
 class ArrayType;
 class StringObject;
 class ExecutionContext;
+class Frame;
 
 enum class ObjectKind : int32_t
 {
-    ptrObject, varObject, constObject, valueObject, heapObject, heapObjectPtr, arrayObject, arrayObjectPtr, stringObject, stringObjectPtr
+    ptrObject, valueObject, heapObject, heapObjectPtr, arrayObject, arrayObjectPtr, stringObject, stringObjectPtr, nilObject
 };
 
 bool HasNullContent(uint8_t* object);
@@ -32,12 +33,11 @@ public:
     virtual std::string KindStr() const { return "object"; }
     virtual Object* Clone() const = 0;
     bool IsPtrObject() const { return kind == ObjectKind::ptrObject; }
-    bool IsVarObject() const { return kind == ObjectKind::varObject; }
-    bool IsConstObject() const { return kind == ObjectKind::constObject; }
     bool IsValueObject() const { return kind == ObjectKind::valueObject; }
     bool IsHeapObject() const { return kind == ObjectKind::heapObject; }
     bool IsArrayObject() const { return kind == ObjectKind::arrayObject; }
     bool IsStringObject() const { return kind == ObjectKind::stringObject; }
+    virtual bool IsNilObject() const { return kind == ObjectKind::nilObject; }
     uint8_t* Ptr() const { return static_cast<uint8_t*>(static_cast<void*>(const_cast<Object*>(this))); }
     virtual bool ToBoolean() const;
     virtual int32_t ToInteger() const;
@@ -45,8 +45,14 @@ public:
     virtual float ToReal() const;
     virtual std::string ToString() const;
     virtual StringObject* ToStringObject(ExecutionContext* context);
+    void SetOwner(Frame* owner_) { owner = owner_; }
+    Frame* Owner() const { return owner; }
+    void SetOwnerIndex(int32_t ownerIndex_) { ownerIndex = ownerIndex_; }
+    int32_t OwnerIndex() const { return ownerIndex; }
 private:
     ObjectKind kind;
+    Frame* owner;
+    int32_t ownerIndex;
 };
 
 class PtrObject : public Object
@@ -61,31 +67,7 @@ private:
     Object* object;
 };
 
-class VarObject : public Object
-{
-public:
-    VarObject(Object** localObject_);
-    Object* GetObject() override;
-    Object* Clone() const override;
-    void SetObject(Object* value_) override;
-    std::string KindStr() const override { return "var_object"; }
-private:
-    Object** localObject;
-};
-
-class ConstObject : public Object
-{
-public:    
-    ConstObject(Object* object_);
-    Object* GetObject() override;
-    Object* Clone() const override;
-    void SetObject(Object* object_) override;
-    std::string KindStr() const override { return "const_object"; }
-private:
-    Object* object;
-};
-
-const int32_t valueSize = 32;
+const int32_t valueSize = 48;
 
 class HeapObject : public Object
 {
@@ -175,6 +157,15 @@ public:
     StringObject* ToStringObject(ExecutionContext* context) override;
 private:
     StringObject* stringObject;
+};
+
+class NilObject : public Object
+{
+public:
+    NilObject();
+    Object* Clone() const override;
+    std::string KindStr() const override { return "nil_object"; }
+    static Object* Ptr();
 };
 
 } // namespace p

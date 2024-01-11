@@ -47,6 +47,7 @@ public:
     virtual void Accept(Visitor& visitor) = 0;
     virtual void AddNode(Node* node, soul::lexer::LexerBase<char>& lexer, int64_t pos);
     virtual bool IsBaseNode() const { return false; }
+    virtual bool IsInvokeExprNode() const { return false; }
 private:
     int64_t pos;
 };
@@ -246,25 +247,25 @@ public:
 class NewExprNode : public Node
 {
 public:
-    NewExprNode(IdentifierNode* objectTypeId_, int64_t pos_);
-    IdentifierNode* ObjectTypeId() const { return objectTypeId.get(); }
+    NewExprNode(const std::string& typeName_, int64_t pos_);
+    const std::string& TypeName() const { return typeName; }
     Node* Clone() const override;
     void Accept(Visitor& visitor) override;
 private:
-    std::unique_ptr<IdentifierNode> objectTypeId;
+    std::string typeName;
 };
 
 class NewArrayExprNode : public Node
 {
 public:
-    NewArrayExprNode(IdentifierNode* objectTypeId_, IntegerLiteralNode* arraySize_, int64_t pos_);
-    IdentifierNode* ObjectTypeId() const { return objectTypeId.get(); }
-    IntegerLiteralNode* ArraySize() const { return arraySize.get(); }
+    NewArrayExprNode(const std::string& typeName_, Node* arraySize_, int64_t pos_);
+    const std::string& TypeName() const { return typeName; }
+    Node* ArraySize() const { return arraySize.get(); }
     Node* Clone() const override;
     void Accept(Visitor& visitor) override;
 private:
-    std::unique_ptr<IdentifierNode> objectTypeId;
-    std::unique_ptr<IntegerLiteralNode> arraySize;
+    std::string typeName;
+    std::unique_ptr<Node> arraySize;
 };
 
 class ValueTypecastNode : public Node
@@ -283,13 +284,13 @@ private:
 class VariableTypecastNode : public Node
 {
 public:
-    VariableTypecastNode(IdentifierNode* typeIdentifier_, Node* variableReference_, int64_t pos_);
-    IdentifierNode* TypeIdentifier() const { return typeIdentifier.get(); }
+    VariableTypecastNode(const std::string& typeName_, Node* variableReference_, int64_t pos_);
+    const std::string& TypeName() const { return typeName; }
     Node* VariableReference() const { return variableReference.get(); }
     Node* Clone() const override;
     void Accept(Visitor& visitor) override;
 private:
-    std::unique_ptr<IdentifierNode> typeIdentifier;
+    std::string typeName;
     std::unique_ptr<Node> variableReference;
 };
 
@@ -302,6 +303,7 @@ public:
     const std::vector<std::unique_ptr<Node>>& Arguments() const { return arguments; }
     Node* Clone() const override;
     void Accept(Visitor& visitor) override;
+    bool IsInvokeExprNode() const override { return true; }
 private:
     std::unique_ptr<Node> subject;
     std::vector<std::unique_ptr<Node>> arguments;

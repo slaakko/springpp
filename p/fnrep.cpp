@@ -134,7 +134,7 @@ void BinaryOperatorFunction::GenerateCode(Emitter* emitter, int64_t pos)
                 }
                 default:
                 {
-                    ThrowError("invalid Boolean binary operation", emitter->Lexer(), pos);
+                    ThrowError("error: invalid Boolean binary operation", emitter->Lexer(), pos);
                     break;
                 }
             }
@@ -221,7 +221,7 @@ void BinaryOperatorFunction::GenerateCode(Emitter* emitter, int64_t pos)
                 }
                 default:
                 {
-                    ThrowError("invalid integer binary operation", emitter->Lexer(), pos);
+                    ThrowError("error: invalid integer binary operation", emitter->Lexer(), pos);
                     break;
                 }
             }
@@ -283,7 +283,7 @@ void BinaryOperatorFunction::GenerateCode(Emitter* emitter, int64_t pos)
                 }
                 default:
                 {
-                    ThrowError("invalid real binary operation", emitter->Lexer(), pos);
+                    ThrowError("error: invalid real binary operation", emitter->Lexer(), pos);
                     break;
                 }
             }
@@ -305,7 +305,7 @@ void BinaryOperatorFunction::GenerateCode(Emitter* emitter, int64_t pos)
                 }
                 default:
                 {
-                    ThrowError("invalid character binary operation", emitter->Lexer(), pos);
+                    ThrowError("error: invalid character binary operation", emitter->Lexer(), pos);
                     break;
                 }
             }
@@ -332,15 +332,20 @@ void BinaryOperatorFunction::GenerateCode(Emitter* emitter, int64_t pos)
                 }
                 default:
                 {
-                    ThrowError("invalid string binary operation", emitter->Lexer(), pos);
+                    ThrowError("error: invalid string binary operation", emitter->Lexer(), pos);
                     break;
                 }
             }
             break;
         }
+        case TypeKind::nilType:
+        {
+            emitter->Emit(new EqualNilInstruction());
+            break;
+        }
         default:
         {
-            ThrowError("invalid binary operation operand type", emitter->Lexer(), pos);
+            ThrowError("error: invalid binary operation operand type", emitter->Lexer(), pos);
         }
     }
 }
@@ -366,7 +371,7 @@ void UnaryOperatorFunction::GenerateCode(Emitter* emitter, int64_t pos)
                 }
                 default:
                 {
-                    ThrowError("invalid Boolean unary operation", emitter->Lexer(), pos);
+                    ThrowError("error: invalid Boolean unary operation", emitter->Lexer(), pos);
                     break;
                 }
             }
@@ -393,7 +398,7 @@ void UnaryOperatorFunction::GenerateCode(Emitter* emitter, int64_t pos)
                 }
                 default:
                 {
-                    ThrowError("invalid integer unary operation", emitter->Lexer(), pos);
+                    ThrowError("error: invalid integer unary operation", emitter->Lexer(), pos);
                     break;
                 }
             }
@@ -415,7 +420,7 @@ void UnaryOperatorFunction::GenerateCode(Emitter* emitter, int64_t pos)
                 }
                 default:
                 {
-                    ThrowError("invalid real unary operation", emitter->Lexer(), pos);
+                    ThrowError("error: invalid real unary operation", emitter->Lexer(), pos);
                     break;
                 }
             }
@@ -423,7 +428,7 @@ void UnaryOperatorFunction::GenerateCode(Emitter* emitter, int64_t pos)
         }
         default:
         {
-            ThrowError("invalid unary operation operand type", emitter->Lexer(), pos);
+            ThrowError("error: invalid unary operation operand type", emitter->Lexer(), pos);
         }
     }
 }
@@ -447,7 +452,7 @@ void ConversionFunction::GenerateCode(Emitter* emitter, int64_t pos)
             }
             else
             {
-                ThrowError("invalid type conversion", emitter->Lexer(), pos);
+                ThrowError("error: invalid type conversion", emitter->Lexer(), pos);
             }
             break;
         }
@@ -459,13 +464,13 @@ void ConversionFunction::GenerateCode(Emitter* emitter, int64_t pos)
             }
             else
             {
-                ThrowError("invalid type conversion", emitter->Lexer(), pos);
+                ThrowError("error: invalid type conversion", emitter->Lexer(), pos);
             }
             break;
         }
         default:
         {
-            ThrowError("invalid type conversion", emitter->Lexer(), pos);
+            ThrowError("error: invalid type conversion", emitter->Lexer(), pos);
             break;
         }
 
@@ -509,7 +514,7 @@ Function* FunctionRepository::GetBinaryOperatorFunction(Operator op, Type* type,
     }
     else
     {
-        ThrowError("binary operator '" + MakeOpName(op)  + "' for type '" + type->Name() + " not found", lexer, pos);
+        ThrowError("error: binary operator '" + MakeOpName(op)  + "' for type '" + type->Name() + " not found", lexer, pos);
     }
     return nullptr;
 }
@@ -529,7 +534,7 @@ Function* FunctionRepository::GetUnaryOperatorFunction(Operator op, Type* type, 
     }
     else
     {
-        ThrowError("unary operator '" + MakeOpName(op) + "' for type '" + type->Name() + " not found", lexer, pos);
+        ThrowError("error: unary operator '" + MakeOpName(op) + "' for type '" + type->Name() + " not found", lexer, pos);
     }
     return nullptr;
 }
@@ -551,7 +556,7 @@ Function* FunctionRepository::GetConversionFunction(Type* targetType, Type* sour
     {
         if (throw_)
         {
-            ThrowError("conversion from '" + sourceType->Name() + "' to '" + targetType->Name() + "' not found", lexer, pos);
+            ThrowError("error: conversion from '" + sourceType->Name() + "' to '" + targetType->Name() + "' not found", lexer, pos);
         }
     }
     return nullptr;
@@ -571,6 +576,7 @@ void MakeOperatorFunctions(Block* block)
     Type* charType = block->GetType("char");
     Type* stringType = block->GetType("string");
     Type* pointerType = block->GetType("pointer");
+    Type* nilType = block->GetFundamentalType(TypeKind::nilType);
     FunctionRepository::Instance().AddBinaryOperatorFunction(new BinaryOperatorFunction(Operator::equal, booleanType, booleanType));
     FunctionRepository::Instance().AddBinaryOperatorFunction(new BinaryOperatorFunction(Operator::notEqual, booleanType, booleanType));
     FunctionRepository::Instance().AddBinaryOperatorFunction(new BinaryOperatorFunction(Operator::and_, booleanType, booleanType));
@@ -608,6 +614,7 @@ void MakeOperatorFunctions(Block* block)
     FunctionRepository::Instance().AddBinaryOperatorFunction(new BinaryOperatorFunction(Operator::equal, stringType, booleanType));
     FunctionRepository::Instance().AddBinaryOperatorFunction(new BinaryOperatorFunction(Operator::notEqual, stringType, booleanType));
     FunctionRepository::Instance().AddBinaryOperatorFunction(new BinaryOperatorFunction(Operator::plus, stringType, stringType));
+    FunctionRepository::Instance().AddBinaryOperatorFunction(new BinaryOperatorFunction(Operator::equal, nilType, booleanType));
     FunctionRepository::Instance().AddUnaryOperatorFunction(new UnaryOperatorFunction(Operator::not_, booleanType, booleanType));
     FunctionRepository::Instance().AddUnaryOperatorFunction(new UnaryOperatorFunction(Operator::not_, integerType, integerType));
     FunctionRepository::Instance().AddUnaryOperatorFunction(new UnaryOperatorFunction(Operator::plus, integerType, integerType));

@@ -21,7 +21,7 @@ Node::~Node()
 
 void Node::AddNode(Node* node, soul::lexer::LexerBase<char>& lexer, int64_t pos)
 {
-    ThrowError("cannot add node", lexer, pos);
+    ThrowError("error: cannot add node", lexer, pos);
 }
 
 BinaryExprNode::BinaryExprNode(Operator op_, Node* left_, Node* right_, int64_t pos_) : Node(pos_), op(op_), left(left_), right(right_)
@@ -258,13 +258,13 @@ void NilNode::Accept(Visitor& visitor)
     visitor.Visit(*this); 
 }
 
-NewExprNode::NewExprNode(IdentifierNode* objectTypeId_, int64_t pos_) : Node(pos_), objectTypeId(objectTypeId_)
+NewExprNode::NewExprNode(const std::string& typeName_, int64_t pos_) : Node(pos_), typeName(typeName_)
 {
 }
 
 Node* NewExprNode::Clone() const
 {
-    return new NewExprNode(static_cast<IdentifierNode*>(objectTypeId->Clone()), Pos());
+    return new NewExprNode(typeName, Pos());
 }
 
 void NewExprNode::Accept(Visitor& visitor)
@@ -272,13 +272,13 @@ void NewExprNode::Accept(Visitor& visitor)
     visitor.Visit(*this);
 }
 
-NewArrayExprNode::NewArrayExprNode(IdentifierNode* objectTypeId_, IntegerLiteralNode* arraySize_, int64_t pos_) : Node(pos_), objectTypeId(objectTypeId_), arraySize(arraySize_)
+NewArrayExprNode::NewArrayExprNode(const std::string& typeName_, Node* arraySize_, int64_t pos_) : Node(pos_), typeName(typeName_), arraySize(arraySize_)
 {
 }
 
 Node* NewArrayExprNode::Clone() const
 {
-    return new NewArrayExprNode(static_cast<IdentifierNode*>(objectTypeId->Clone()), static_cast<IntegerLiteralNode*>(arraySize->Clone()), Pos());
+    return new NewArrayExprNode(typeName, arraySize->Clone(), Pos());
 }
 
 void NewArrayExprNode::Accept(Visitor& visitor)
@@ -300,14 +300,14 @@ void ValueTypecastNode::Accept(Visitor& visitor)
     visitor.Visit(*this);
 }
 
-VariableTypecastNode::VariableTypecastNode(IdentifierNode* typeIdentifier_, Node* variableReference_, int64_t pos_) : 
-    Node(pos_), typeIdentifier(typeIdentifier_), variableReference(variableReference_)
+VariableTypecastNode::VariableTypecastNode(const std::string& typeName_, Node* variableReference_, int64_t pos_) : 
+    Node(pos_), typeName(typeName_), variableReference(variableReference_)
 {
 }
 
 Node* VariableTypecastNode::Clone() const
 {
-    return new VariableTypecastNode(static_cast<IdentifierNode*>(typeIdentifier->Clone()), variableReference->Clone(), Pos());
+    return new VariableTypecastNode(typeName, variableReference->Clone(), Pos());
 }
 
 void VariableTypecastNode::Accept(Visitor& visitor)
@@ -660,6 +660,19 @@ IdentifierNode* MakeVariableId(ParsingContext* context, const std::string& varia
                 }
             }
         }
+        Constructor* constructor = context->GetConstructor();
+        if (constructor)
+        {
+            for (auto& parameter : constructor->Parameters())
+            {
+                if (parameter.Name() == variableName)
+                {
+                    IdentifierNode* variableIdentifier = new IdentifierNode(variableName, IdentifierKind::variable, pos);
+                    variableIdentifier->SetVariable(&parameter);
+                    return variableIdentifier;
+                }
+            }
+        }
         return nullptr;
     }
 }
@@ -688,13 +701,14 @@ MethodNode* MakeMethod(ParsingContext* context, const std::string& methodName, i
     if (subroutine)
     {
         ObjectType* objectType = subroutine->Heading()->GetObjectType();
-        if (objectType)
+        while (objectType)
         {
             Subroutine* method = objectType->GetMethod(methodName);
             if (method)
             {
                 return new MethodNode(objectType, method, pos);
             }
+            objectType = objectType->BaseType();
         }
     }
     return nullptr;
@@ -837,7 +851,7 @@ IntegerLiteralNode* ParseIntegerLiteral(soul::lexer::LexerBase<char>& lexer, con
     int32_t value = ParseIntegerLiteral(p, e, lexer, pos);
     if (p != e)
     {
-        ThrowError("invalid integer literal", lexer, pos);
+        ThrowError("error: invalid integer literal", lexer, pos);
     }
     return new IntegerLiteralNode(value, pos);
 }
@@ -870,7 +884,7 @@ std::string ParseQuotedString(soul::lexer::LexerBase<char>& lexer, const soul::l
                     }
                     default:
                     {
-                        ThrowError("invalid string literal", lexer, pos);
+                        ThrowError("error: invalid string literal", lexer, pos);
                     }
                 }
                 break;
@@ -904,7 +918,7 @@ std::string ParseQuotedString(soul::lexer::LexerBase<char>& lexer, const soul::l
                     }
                     default:
                     {
-                        ThrowError("invalid string literal", lexer, pos);
+                        ThrowError("error: invalid string literal", lexer, pos);
                     }
                 }
                 break;
@@ -914,7 +928,7 @@ std::string ParseQuotedString(soul::lexer::LexerBase<char>& lexer, const soul::l
     }
     if (state != 2)
     {
-        ThrowError("invalid string literal", lexer, pos);
+        ThrowError("error: invalid string literal", lexer, pos);
     }
     return value;
 }
@@ -936,17 +950,17 @@ std::string ParseControlString(soul::lexer::LexerBase<char>& lexer, const soul::
             }
             else
             {
-                ThrowError("invalid control string", lexer, pos);
+                ThrowError("error: invalid control string", lexer, pos);
             }
         }
         else
         {
-            ThrowError("invalid control string", lexer, pos);
+            ThrowError("error: invalid control string", lexer, pos);
         }
     }
     if (p != e)
     {
-        ThrowError("invalid control string", lexer, pos);
+        ThrowError("error: invalid control string", lexer, pos);
     }
     return value;
 }

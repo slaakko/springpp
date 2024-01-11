@@ -1,0 +1,21 @@
+module IntArray, id=1873176135
+implementation
+uses System
+procedure '@program'
+definition
+module id 1873176135
+id 1
+frame size: 1
+type
+  array type 'array of integer'
+    element type integer
+
+var
+  local 'a' index 0 type 'array of integer'
+code
+  0 : receive(0)
+  1 : push_value(3)
+  2 : new_array(integer)
+  3 : store_local(0)
+  4 : nop
+

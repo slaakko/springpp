@@ -197,8 +197,8 @@ void SubroutineHeading::Print(util::CodeFormatter& formatter)
 }
 
 Subroutine::Subroutine(SubroutineKind kind_, SubroutineHeading* heading_) : 
-    kind(kind_), declarationKind(DeclarationKind::definition), forward(false), flags(SubroutineFlags::none), external(false), nextTempVarIndex(0), heading(heading_), 
-    moduleId(-1), id(-1), implementationId(-1), vmtIndex(-1), frameSize(0), numBasicBlocks(0), code(nullptr)
+    kind(kind_), declarationKind(DeclarationKind::definition), forward(false), flags(SubroutineFlags::none), external(false), level(-1), nextTempVarIndex(0), heading(heading_), 
+    declaration(nullptr), moduleId(-1), id(-1), implementationId(-1), vmtIndex(-1), frameSize(0), numBasicBlocks(0), code(nullptr)
 {
 }
 
@@ -225,6 +225,7 @@ void Subroutine::Write(Writer& writer)
     writer.GetBinaryWriter().Write(static_cast<uint8_t>(flags));
     writer.GetBinaryWriter().Write(forward);
     writer.GetBinaryWriter().Write(external);
+    writer.GetBinaryWriter().Write(level);
     bool hasBlock = block != nullptr;
     writer.GetBinaryWriter().Write(hasBlock);
     if (hasBlock)
@@ -273,6 +274,7 @@ void Subroutine::Read(Reader& reader)
     flags = static_cast<SubroutineFlags>(reader.GetBinaryReader().ReadByte());
     forward = reader.GetBinaryReader().ReadBool();
     external = reader.GetBinaryReader().ReadBool();
+    level = reader.GetBinaryReader().ReadInt();
     bool hasBlock = reader.GetBinaryReader().ReadBool();
     if (hasBlock)
     {
@@ -368,14 +370,16 @@ BasicBlock* Subroutine::AddBasicBlock()
 void Subroutine::Execute(ExecutionContext* context)
 {
     context->PushSubroutine(this);
-    Frame* frame = new Frame(frameSize);
+    Frame* frame = new Frame(frameSize, Parameters());
     context->PushFrame(frame);
+    context->SetParentFrame(level, frame);
     BasicBlock* bb = FirstBasicBlock();
     if (bb)
     {
         bb->Execute(context);
     }
     context->PopFrame();
+    context->SetParentFrame(level, nullptr);
     context->PopSubroutine();
 }
 
@@ -401,7 +405,7 @@ void Subroutine::Print(util::CodeFormatter& formatter, ExecutionContext* context
     }
     if (kind != SubroutineKind::constructor)
     {
-        formatter.WriteLine(heading->FullName() + "'");
+        formatter.WriteLine(InfoName() + "'");
     }
     if (IsDeclaration())
     {
@@ -473,7 +477,7 @@ void Subroutine::CheckInterface()
         {
             if (ImplementationId() == -1)
             {
-                throw std::runtime_error(SubroutineKindStr(Kind()) + " '" + FullName() + "' implementation is missing");
+                throw std::runtime_error(SubroutineKindStr(Kind()) + " '" + InfoName() + "' implementation is missing");
             }
         }
     }
@@ -517,12 +521,12 @@ ProcedureHeading::ProcedureHeading(ParsingContext* context, QualifiedIdNode* qua
             }
             else
             {
-                ThrowError("object type expression expected", lexer, pos);
+                ThrowError("error: object type expression expected", lexer, pos);
             }
         }
         else
         {
-            ThrowError("object type '" + objectName + "' not found", lexer, pos);
+            ThrowError("error: object type '" + objectName + "' not found", lexer, pos);
         }
     }
 }
@@ -538,6 +542,26 @@ Procedure::Procedure(ProcedureKind kind_, const std::string& fullName_) : Subrou
 
 Procedure::Procedure(ProcedureKind kind_, ProcedureHeading* heading_) : Subroutine(SubroutineKind::procedure, heading_), kind(kind_)
 {
+}
+
+std::string Procedure::InfoName() const
+{
+    if (FullName() == CommonName())
+    {
+        ObjectType* objectType = Heading()->GetObjectType();
+        if (objectType)
+        {
+            return objectType->Name() + "." + FullName();
+        }
+        else
+        {
+            return FullName();
+        }
+    }
+    else
+    {
+        return FullName();
+    }
 }
 
 void Procedure::Write(Writer& writer)
@@ -561,6 +585,7 @@ void Procedure::ResolveDeclaration(ParsingContext* context, soul::lexer::LexerBa
         Subroutine* subroutineDeclaration = objectType->GetMethod(CommonName());
         if (subroutineDeclaration)
         {
+            SetDeclaration(subroutineDeclaration);
             if (IsExternal())
             {
                 subroutineDeclaration->SetExternal();
@@ -573,30 +598,42 @@ void Procedure::ResolveDeclaration(ParsingContext* context, soul::lexer::LexerBa
         }
         else
         {
-            ThrowError("matching procedure not found", lexer, pos);
+            ThrowError("error: matching procedure not found", lexer, pos);
         }
     }
     else
     {
         Module* mod = context->GetModule();
         ModulePart* interfacePart = mod->GetInterfacePart();
-        Block* block = interfacePart->GetBlock();
-        Procedure* declaration = block->GetProcedure(CommonName());
-        if (declaration)
+        Block* block = nullptr;
+        if (interfacePart)
         {
-            if (IsExternal())
+            block = interfacePart->GetBlock();
+        }
+        if (!block)
+        {
+            ModulePart* implementationPart = mod->GetImplementationPart();
+            if (implementationPart)
             {
-                declaration->SetExternal();
-            }
-            else
-            {
-                declaration->SetModuleId(ModuleId());
-                declaration->SetImplementationId(Id());
+                block = implementationPart->GetBlock();
             }
         }
-        else
+        if (block)
         {
-            ThrowError("matching procedure not found", lexer, pos);
+            Procedure* declaration = block->GetProcedure(CommonName());
+            if (declaration)
+            {
+                SetDeclaration(declaration);
+                if (IsExternal())
+                {
+                    declaration->SetExternal();
+                }
+                else
+                {
+                    declaration->SetModuleId(ModuleId());
+                    declaration->SetImplementationId(Id());
+                }
+            }
         }
     }
 }
@@ -627,12 +664,12 @@ FunctionHeading::FunctionHeading(ParsingContext* context, QualifiedIdNode* quali
             }
             else
             {
-                ThrowError("object type expression expected", lexer, pos);
+                ThrowError("error: object type expression expected", lexer, pos);
             }
         }
         else
         {
-            ThrowError("object type '" + objectName + "' not found", lexer, pos);
+            ThrowError("error: object type '" + objectName + "' not found", lexer, pos);
         }
     }
 }
@@ -667,6 +704,26 @@ Function::Function(FunctionKind kind_, FunctionHeading* heading_) : Subroutine(S
 {
 }
 
+std::string Function::InfoName() const
+{
+    if (FullName() == CommonName())
+    {
+        ObjectType* objectType = Heading()->GetObjectType();
+        if (objectType)
+        {
+            return objectType->Name() + "." + FullName();
+        }
+        else
+        {
+            return FullName();
+        }
+    }
+    else
+    {
+        return FullName();
+    }
+}
+
 Type* Function::ResultType(const std::vector<Type*>& argumentTypes) const
 {
     return GetFunctionHeading()->ResultType();
@@ -674,13 +731,13 @@ Type* Function::ResultType(const std::vector<Type*>& argumentTypes) const
 
 Value* Function::Evaluate(const std::vector<std::unique_ptr<Value>>& argumentValues, soul::lexer::LexerBase<char>& lexer, int64_t pos)
 {
-    ThrowError("standard function expected", lexer, pos);
+    ThrowError("error: standard function expected", lexer, pos);
     return nullptr;
 }
 
 void Function::GenerateCode(Emitter* emitter, int64_t pos)
 {
-    ThrowError("not implemented", emitter->Lexer(), pos);
+    ThrowError("error: not implemented", emitter->Lexer(), pos);
 }
 
 void Function::Write(Writer& writer)
@@ -704,6 +761,7 @@ void Function::ResolveDeclaration(ParsingContext* context, soul::lexer::LexerBas
         Subroutine* subroutineDeclaration = objectType->GetMethod(CommonName());
         if (subroutineDeclaration)
         {
+            SetDeclaration(subroutineDeclaration);
             if (IsExternal())
             {
                 subroutineDeclaration->SetExternal();
@@ -716,30 +774,42 @@ void Function::ResolveDeclaration(ParsingContext* context, soul::lexer::LexerBas
         }
         else
         {
-            ThrowError("matching function not found", lexer, pos);
+            ThrowError("error: matching function not found", lexer, pos);
         }
     }
     else
     {
         Module* mod = context->GetModule();
+        Block* block = nullptr;
         ModulePart* interfacePart = mod->GetInterfacePart();
-        Block* block = interfacePart->GetBlock();
-        Function* declaration = block->GetFunction(CommonName());
-        if (declaration)
+        if (interfacePart)
         {
-            if (IsExternal())
+            block = interfacePart->GetBlock();
+        }
+        if (!block)
+        {
+            ModulePart* implementationPart = mod->GetImplementationPart();
+            if (implementationPart)
             {
-                declaration->SetExternal();
-            }
-            else
-            {
-                declaration->SetModuleId(ModuleId());
-                declaration->SetImplementationId(Id());
+                block = implementationPart->GetBlock();
             }
         }
-        else
+        if (block)
         {
-            ThrowError("matching function not found", lexer, pos);
+            Function* declaration = block->GetFunction(CommonName());
+            if (declaration)
+            {
+                SetDeclaration(declaration);
+                if (IsExternal())
+                {
+                    declaration->SetExternal();
+                }
+                else
+                {
+                    declaration->SetModuleId(ModuleId());
+                    declaration->SetImplementationId(Id());
+                }
+            }
         }
     }
 }
@@ -762,12 +832,12 @@ void ConstructorHeading::SetObjectName(ParsingContext* context, const std::strin
         }
         else
         {
-            ThrowError("object type expression expected", lexer, pos);
+            ThrowError("error: object type expression expected", lexer, pos);
         }
     }
     else
     {
-        ThrowError("object type '" + objectName + "' not found", lexer, pos);
+        ThrowError("error: object type '" + objectName + "' not found", lexer, pos);
     }
 }
 
@@ -800,6 +870,19 @@ Constructor::Constructor(ConstructorHeading* heading_) : Subroutine(SubroutineKi
 {
 }
 
+std::string Constructor::InfoName() const
+{
+    ObjectType* objectType = Heading()->GetObjectType();
+    if (objectType)
+    {
+        return objectType->Name() + "." + FullName();
+    }
+    else
+    {
+        return FullName();
+    }
+}
+
 void Constructor::Write(Writer& writer)
 {
     Subroutine::Write(writer);
@@ -824,17 +907,18 @@ void Constructor::ResolveDeclaration(ParsingContext* context, soul::lexer::Lexer
         Constructor* ctorDeclaration = objectType->GetConstructor(Heading()->ParameterTypes());
         if (ctorDeclaration)
         {
+            SetDeclaration(ctorDeclaration);
             ctorDeclaration->SetModuleId(ModuleId());
             ctorDeclaration->SetImplementationId(Id());
         }
         else
         {
-            ThrowError("matching constructor not found", lexer, pos);
+            ThrowError("error: matching constructor not found", lexer, pos);
         }
     }
     else
     {
-        ThrowError("object type expected", lexer, pos);
+        ThrowError("error: object type expected", lexer, pos);
     }
 }
 

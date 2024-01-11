@@ -58,6 +58,7 @@ public:
     bool IsObjectType() const { return kind == TypeKind::objectType; }
     bool IsArrayType() const { return kind == TypeKind::arrayType; }
     bool IsPointerType() const { return kind == TypeKind::pointerType; }
+    bool IsNilType() const { return kind == TypeKind::nilType; }
     const std::string& Name() const { return name; }
     virtual bool IsOrdinalType() const { return false; }
     const util::uuid& Id() const { return id; }

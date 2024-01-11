@@ -45,6 +45,7 @@ type
   Padding = object
     left, top, right, bottom: real;
     constructor(left, top, right, bottom: real);
+    procedure Print();
     function Horizontal(): real;
     function Vertical(): real;
   end;
@@ -73,6 +74,7 @@ type
 
   Shape = object
     constructor();
+    procedure Print(); virtual;
     procedure Measure(graphics: Graphics); virtual;
     procedure Draw(graphics: Graphics); virtual;
     function Bounds(): Rect; virtual;
@@ -81,6 +83,7 @@ type
   Line = object(Shape)
     routingPoints: PointArray;
     constructor(routingPoints: PointArray);
+    procedure Print(); override;
     procedure Draw(graphics: Graphics); override;
     function Bounds(): Rect; override;
   end;
@@ -89,6 +92,7 @@ type
     routingPoints: PointArray;
     lineArrowWidth, lineArrowHeight: real;
     constructor(routingPoints: PointArray);
+    procedure Print(); override;
     procedure Draw(graphics: Graphics); override;
     function Bounds(): Rect; override;
   end;
@@ -99,10 +103,11 @@ type
     count: integer;
     components: ShapeArray;
     constructor();
+    procedure Print(); override;
     procedure Add(shape: Shape);
     procedure Measure(graphics: Graphics); override;
     procedure Draw(graphics: Graphics); override;
-    function Bounds(): Rect; override;
+    function CombinedBounds(): Rect;
   end;
 
 var
@@ -114,7 +119,7 @@ var
 function MMToPixels(mm: real; dpi: real): integer;
 function PixelsToMM(pixels: integer; dpi: real): real;
 procedure DrawArrowLine(graphics: Graphics; s, e: Point; lineArrowWidth, lineArrowHeight: real);
-procedure DrawRoundedRectangle(graphics: Graphics; rect: Rect);
+procedure DrawRoundedRectangle(graphics: Graphics; rect: Rect; roundingRadius: real);
 
 implementation
 
@@ -169,6 +174,12 @@ begin
   this.top := top;
   this.right := right;
   this.bottom := bottom;
+end;
+
+procedure Padding.Print();
+begin
+  Write('left: ', left, ', top: ', top, ', right: ', right, ', bottom: ', bottom);
+  Writeln();
 end;
 
 function Padding.Horizontal(): real;
@@ -228,12 +239,50 @@ begin
   graphics.DrawLine(blackPen, arrowEndLine.s, arrowLine.e);
 end;
 
-procedure DrawRoundedRectangle(graphics: Graphics; rect: Rect);
+procedure DrawRoundedRectangle(graphics: Graphics; rect: Rect; roundingRadius: real);
+var
+  rounding1: Rect;
+  rounding2: Rect;
+  rounding3: Rect;
+  rounding4: Rect;
+  roundingSize: Size;
+  topLeft: Point;
+  topRight: Point;
+  rightTop: Point;
+  rightBottom: Point;
+  bottomLeft: Point;
+  bottomRight: Point;
+  leftTop: Point;
+  leftBottom: Point;
 begin
-  { todo }
+  topLeft := new Point(rect.location.x + roundingRadius, rect.location.y);
+  topRight := new Point(rect.location.x + rect.size.w - roundingRadius, rect.location.y);
+  rightTop := new Point(rect.location.x + rect.size.w, rect.location.y + roundingRadius);
+  rightBottom := new Point(rect.location.x + rect.size.w, rect.location.y + rect.size.h - roundingRadius);
+  bottomLeft := new Point(rect.location.x + roundingRadius, rect.location.y + rect.size.h);
+  bottomRight := new Point(rect.location.x + rect.size.w - roundingRadius, rect.location.y + rect.size.h);
+  leftTop := new Point(rect.location.x, rect.location.y + roundingRadius);
+  leftBottom := new Point(rect.location.x, rect.location.y + rect.size.h - roundingRadius);
+  roundingSize := new Size(roundingRadius * 2, roundingRadius * 2);
+  rounding1 := new Rect(rect.location, roundingSize);
+  rounding2 := new Rect(new Point(rect.location.x + rect.size.w - roundingRadius * 2, rect.location.y), roundingSize);
+  rounding3 := new Rect(new Point(rect.location.x + rect.size.w - roundingRadius * 2, rect.location.y + rect.size.h - roundingRadius * 2), roundingSize);
+  rounding4 := new Rect(new Point(rect.location.x, rect.location.y + rect.size.h - roundingRadius * 2), roundingSize);
+  graphics.DrawLine(blackPen, topLeft, topRight);
+  graphics.DrawLine(blackPen, rightTop, rightBottom);
+  graphics.DrawLine(blackPen, bottomLeft, bottomRight);
+  graphics.DrawLine(blackPen, leftTop, leftBottom);
+  graphics.DrawArc(blackPen, rounding1, 180, 90);
+  graphics.DrawArc(blackPen, rounding2, -90, 90); 
+  graphics.DrawArc(blackPen, rounding3, 0, 90);
+  graphics.DrawArc(blackPen, rounding4, 180, -90);
 end;
 
 constructor Shape();
+begin
+end;
+
+procedure Shape.Print(); 
 begin
 end;
 
@@ -253,6 +302,21 @@ end;
 constructor Line(routingPoints: PointArray);
 begin
   this.routingPoints := routingPoints;
+end;
+
+procedure Line.Print(); 
+var
+  i, n: integer;
+  p: Point;
+begin
+  Writeln('line:');
+  n := routingPoints.Length;
+  for i := 0 to n - 1 do
+  begin
+    Write('  routingPoint ', i, ': ');
+    p := routingPoints[i];
+    p.Print();
+  end;
 end;
 
 procedure Line.Draw(graphics: Graphics); 
@@ -304,6 +368,21 @@ begin
   this.lineArrowHeight := 2;
 end;
 
+procedure Arrow.Print(); 
+var
+  i, n: integer;
+  p: Point;
+begin
+  Writeln('arrow:');
+  n := routingPoints.Length;
+  for i := 0 to n - 1 do
+  begin
+    Write('  routingPoint ', i, ': ');
+    p := routingPoints[i];
+    p.Print();
+  end;
+end;
+
 procedure Arrow.Draw(graphics: Graphics); 
 var 
   i, n: integer;
@@ -352,6 +431,19 @@ begin
   components := new Shape[4];
 end;
 
+procedure CompoundShape.Print(); 
+var
+  i: integer;
+begin
+  base.Print();
+  for i := 0 to count - 1 do
+  begin
+    Writeln('  component ', i, ': ');
+    Write('    ');
+    components[i].Print();
+  end;
+end;
+
 procedure CompoundShape.Add(shape: Shape);
 var
   newLength, i: integer;
@@ -361,10 +453,7 @@ begin
   begin
     if components.Length < 4 then newLength := 4 else newLength := 2 * components.Length;
     newComponents := new Shape[newLength];
-    for i := 0 to count - 1 do
-    begin
-      newComponents[i] := components[i];
-    end;
+    for i := 0 to count - 1 do newComponents[i] := components[i];
     components := newComponents;
   end;
   components[count] := shape;
@@ -395,7 +484,7 @@ begin
   end;
 end;
 
-function CompoundShape.Bounds(): Rect; 
+function CompoundShape.CombinedBounds(): Rect; 
 var 
   i: integer;
   s: Shape;
@@ -411,7 +500,7 @@ begin
       if bounds.IsEmpty() then bounds := r else bounds := Union(bounds, r);
     end;
   end;
-  Bounds := bounds;
+  CombinedBounds := bounds;
 end;
 
 begin

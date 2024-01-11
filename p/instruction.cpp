@@ -26,6 +26,8 @@ std::string InstructionKindStr(InstructionKind instructionKind)
         case InstructionKind::nop: return "nop";
         case InstructionKind::load_local: return "load_local";
         case InstructionKind::store_local: return "store_local";
+        case InstructionKind::load_parent: return "load_parent";
+        case InstructionKind::store_parent: return "store_parent";
         case InstructionKind::load_global: return "load_global";
         case InstructionKind::store_global: return "store_global";
         case InstructionKind::load_result_var: return "load_result_var";
@@ -40,6 +42,7 @@ std::string InstructionKindStr(InstructionKind instructionKind)
         case InstructionKind::receive: return "receive";
         case InstructionKind::jump: return "jump";
         case InstructionKind::branch: return "branch";
+        case InstructionKind::case_inst: return "case";
         case InstructionKind::call_procedure: return "call_procedure";
         case InstructionKind::call_function: return "call_function";
         case InstructionKind::call_stdfn: return "call_stdfn";
@@ -94,6 +97,7 @@ std::string InstructionKindStr(InstructionKind instructionKind)
         case InstructionKind::plus_string: return "plus_string";
         case InstructionKind::int_to_real: return "int_to_real";
         case InstructionKind::char_to_string: return "char_to_string";
+        case InstructionKind::equal_nil: return "equal_nil";
     }
     return std::string();
 }
@@ -159,12 +163,18 @@ std::string LoadLocalInstruction::ToString(ExecutionContext* context) const
 Instruction* LoadLocalInstruction::Execute(ExecutionContext* context)
 {
     Object* object = context->CurrentFrame()->GetObject(localIndex);
-    if (!object)
+    Object* obj = nullptr;
+    if (object)
     {
-        throw std::runtime_error("error: uninitialized local variable access in function '" + context->CurrentSubroutine()->FullName() + "' load_local instruction " + 
-            std::to_string(InstIndex()));
+        obj = object->GetObject();
+        obj->SetOwner(object->Owner());
+        obj->SetOwnerIndex(object->OwnerIndex());
     }
-    context->GetStack()->Push(new PtrObject(object->GetObject()));
+    if (!obj)
+    {
+        obj = NilObject::Ptr();
+    }
+    context->GetStack()->Push(new PtrObject(obj));
     return Next();
 }
 
@@ -197,7 +207,99 @@ std::string StoreLocalInstruction::ToString(ExecutionContext* context) const
 Instruction* StoreLocalInstruction::Execute(ExecutionContext* context)
 {
     std::unique_ptr<Object> object = context->GetStack()->Pop();
-    context->CurrentFrame()->SetObject(localIndex, object->GetObject(), context);
+    Object* obj = object->GetObject();
+    if (!obj)
+    {
+        obj = NilObject::Ptr();
+    }
+    context->CurrentFrame()->SetObject(localIndex, obj, context);
+    return Next();
+}
+
+LoadParentInstruction::LoadParentInstruction() : Instruction(InstructionKind::load_parent), parentLevel(-1), variableIndex(-1)
+{
+}
+
+void LoadParentInstruction::SetParentLevel(int32_t parentLevel_)
+{
+    parentLevel = parentLevel_;
+}
+
+void LoadParentInstruction::SetVariableIndex(int32_t variableIndex_)
+{
+    variableIndex = variableIndex_;
+}
+
+void LoadParentInstruction::Write(Writer& writer)
+{
+    Instruction::Write(writer);
+    writer.GetBinaryWriter().Write(parentLevel);
+    writer.GetBinaryWriter().Write(variableIndex);
+}
+
+void LoadParentInstruction::Read(Reader& reader)
+{
+    Instruction::Read(reader);
+    parentLevel = reader.GetBinaryReader().ReadInt();
+    variableIndex = reader.GetBinaryReader().ReadInt();
+}
+
+std::string LoadParentInstruction::ToString(ExecutionContext* context) const
+{
+    return Instruction::ToString(context) + "(" + std::to_string(parentLevel) + ", " + std::to_string(variableIndex) + ")";
+}
+
+Instruction* LoadParentInstruction::Execute(ExecutionContext* context)
+{
+    Frame* frame = context->ParentFrame(parentLevel);
+    Object* object = frame->GetObject(variableIndex);
+    if (!object)
+    {
+        throw std::runtime_error("error: uninitialized local variable access in function '" + context->CurrentSubroutine()->InfoName() + "' load_parent instruction " +
+            std::to_string(InstIndex()));
+    }
+    context->GetStack()->Push(new PtrObject(object->GetObject()));
+    return Next();
+}
+
+StoreParentInstruction::StoreParentInstruction() : Instruction(InstructionKind::store_parent), parentLevel(-1), variableIndex(-1)
+{
+}
+
+void StoreParentInstruction::SetParentLevel(int32_t parentLevel_)
+{
+    parentLevel = parentLevel_;
+}
+
+void StoreParentInstruction::SetVariableIndex(int32_t variableIndex_)
+{
+    variableIndex = variableIndex_;
+}
+
+void StoreParentInstruction::Write(Writer& writer)
+{
+    Instruction::Write(writer);
+    writer.GetBinaryWriter().Write(parentLevel);
+    writer.GetBinaryWriter().Write(variableIndex);
+}
+
+void StoreParentInstruction::Read(Reader& reader)
+{
+    Instruction::Read(reader);
+    parentLevel = reader.GetBinaryReader().ReadInt();
+    variableIndex = reader.GetBinaryReader().ReadInt();
+}
+
+std::string StoreParentInstruction::ToString(ExecutionContext* context) const
+{
+    return Instruction::ToString(context) + "(" + std::to_string(parentLevel) + ", " + std::to_string(variableIndex) + ")";
+}
+
+Instruction* StoreParentInstruction::Execute(ExecutionContext* context)
+{
+    std::unique_ptr<Object> object = context->GetStack()->Pop();
+    Frame* frame = context->ParentFrame(parentLevel);
+    frame->SetObject(variableIndex, object->GetObject(), context);
     return Next();
 }
 
@@ -298,7 +400,7 @@ Instruction* LoadResultVarInstruction::Execute(ExecutionContext* context)
     Object* object = context->CurrentFrame()->GetObject(resultVarIndex);
     if (!object)
     {
-        throw std::runtime_error("error: uninitialized local variable access in function '" + context->CurrentSubroutine()->FullName() + "' load_result_var instruction " +
+        throw std::runtime_error("error: uninitialized local variable access in function '" + context->CurrentSubroutine()->InfoName() + "' load_result_var instruction " +
             std::to_string(InstIndex()));
     }
     context->GetStack()->Push(object->GetObject()->Clone());
@@ -387,9 +489,14 @@ Instruction* LoadFieldInstruction::Execute(ExecutionContext* context)
         Object* fieldValue = heapObject->GetField(fieldIndex);
         context->GetStack()->Push(new PtrObject(fieldValue->GetObject()));
     }
+    else if (obj->IsNilObject())
+    {
+        throw std::runtime_error("error: nil reference in function '" + context->CurrentSubroutine()->InfoName() + "' load_field instruction " +
+            std::to_string(InstIndex()));
+    }
     else
     {
-        throw std::runtime_error("error: heap object expected in function '" + context->CurrentSubroutine()->FullName() + "' load_field instruction " + 
+        throw std::runtime_error("error: heap object expected in function '" + context->CurrentSubroutine()->InfoName() + "' load_field instruction " +
             std::to_string(InstIndex()));
     }
     return Next();
@@ -431,9 +538,14 @@ Instruction* StoreFieldInstruction::Execute(ExecutionContext* context)
         std::unique_ptr<Object> value = context->GetStack()->Pop();
         heapObject->SetField(fieldIndex, value->GetObject(), context);
     }
+    else if (obj->IsNilObject())
+    {
+        throw std::runtime_error("error: nil reference in function '" + context->CurrentSubroutine()->InfoName() + "' store_field instruction " +
+            std::to_string(InstIndex()));
+    }
     else
     {
-        throw std::runtime_error("error: heap object expected in function '" + context->CurrentSubroutine()->FullName() + "' store_field instruction " +
+        throw std::runtime_error("error: heap object expected in function '" + context->CurrentSubroutine()->InfoName() + "' store_field instruction " +
             std::to_string(InstIndex()));
     }
     return Next();
@@ -463,19 +575,19 @@ Instruction* LoadElementInstruction::Execute(ExecutionContext* context)
             }
             else
             {
-                throw std::runtime_error("error: integer index object expected in function '" + context->CurrentSubroutine()->FullName() + "' load_element instruction " +
+                throw std::runtime_error("error: integer index object expected in function '" + context->CurrentSubroutine()->InfoName() + "' load_element instruction " +
                     std::to_string(InstIndex()));
             }
         }
         else
         {
-            throw std::runtime_error("error: value index object expected in function '" + context->CurrentSubroutine()->FullName() + "' load_element instruction " +
+            throw std::runtime_error("error: value index object expected in function '" + context->CurrentSubroutine()->InfoName() + "' load_element instruction " +
                 std::to_string(InstIndex()));
         }
     }
     else
     {
-        throw std::runtime_error("error: array object expected in function '" + context->CurrentSubroutine()->FullName() + "' load_element instruction " +
+        throw std::runtime_error("error: array object expected in function '" + context->CurrentSubroutine()->InfoName() + "' load_element instruction " +
             std::to_string(InstIndex()));
     }
     return Next();
@@ -505,19 +617,19 @@ Instruction* StoreElementInstruction::Execute(ExecutionContext* context)
             }
             else
             {
-                throw std::runtime_error("error: integer index object expected in function '" + context->CurrentSubroutine()->FullName() + "' store_element instruction " +
+                throw std::runtime_error("error: integer index object expected in function '" + context->CurrentSubroutine()->InfoName() + "' store_element instruction " +
                     std::to_string(InstIndex()));
             }
         }
         else
         {
-            throw std::runtime_error("error: value index object expected in function '" + context->CurrentSubroutine()->FullName() + "' store_element instruction " +
+            throw std::runtime_error("error: value index object expected in function '" + context->CurrentSubroutine()->InfoName() + "' store_element instruction " +
                 std::to_string(InstIndex()));
         }
     }
     else
     {
-        throw std::runtime_error("error: array object expected in function '" + context->CurrentSubroutine()->FullName() + "' store_element instruction " +
+        throw std::runtime_error("error: array object expected in function '" + context->CurrentSubroutine()->InfoName() + "' store_element instruction " +
             std::to_string(InstIndex()));
     }
     return Next();
@@ -539,7 +651,7 @@ Instruction* ArrayLengthInstruction::Execute(ExecutionContext* context)
     }
     else
     {
-        throw std::runtime_error("error: array object expected in function '" + context->CurrentSubroutine()->FullName() + "' array_length instruction " +
+        throw std::runtime_error("error: array object expected in function '" + context->CurrentSubroutine()->InfoName() + "' array_length instruction " +
             std::to_string(InstIndex()));
     }
     return Next();
@@ -561,7 +673,7 @@ Instruction* StringLengthInstruction::Execute(ExecutionContext* context)
     }
     else
     {
-        throw std::runtime_error("error: string object expected in function '" + context->CurrentSubroutine()->FullName() + "' string_length instruction " +
+        throw std::runtime_error("error: string object expected in function '" + context->CurrentSubroutine()->InfoName() + "' string_length instruction " +
             std::to_string(InstIndex()));
     }
     return Next();
@@ -597,10 +709,6 @@ Instruction* ReceiveInstruction::Execute(ExecutionContext* context)
 {
     Stack* stack = context->GetStack();
     Frame* frame = context->CurrentFrame();
-    if (count == 2)
-    {
-        int x = 0;
-    }
     for (int32_t i = 0; i < count; ++i)
     {
         std::unique_ptr<Object> object = stack->Pop();
@@ -717,6 +825,169 @@ Instruction* BranchInstruction::Execute(ExecutionContext* context)
     }
 }
 
+Range::Range() : first(-1), last(-1)
+{
+}
+
+Range::Range(int32_t first_, int32_t last_) : first(first_), last(last_)
+{
+}
+
+void Range::Write(Writer& writer)
+{
+    writer.GetBinaryWriter().Write(first);
+    writer.GetBinaryWriter().Write(last);
+}
+
+void Range::Read(Reader& reader)
+{
+    first = reader.GetBinaryReader().ReadInt();
+    last = reader.GetBinaryReader().ReadInt();
+}
+
+RangeList::RangeList() : next(nullptr), nextIndex(-1)
+{
+}
+
+bool RangeList::Match(int32_t value) const
+{
+    for (const auto& range : ranges)
+    {
+        if (range.Match(value)) return true;
+    }
+    return false;
+}
+
+void RangeList::AddRange(const Range& range)
+{
+    ranges.push_back(range);
+}
+
+void RangeList::SetNext(Instruction* next_)
+{
+    next = next_;
+}
+
+void RangeList::Write(Writer& writer)
+{
+    int32_t rangeCount = ranges.size();
+    writer.GetBinaryWriter().Write(rangeCount);
+    for (auto& range : ranges)
+    {
+        range.Write(writer);
+    }
+    writer.GetBinaryWriter().Write(next->InstIndex());
+}
+
+void RangeList::Read(Reader& reader)
+{
+    int32_t rangeCount = reader.GetBinaryReader().ReadInt();
+    for (int32_t i = 0; i < rangeCount; ++i)
+    {
+        Range range;
+        range.Read(reader);
+        AddRange(range);
+    }
+    nextIndex = reader.GetBinaryReader().ReadInt();
+}
+
+void RangeList::Resolve(Reader& reader)
+{
+    next = reader.GetInstruction(nextIndex);
+}
+
+CaseInstruction::CaseInstruction() : Instruction(InstructionKind::case_inst), elseInst(nullptr), elseInstIndex(-1)
+{
+}
+
+void CaseInstruction::SetElseInst(Instruction* elseInst_)
+{
+    elseInst = elseInst_;
+}
+
+RangeList& CaseInstruction::AddRangeList()
+{
+    rangeLists.push_back(RangeList());
+    return rangeLists.back();
+}
+
+void CaseInstruction::Write(Writer& writer)
+{
+    Instruction::Write(writer);
+    int32_t rangeListCount = rangeLists.size();
+    writer.GetBinaryWriter().Write(rangeListCount);
+    for (auto& rangeList : rangeLists)
+    {
+        rangeList.Write(writer);
+    }
+    writer.GetBinaryWriter().Write(elseInst->InstIndex());
+}
+
+void CaseInstruction::Read(Reader& reader)
+{
+    Instruction::Read(reader);
+    int32_t rangeListCount = reader.GetBinaryReader().ReadInt();
+    for (int32_t i = 0; i < rangeListCount; ++i)
+    {
+        RangeList& rangeList = AddRangeList();
+        rangeList.Read(reader);
+    }
+    elseInstIndex = reader.GetBinaryReader().ReadInt();
+}
+
+void CaseInstruction::Resolve(Reader& reader)
+{
+    for (auto& rangeList : rangeLists)
+    {
+        rangeList.Resolve(reader);
+    }
+    elseInst = reader.GetInstruction(elseInstIndex);
+}
+
+std::string CaseInstruction::ToString(ExecutionContext* context) const
+{
+    std::string nexts;
+    bool first = true;
+    for (const auto& rangeList : rangeLists)
+    {
+        if (first)
+        {
+            first = false;
+        }
+        else
+        {
+            nexts.append(", ");
+        }
+        nexts.append(std::to_string(rangeList.Next()->InstIndex()));
+    }
+    return Instruction::ToString(context) + "(" + nexts + ")";
+}
+
+Instruction* CaseInstruction::Execute(ExecutionContext* context)
+{
+    Stack* stack = context->GetStack();
+    std::unique_ptr<Object> object = stack->Pop();
+    Object* obj = object->GetObject();
+    int32_t value = -1;
+    if (obj->IsValueObject())
+    {
+        Value* objectValue = static_cast<Value*>(obj);
+        value = objectValue->ToInteger();
+    }
+    else
+    {
+        throw std::runtime_error("value expected");
+    }
+    for (const auto& rangeList : rangeLists)
+    {
+        if (rangeList.Match(value))
+        {
+            return rangeList.Next();
+        }
+    }
+    return elseInst;
+}
+
 CallProcedureInstruction::CallProcedureInstruction() : Instruction(InstructionKind::call_procedure), moduleId(-1), subroutineId(-1), procedure(nullptr)
 {
 }
@@ -732,14 +1003,14 @@ void CallProcedureInstruction::Write(Writer& writer)
     moduleId = procedure->ModuleId();
     if (moduleId == -1)
     {
-        throw std::runtime_error("module ID not set in procedure call '" + procedure->FullName() + "'");
+        throw std::runtime_error("module ID not set in procedure call '" + procedure->InfoName() + "'");
     }
     if (procedure->IsDeclaration())
     {
         subroutineId = procedure->ImplementationId();
         if (subroutineId == -1)
         {
-            throw std::runtime_error("implementation ID not set in procedure call '" + procedure->FullName() + "'");
+            throw std::runtime_error("implementation ID not set in procedure call '" + procedure->InfoName() + "'");
         }
     }
     else
@@ -747,7 +1018,7 @@ void CallProcedureInstruction::Write(Writer& writer)
         subroutineId = procedure->Id();
         if (subroutineId == -1)
         {
-            throw std::runtime_error("procedure ID not set in procedure call '" + procedure->FullName() + "'");
+            throw std::runtime_error("procedure ID not set in procedure call '" + procedure->InfoName() + "'");
         }
     }
     writer.GetBinaryWriter().Write(moduleId);
@@ -766,7 +1037,7 @@ std::string CallProcedureInstruction::ToString(ExecutionContext* context) const
     ModuleMap* moduleMap = context->GetModuleMap();
     Module* mod = moduleMap->GetModule(moduleId);
     Subroutine* subroutine = mod->GetImplementationPart()->GetSubroutine(subroutineId);
-    return Instruction::ToString(context) + "(" + mod->Name() + ":" + subroutine->FullName() + ", " + std::to_string(moduleId) + ", " + std::to_string(subroutineId) + ")";
+    return Instruction::ToString(context) + "(" + mod->Name() + ":" + subroutine->InfoName() + ", " + std::to_string(moduleId) + ", " + std::to_string(subroutineId) + ")";
 }
 
 Instruction* CallProcedureInstruction::Execute(ExecutionContext* context)
@@ -802,7 +1073,7 @@ void CallStdProcInstruction::Write(Writer& writer)
     }
     if (stdprocId == -1)
     {
-        throw std::runtime_error("standard procedure ID not set in procedure call '" + procedure->FullName() + "'");
+        throw std::runtime_error("standard procedure ID not set in procedure call '" + procedure->InfoName() + "'");
     }
     writer.GetBinaryWriter().Write(stdprocId);
     writer.GetBinaryWriter().Write(argumentCount);
@@ -818,7 +1089,7 @@ void CallStdProcInstruction::Read(Reader& reader)
 std::string CallStdProcInstruction::ToString(ExecutionContext* context) const
 {
     Procedure* stdProcedure = GetStandardProcedure(stdprocId);
-    return Instruction::ToString(context) + "(" + stdProcedure->FullName() + ", " + std::to_string(stdprocId) + ")";
+    return Instruction::ToString(context) + "(" + stdProcedure->InfoName() + ", " + std::to_string(stdprocId) + ")";
 }
 
 Instruction* CallStdProcInstruction::Execute(ExecutionContext* context)
@@ -845,14 +1116,14 @@ void CallFunctionInstruction::Write(Writer& writer)
     moduleId = function->ModuleId();
     if (moduleId == -1)
     {
-        throw std::runtime_error("module ID not set in function call '" + function->FullName() + "'");
+        throw std::runtime_error("module ID not set in function call '" + function->InfoName() + "'");
     }
     if (function->IsDeclaration())
     {
         subroutineId = function->ImplementationId();
         if (subroutineId == -1)
         {
-            throw std::runtime_error("implementation ID not set in function call '" + function->FullName() + "'");
+            throw std::runtime_error("implementation ID not set in function call '" + function->InfoName() + "'");
         }
     }
     else
@@ -860,7 +1131,7 @@ void CallFunctionInstruction::Write(Writer& writer)
         subroutineId = function->Id();
         if (subroutineId == -1)
         {
-            throw std::runtime_error("subroutine ID not set in function call '" + function->FullName() + "'");
+            throw std::runtime_error("subroutine ID not set in function call '" + function->InfoName() + "'");
         }
     }
     writer.GetBinaryWriter().Write(moduleId);
@@ -879,7 +1150,7 @@ std::string CallFunctionInstruction::ToString(ExecutionContext* context) const
     ModuleMap* moduleMap = context->GetModuleMap();
     Module* mod = moduleMap->GetModule(moduleId);
     Subroutine* subroutine = mod->GetImplementationPart()->GetSubroutine(subroutineId);
-    return Instruction::ToString(context) + "(" + mod->Name() + ":" + subroutine->FullName() + ", " + std::to_string(moduleId) + ", " + std::to_string(subroutineId) + ")";
+    return Instruction::ToString(context) + "(" + mod->Name() + ":" + subroutine->InfoName() + ", " + std::to_string(moduleId) + ", " + std::to_string(subroutineId) + ")";
 }
 
 Instruction* CallFunctionInstruction::Execute(ExecutionContext* context)
@@ -922,7 +1193,7 @@ void CallStdFnInstruction::Read(Reader& reader)
 std::string CallStdFnInstruction::ToString(ExecutionContext* context) const
 {
     Function* stdFunction = GetStandardFunction(stdfnId);
-    return Instruction::ToString(context) + "(" + stdFunction->FullName() + ", " + std::to_string(stdfnId) + ")";
+    return Instruction::ToString(context) + "(" + stdFunction->InfoName() + ", " + std::to_string(stdfnId) + ")";
 }
 
 Instruction* CallStdFnInstruction::Execute(ExecutionContext* context)
@@ -948,7 +1219,7 @@ void CallVirtualInstruction::Write(Writer& writer)
     Instruction::Write(writer);
     if (method->VmtIndex() == -1)
     {
-        throw std::runtime_error("method '" + method->FullName() + " VMT index not set");
+        throw std::runtime_error("method '" + method->InfoName() + " VMT index not set");
     }
     if (method->IsDeclaration())
     {
@@ -960,7 +1231,7 @@ void CallVirtualInstruction::Write(Writer& writer)
     }
     if (methodId == -1)
     {
-        throw std::runtime_error("method '" + method->FullName() + " id not set");
+        throw std::runtime_error("method '" + method->InfoName() + " id not set");
     }
     writer.GetBinaryWriter().Write(method->ModuleId());
     writer.GetBinaryWriter().Write(methodId);
@@ -980,7 +1251,7 @@ std::string CallVirtualInstruction::ToString(ExecutionContext* context) const
     ModuleMap* moduleMap = context->GetModuleMap();
     Module* mod = moduleMap->GetModule(moduleId);
     Subroutine* method = mod->GetImplementationPart()->GetSubroutine(methodId);
-    return Instruction::ToString(context) + "(" + method->FullName() + ", " + std::to_string(methodIndex) + ")";
+    return Instruction::ToString(context) + "(" + method->InfoName() + ", " + std::to_string(methodIndex) + ")";
 }
 
 Instruction* CallVirtualInstruction::Execute(ExecutionContext* context)
@@ -988,6 +1259,11 @@ Instruction* CallVirtualInstruction::Execute(ExecutionContext* context)
     Stack* stack = context->GetStack();
     std::unique_ptr<Object> object = stack->Pop();
     Object* obj = object->GetObject();
+    if (!obj || obj->IsNilObject())
+    {
+        throw std::runtime_error("error: nil reference in function '" + context->CurrentSubroutine()->InfoName() + "' call_virtual instruction " +
+            std::to_string(InstIndex()));
+    }
     if (obj->IsHeapObject())
     {
         HeapObject* heapObject = static_cast<HeapObject*>(obj);
@@ -1011,31 +1287,31 @@ Instruction* CallVirtualInstruction::Execute(ExecutionContext* context)
                     }
                     else
                     {
-                        throw std::runtime_error("error: virtual method is null in function '" + context->CurrentSubroutine()->FullName() + "' call_virtual instruction " +
+                        throw std::runtime_error("error: virtual method is null in function '" + context->CurrentSubroutine()->InfoName() + "' call_virtual instruction " +
                             std::to_string(InstIndex()));
                     }
                 }
                 else
                 {
-                    throw std::runtime_error("error: VMT pointer is null in function '" + context->CurrentSubroutine()->FullName() + "' call_virtual instruction " +
+                    throw std::runtime_error("error: VMT pointer is null in function '" + context->CurrentSubroutine()->InfoName() + "' call_virtual instruction " +
                         std::to_string(InstIndex()));
                 }
             }
             else
             {
-                throw std::runtime_error("error: generic pointer value expected in function '" + context->CurrentSubroutine()->FullName() + "' call_virtual instruction " +
+                throw std::runtime_error("error: generic pointer value expected in function '" + context->CurrentSubroutine()->InfoName() + "' call_virtual instruction " +
                     std::to_string(InstIndex()));
             }
         }
         else
         {
-            throw std::runtime_error("error: value object expected in function '" + context->CurrentSubroutine()->FullName() + "' call_virtual instruction " +
+            throw std::runtime_error("error: value object expected in function '" + context->CurrentSubroutine()->InfoName() + "' call_virtual instruction " +
                 std::to_string(InstIndex()));
         }
     }
     else
     {
-        throw std::runtime_error("error: heap object expected in function '" + context->CurrentSubroutine()->FullName() + "' call_virtual instruction " +
+        throw std::runtime_error("error: heap object expected in function '" + context->CurrentSubroutine()->InfoName() + "' call_virtual instruction " +
             std::to_string(InstIndex()));
     }
     return Next();
@@ -1056,7 +1332,7 @@ void CallExternalInstruction::Write(Writer& writer)
     ExternalSubroutine* externalSubroutine = GetExternalSubroutine(subroutine->ExternalSubroutineName());
     if (externalSubroutine->Id() == -1)
     {
-        throw std::runtime_error("subroutine ID not set in external call '" + subroutine->FullName() + "'");
+        throw std::runtime_error("subroutine ID not set in external call '" + subroutine->InfoName() + "'");
     }
     id = externalSubroutine->Id();
     writer.GetBinaryWriter().Write(id);
@@ -1187,13 +1463,13 @@ Instruction* NewObjectInstruction::Execute(ExecutionContext* context)
     }
     else
     {
-        throw std::runtime_error("error: object type expected in function '" + context->CurrentSubroutine()->FullName() + "' new_object instruction " +
+        throw std::runtime_error("error: object type expected in function '" + context->CurrentSubroutine()->InfoName() + "' new_object instruction " +
             std::to_string(InstIndex()));
     }
     return Next();
 }
 
-NewArrayInstruction::NewArrayInstruction() : Instruction(InstructionKind::new_array), arrayTypeId(), length(-1)
+NewArrayInstruction::NewArrayInstruction() : Instruction(InstructionKind::new_array), arrayTypeId()
 {
 }
 
@@ -1206,14 +1482,12 @@ void NewArrayInstruction::Write(Writer& writer)
 {
     Instruction::Write(writer);
     writer.GetBinaryWriter().Write(arrayTypeId);
-    writer.GetBinaryWriter().Write(length);
 }
 
 void NewArrayInstruction::Read(Reader& reader)
 {
     Instruction::Read(reader);
     reader.GetBinaryReader().ReadUuid(arrayTypeId);
-    length = reader.GetBinaryReader().ReadInt();
 }
 
 std::string NewArrayInstruction::ToString(ExecutionContext* context) const
@@ -1222,7 +1496,7 @@ std::string NewArrayInstruction::ToString(ExecutionContext* context) const
     Stack* stack = context->GetStack();
     Block* block = context->GetBlock();
     Type* type = block->GetType(arrayTypeId);
-    return Instruction::ToString(context) + "(" + type->Name() + ", " + std::to_string(length) + ")";
+    return Instruction::ToString(context) + "(" + type->Name() + ")";
 }
 
 Instruction* NewArrayInstruction::Execute(ExecutionContext* context)
@@ -1230,6 +1504,27 @@ Instruction* NewArrayInstruction::Execute(ExecutionContext* context)
     Heap* heap = context->GetHeap();
     Stack* stack = context->GetStack();
     Block* block = context->GetBlock();
+    std::unique_ptr<Object> arrayLength = stack->Pop();
+    Object* lengthObj = arrayLength->GetObject();
+    int32_t length = -1;
+    if (lengthObj->IsValueObject())
+    {
+        Value* lengthValue = static_cast<Value*>(lengthObj);
+        if (lengthValue->IsIntegerValue())
+        {
+            length = lengthValue->ToInteger();
+        }
+        else
+        {
+            throw std::runtime_error("error: integer array length expected in function '" + context->CurrentSubroutine()->InfoName() + "' new_array instruction " +
+                std::to_string(InstIndex()));
+        }
+    }
+    else
+    {
+        throw std::runtime_error("error: integer array length expected in function '" + context->CurrentSubroutine()->InfoName() + "' new_array instruction " +
+            std::to_string(InstIndex()));
+    }
     Type* type = block->GetType(arrayTypeId);
     if (type->IsArrayType())
     {
@@ -1239,7 +1534,7 @@ Instruction* NewArrayInstruction::Execute(ExecutionContext* context)
     }
     else
     {
-        throw std::runtime_error("error: array type expected in function '" + context->CurrentSubroutine()->FullName() + "' new_array instruction " +
+        throw std::runtime_error("error: array type expected in function '" + context->CurrentSubroutine()->InfoName() + "' new_array instruction " +
             std::to_string(InstIndex()));
     }
     return Next();
@@ -1875,14 +2170,16 @@ Instruction* PlusStringInstruction::Execute(ExecutionContext* context)
 {
     Stack* stack = context->GetStack();
     std::unique_ptr<Object> right = stack->Pop();
-    StringObject* rightObject = right->ToStringObject(context);
+    Object* rightObj = right->GetObject();
+    StringObject* rightObject = rightObj->ToStringObject(context);
     std::unique_ptr<Object> left = stack->Pop();
-    StringObject* leftObject = left->ToStringObject(context);
+    Object* leftObj = left->GetObject();
+    StringObject* leftObject = leftObj->ToStringObject(context);
     std::string value = leftObject->Value();
     value.append(rightObject->Value());
     Heap* heap = context->GetHeap();
     StringObject* result = heap->AllocateString(value);
-    stack->Push(result);
+    stack->Push(new StringObjectPtr(result));
     return Next();
 }
 
@@ -1914,6 +2211,26 @@ Instruction* CharToStringInstruction::Execute(ExecutionContext* context)
     return Next();
 }
 
+EqualNilInstruction::EqualNilInstruction() : Instruction(InstructionKind::equal_nil)
+{
+}
+
+Instruction* EqualNilInstruction::Execute(ExecutionContext* context)
+{
+    Stack* stack = context->GetStack();
+    std::unique_ptr<Object> right = stack->Pop();
+    std::unique_ptr<Object> left = stack->Pop();
+    if (left->GetObject()->IsNilObject())
+    {
+        stack->Push(new BooleanValue(true));
+    }
+    else
+    {
+        stack->Push(new BooleanValue(false));
+    }
+    return Next();
+}
+
 Instruction* MakeInstruction(InstructionKind kind)
 {
     switch (kind)
@@ -1921,6 +2238,8 @@ Instruction* MakeInstruction(InstructionKind kind)
         case InstructionKind::nop: return new NoOperationInstruction();
         case InstructionKind::load_local: return new LoadLocalInstruction();
         case InstructionKind::store_local: return new StoreLocalInstruction();
+        case InstructionKind::load_parent: return new LoadParentInstruction();
+        case InstructionKind::store_parent: return new StoreParentInstruction();
         case InstructionKind::load_global: return new LoadGlobalInstruction();
         case InstructionKind::store_global: return new StoreGlobalInstruction();
         case InstructionKind::load_result_var: return new LoadResultVarInstruction();
@@ -1935,6 +2254,7 @@ Instruction* MakeInstruction(InstructionKind kind)
         case InstructionKind::receive: return new ReceiveInstruction();
         case InstructionKind::jump: return new JumpInstruction();
         case InstructionKind::branch: return new BranchInstruction();
+        case InstructionKind::case_inst: return new CaseInstruction();
         case InstructionKind::call_procedure: return new CallProcedureInstruction();
         case InstructionKind::call_stdproc: return new CallStdProcInstruction();
         case InstructionKind::call_function: return new CallFunctionInstruction();
@@ -1989,6 +2309,7 @@ Instruction* MakeInstruction(InstructionKind kind)
         case InstructionKind::plus_string: return new PlusStringInstruction();
         case InstructionKind::int_to_real: return new IntToRealInstruction();
         case InstructionKind::char_to_string: return new CharToStringInstruction();
+        case InstructionKind::equal_nil: return new EqualNilInstruction();
     }
     throw std::runtime_error("invalid instruction kind " + std::to_string(static_cast<int32_t>(kind)));
 }

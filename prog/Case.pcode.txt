@@ -1,0 +1,108 @@
+module Case, id=1776808113
+implementation
+uses System
+procedure '@program'
+definition
+module id 1776808113
+id 1
+frame size: 2
+type
+  enumerated type 'Direction'
+  (
+    constant 'north'
+      type 'Direction'
+      value 'north(0)'
+    constant 'east'
+      type 'Direction'
+      value 'east(1)'
+    constant 'south'
+      type 'Direction'
+      value 'south(2)'
+    constant 'west'
+      type 'Direction'
+      value 'west(3)'
+  )
+const
+  constant 'north'
+    type 'Direction'
+    value 'north(0)'
+  constant 'east'
+    type 'Direction'
+    value 'east(1)'
+  constant 'south'
+    type 'Direction'
+    value 'south(2)'
+  constant 'west'
+    type 'Direction'
+    value 'west(3)'
+var
+  local 'dir' index 0 type 'Direction'
+  local 'index' index 1 type 'integer'
+code
+  0 : receive(0)
+  1 : push_value(0)
+  2 : store_local(1)
+  3 : jump(4)
+  4 : jump(5)
+  5 : load_local(1)
+  6 : push_value(0)
+  7 : equal_int
+  8 : branch(9, 12)
+  9 : push_value(north(0))
+  10 : store_local(0)
+  11 : jump(33)
+  12 : jump(13)
+  13 : load_local(1)
+  14 : push_value(1)
+  15 : equal_int
+  16 : branch(17, 20)
+  17 : push_value(east(1))
+  18 : store_local(0)
+  19 : jump(32)
+  20 : jump(21)
+  21 : load_local(1)
+  22 : push_value(2)
+  23 : equal_int
+  24 : branch(25, 28)
+  25 : push_value(south(2))
+  26 : store_local(0)
+  27 : jump(31)
+  28 : push_value(west(3))
+  29 : store_local(0)
+  30 : jump(31)
+  31 : jump(32)
+  32 : jump(33)
+  33 : load_local(0)
+  34 : case(35, 40, 45, 50)
+  35 : push_value('north')
+  36 : push_value(' ')
+  37 : load_local(0)
+  38 : call_stdproc(Writeln, 1)
+  39 : jump(57)
+  40 : push_value('east')
+  41 : push_value(' ')
+  42 : load_local(0)
+  43 : call_stdproc(Writeln, 1)
+  44 : jump(57)
+  45 : push_value('south')
+  46 : push_value(' ')
+  47 : load_local(0)
+  48 : call_stdproc(Writeln, 1)
+  49 : jump(57)
+  50 : push_value('west')
+  51 : push_value(' ')
+  52 : load_local(0)
+  53 : call_stdproc(Writeln, 1)
+  54 : jump(57)
+  55 : nop
+  56 : jump(57)
+  57 : load_local(1)
+  58 : call_stdfn(Succ, 6)
+  59 : store_local(1)
+  60 : nop
+  61 : load_local(1)
+  62 : push_value(4)
+  63 : greater_or_equal_int
+  64 : branch(65, 4)
+  65 : nop
+

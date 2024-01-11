@@ -1,0 +1,109 @@
+module WhileBug, id=1621960396
+implementation
+uses System
+procedure '@program'
+definition
+module id 1621960396
+id 1
+frame size: 1
+type
+  object type 'SyntaxRow'
+    fields:
+    methods:
+      constructor
+      declaration
+      parameter 'this' index 0 type 'SyntaxRow'
+      object type 'SyntaxRow'
+      module id 1621960396
+      implementation id 2
+      frame size: 0
+
+  object type 'Component'
+    fields:
+    methods:
+      constructor
+      declaration
+      parameter 'this' index 0 type 'Component'
+      object type 'Component'
+      module id 1621960396
+      implementation id 3
+      frame size: 0
+
+var
+  local 's' index 0 type 'SyntaxRow'
+procedure 'Add'
+definition
+common name 'Add'
+parameter 'count' index 0 type 'integer'
+module id 1621960396
+id 4
+frame size: 1
+code
+  0 : receive(1)
+  1 : nop
+
+function 'Bug'
+definition
+common name 'Bug'
+module id 1621960396
+id 5
+frame size: 5
+var
+  local 'row' index 0 type 'integer'
+  local 'count' index 1 type 'integer'
+  local 'component' index 2 type 'Component'
+  local 'syntaxRow' index 3 type 'SyntaxRow'
+  local '@result' index 4 type 'SyntaxRow'
+code
+  0 : receive(0)
+  1 : push_value(0)
+  2 : store_local(0)
+  3 : push_value(0)
+  4 : store_local(1)
+  5 : new_object(Component)
+  6 : call_ctor(Component, 1621960396, 3)
+  7 : store_local(2)
+  8 : jump(9)
+  9 : load_local(0)
+  10 : load_local(1)
+  11 : greater_or_equal_int
+  12 : branch(13, 17)
+  13 : load_local(1)
+  14 : call_procedure(WhileBug:Add, 1621960396, 4)
+  15 : nop
+  16 : jump(9)
+  17 : load_local(2)
+  18 : store_local(3)
+  19 : load_local(3)
+  20 : store_local(4)
+  21 : nop
+  22 : load_result_var(4)
+
+constructor
+definition
+parameter 'this' index 0 type 'SyntaxRow'
+object type 'SyntaxRow'
+module id 1621960396
+id 2
+frame size: 1
+code
+  0 : receive(1)
+  1 : nop
+
+constructor
+definition
+parameter 'this' index 0 type 'Component'
+object type 'Component'
+module id 1621960396
+id 3
+frame size: 1
+code
+  0 : receive(1)
+  1 : nop
+
+code
+  0 : receive(0)
+  1 : call_function(WhileBug:Bug, 1621960396, 5)
+  2 : store_local(0)
+  3 : nop
+

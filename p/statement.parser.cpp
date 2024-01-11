@@ -1561,38 +1561,43 @@ soul::parser::Match StatementParser<LexerT>::ConstantRange(LexerT& lexer, Parsin
                 soul::parser::Match match(false);
                 soul::parser::Match* parentMatch4 = &match;
                 {
-                    soul::parser::Match match(true);
-                    int64_t save = lexer.GetPos();
+                    soul::parser::Match match(false);
                     soul::parser::Match* parentMatch5 = &match;
                     {
                         soul::parser::Match match(false);
                         soul::parser::Match* parentMatch6 = &match;
                         {
+                            int64_t save = lexer.GetPos();
                             soul::parser::Match match(false);
                             soul::parser::Match* parentMatch7 = &match;
-                            {
-                                soul::parser::Match match(false);
-                                if (*lexer == DOTDOT)
-                                {
-                                    ++lexer;
-                                    match.hit = true;
-                                }
-                                *parentMatch7 = match;
-                            }
-                            if (match.hit)
                             {
                                 soul::parser::Match match(false);
                                 soul::parser::Match* parentMatch8 = &match;
                                 {
                                     soul::parser::Match match(false);
+                                    if (*lexer == DOTDOT)
+                                    {
+                                        ++lexer;
+                                        match.hit = true;
+                                    }
+                                    *parentMatch8 = match;
+                                }
+                                if (match.hit)
+                                {
+                                    soul::parser::Match match(false);
                                     soul::parser::Match* parentMatch9 = &match;
                                     {
-                                        int64_t pos = lexer.GetPos();
-                                        soul::parser::Match match = ExpressionParser<LexerT>::ConstantExpression(lexer, context);
-                                        rangeEnd.reset(static_cast<Node*>(match.value));
-                                        if (match.hit)
+                                        soul::parser::Match match(false);
+                                        soul::parser::Match* parentMatch10 = &match;
                                         {
-                                            node.reset(new ConstantRangeNode(node.release(), rangeEnd.release(), pos));
+                                            int64_t pos = lexer.GetPos();
+                                            soul::parser::Match match = ExpressionParser<LexerT>::ConstantExpression(lexer, context);
+                                            rangeEnd.reset(static_cast<Node*>(match.value));
+                                            if (match.hit)
+                                            {
+                                                node.reset(new ConstantRangeNode(node.release(), rangeEnd.release(), pos));
+                                            }
+                                            *parentMatch10 = match;
                                         }
                                         *parentMatch9 = match;
                                     }
@@ -1601,15 +1606,29 @@ soul::parser::Match StatementParser<LexerT>::ConstantRange(LexerT& lexer, Parsin
                                 *parentMatch7 = match;
                             }
                             *parentMatch6 = match;
+                            if (!match.hit)
+                            {
+                                soul::parser::Match match(false);
+                                soul::parser::Match* parentMatch11 = &match;
+                                lexer.SetPos(save);
+                                {
+                                    soul::parser::Match match(false);
+                                    soul::parser::Match* parentMatch12 = &match;
+                                    {
+                                        int64_t pos = lexer.GetPos();
+                                        soul::parser::Match match(true);
+                                        if (match.hit)
+                                        {
+                                            node.reset(new ConstantRangeNode(node.release(), nullptr, pos));
+                                        }
+                                        *parentMatch12 = match;
+                                    }
+                                    *parentMatch11 = match;
+                                }
+                                *parentMatch6 = match;
+                            }
                         }
-                        if (match.hit)
-                        {
-                            *parentMatch5 = match;
-                        }
-                        else
-                        {
-                            lexer.SetPos(save);
-                        }
+                        *parentMatch5 = match;
                     }
                     *parentMatch4 = match;
                 }

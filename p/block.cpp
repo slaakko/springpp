@@ -19,7 +19,7 @@ import p.execute;
 
 namespace p {
 
-Block::Block() : parent(nullptr), subroutine(nullptr), operatorFunctionsAdded(false)
+Block::Block() : parent(nullptr), subroutine(nullptr), operatorFunctionsAdded(false), level(0)
 {
     globalTypeMap.reset(new GlobalTypeMap());
     globalConstantMap.reset(new GlobalConstantMap());
@@ -28,7 +28,7 @@ Block::Block() : parent(nullptr), subroutine(nullptr), operatorFunctionsAdded(fa
     p::AddStandardProcedures(this);
 }
 
-Block::Block(Block* parent_) : parent(parent_), subroutine(nullptr), operatorFunctionsAdded(false)
+Block::Block(Block* parent_) : parent(parent_), subroutine(nullptr), operatorFunctionsAdded(false), level(0)
 {
 }
 
@@ -68,8 +68,10 @@ Type* Block::GetFundamentalType(TypeKind kind, soul::lexer::LexerBase<char>& lex
         case TypeKind::realType: return GetType("real", lexer, pos);
         case TypeKind::stringType: return GetType("string", lexer, pos);
         case TypeKind::pointerType: return GetType("pointer", lexer, pos);
+        case TypeKind::enumeratedType: return GetType("integer", lexer, pos);
+        case TypeKind::nilType: return GetType("nil_type", lexer, pos);
     }
-    ThrowError("fundamental type expected", lexer, pos);
+    ThrowError("error: fundamental type expected", lexer, pos);
     return nullptr;
 }
 
@@ -80,8 +82,14 @@ void Block::AddOperatorFunctions()
     p::MakeOperatorFunctions(this);
 }
 
+void Block::SetSubroutine(Subroutine* subroutine_)
+{ 
+    subroutine = subroutine_; 
+}
+
 void Block::Write(Writer& writer)
 {
+    writer.GetBinaryWriter().Write(level);
     int32_t typeCount = types.size();
     writer.GetBinaryWriter().Write(typeCount);
     for (int32_t i = 0; i < typeCount; ++i)
@@ -129,6 +137,7 @@ void Block::Write(Writer& writer)
 
 void Block::Read(Reader& reader)
 {
+    level = reader.GetBinaryReader().ReadInt();
     ModulePart* modulePart = reader.GetModulePart();
     int32_t typeCount = reader.GetBinaryReader().ReadInt();
     for (int32_t i = 0; i < typeCount; ++i)
@@ -154,6 +163,7 @@ void Block::Read(Reader& reader)
     {
         Variable* variable = new Variable();
         variable->Read(reader);
+        variable->SetBlock(this);
         AddVariable(variable);
     }
     int32_t procedureCount = reader.GetBinaryReader().ReadInt();
@@ -252,7 +262,7 @@ Type* Block::GetType(const std::string& typeName, soul::lexer::LexerBase<char>& 
     }
     else
     {
-        ThrowError("type '" + typeName + "' not found", lexer, pos);
+        ThrowError("error: type '" + typeName + "' not found", lexer, pos);
     }
     return nullptr;
 }
@@ -280,7 +290,7 @@ ArrayType* Block::GetArrayType(const std::string& elementTypeName, soul::lexer::
     }
     else
     {
-        ThrowError("array type for element type '" + elementTypeName + "' not found", lexer, pos);
+        ThrowError("error: array type for element type '" + elementTypeName + "' not found", lexer, pos);
     }
     return nullptr;
 }
@@ -315,7 +325,7 @@ void Block::AddType(Type* type, soul::lexer::LexerBase<char>& lexer, int64_t pos
     auto it = typeMap.find(type->Name());
     if (it != typeMap.end())
     {
-        ThrowError("type '" + type->Name() + "' not unique", lexer, pos);
+        ThrowError("error: type '" + type->Name() + "' not unique", lexer, pos);
     }
     types.push_back(std::unique_ptr<Type>(type));
     typeMap[type->Name()] = type;
@@ -330,7 +340,7 @@ void Block::AddType(Type* type, soul::lexer::LexerBase<char>& lexer, int64_t pos
     GlobalTypeMap* globalTypeMap = GetGlobalTypeMap();
     if (!globalTypeMap)
     {
-        ThrowError("global type map not set", lexer, pos);
+        ThrowError("error: global type map not set", lexer, pos);
     }
     globalTypeMap->AddType(type);
 }
@@ -365,7 +375,7 @@ Constant* Block::GetConstant(const std::string& constantName, soul::lexer::Lexer
     }
     else
     {
-        ThrowError("constant '" + constantName + "' not found", lexer, pos);
+        ThrowError("error: constant '" + constantName + "' not found", lexer, pos);
     }
     return nullptr;
 }
@@ -402,7 +412,7 @@ void Block::AddConstant(Constant* constant, soul::lexer::LexerBase<char>& lexer,
     auto it = constantMap.find(constant->Name());
     if (it != constantMap.end())
     {
-        ThrowError("constant '" + constant->Name() + "' not unique", lexer, pos);
+        ThrowError("error: constant '" + constant->Name() + "' not unique", lexer, pos);
     }
     constants.push_back(std::unique_ptr<Constant>(constant));
     constantMap[constant->Name()] = constant;
@@ -466,7 +476,7 @@ void Block::AddVariable(Variable* variable, soul::lexer::LexerBase<char>& lexer,
     auto it = variableMap.find(variable->Name());
     if (it != variableMap.end())
     {
-        ThrowError("variable '" + variable->Name() + "' not unique", lexer, pos);
+        ThrowError("error: variable '" + variable->Name() + "' not unique", lexer, pos);
     }
     if (variable->Index() == -1)
     {
@@ -509,7 +519,7 @@ void Block::AddProcedure(Procedure* procedure)
         Procedure* prev = it->second;
         if (!prev->IsForward() && !prev->IsDeclaration())
         {
-            throw std::runtime_error("procedure '" + procedure->FullName() + "' not unique");
+            throw std::runtime_error("procedure '" + procedure->InfoName() + "' not unique");
         }
     }
     procedureMap[procedure->FullName()] = procedure;
@@ -528,7 +538,7 @@ void Block::AddProcedure(Procedure* procedure, soul::lexer::LexerBase<char>& lex
         Procedure* prev = it->second;
         if (!prev->IsForward() && !prev->IsDeclaration())
         {
-            ThrowError("procedure '" + procedure->FullName() + "' not unique", lexer, pos);
+            ThrowError("error: procedure '" + procedure->InfoName() + "' not unique", lexer, pos);
         }
     }
     procedureMap[procedure->FullName()] = procedure;
@@ -547,7 +557,7 @@ void Block::AddFunction(Function* function)
         Function* prev = it->second;
         if (!prev->IsForward() && !prev->IsDeclaration())
         {
-            throw std::runtime_error("function '" + function->FullName() + "' not unique");
+            throw std::runtime_error("function '" + function->InfoName() + "' not unique");
         }
     }
     functionMap[function->FullName()] = function;
@@ -566,7 +576,7 @@ void Block::AddFunction(Function* function, soul::lexer::LexerBase<char>& lexer,
         Function* prev = it->second;
         if (!prev->IsForward() && !prev->IsDeclaration())
         {
-            ThrowError("function '" + function->FullName() + "' not unique", lexer, pos);
+            ThrowError("error: function '" + function->InfoName() + "' not unique", lexer, pos);
         }
     }
     functionMap[function->FullName()] = function;
@@ -624,7 +634,7 @@ void Block::AddConstructor(Constructor* constructor, soul::lexer::LexerBase<char
                 }
                 if (equal)
                 {
-                    ThrowError("constructor " + std::to_string(constructors.size()) + " not unique", lexer, pos);
+                    ThrowError("error: constructor " + std::to_string(constructors.size()) + " not unique", lexer, pos);
                 }
             }
         }
@@ -800,7 +810,7 @@ void Block::Import(Block* blk, Module* mod)
         auto it = procedureMap.find(procedure->FullName());
         if (it != procedureMap.end())
         {
-            throw std::runtime_error("error importing module '" + mod->Name() + "': procedure name '" + procedure->FullName() + " not unique");
+            throw std::runtime_error("error importing module '" + mod->Name() + "': procedure name '" + procedure->InfoName() + " not unique");
         }
         procedureMap[procedure->FullName()] = procedure.get();
     }
@@ -809,7 +819,7 @@ void Block::Import(Block* blk, Module* mod)
         auto it = functionMap.find(function->FullName());
         if (it != functionMap.end())
         {
-            throw std::runtime_error("error importing module '" + mod->Name() + "': function name '" + function->FullName() + " not unique");
+            throw std::runtime_error("error importing module '" + mod->Name() + "': function name '" + function->InfoName() + " not unique");
         }
         functionMap[function->FullName()] = function.get();
     }
@@ -864,7 +874,7 @@ void Block::Print(util::CodeFormatter& formatter, ExecutionContext* context)
         }
         catch (const std::exception& ex)
         {
-            throw std::runtime_error("procedure '" + procedure->FullName() + "': " + ex.what());
+            throw std::runtime_error("procedure '" + procedure->InfoName() + "': " + ex.what());
         }
     }
     for (const auto& function : functions)
@@ -875,7 +885,7 @@ void Block::Print(util::CodeFormatter& formatter, ExecutionContext* context)
         }
         catch (const std::exception& ex)
         {
-            throw std::runtime_error("function '" + function->FullName() + "': " + ex.what());
+            throw std::runtime_error("function '" + function->InfoName() + "': " + ex.what());
         }
     }
     for (const auto& constructor : constructors)
@@ -938,6 +948,7 @@ void MakeVariables(ParsingContext* context, const std::vector<std::string>& vari
     {
         Variable* variable = new Variable(variableName);
         variable->SetType(type);
+        variable->SetBlock(block);
         block->AddVariable(variable, lexer, pos);
     }
 }
@@ -970,7 +981,7 @@ void AddSimpleConstant(ParsingContext* context, Node* constantExpression, Type* 
         }
         else
         {
-            ThrowError("array or object constant expected", lexer, pos);
+            ThrowError("error: array or object constant expected", lexer, pos);
         }
     }
 }
@@ -994,7 +1005,7 @@ void MakeArrayConstant(ParsingContext* context, Type* type, Type*& elementType, 
         }
         else
         {
-            ThrowError("array type expected", lexer, pos);
+            ThrowError("error: array type expected", lexer, pos);
         }
     }
     else if (context->AddToConstant())
@@ -1013,7 +1024,7 @@ void MakeArrayConstant(ParsingContext* context, Type* type, Type*& elementType, 
         }
         else
         {
-            ThrowError("array or object constant expected", lexer, pos);
+            ThrowError("error: array or object constant expected", lexer, pos);
         }
         context->PushCurrentValue(value);
     }
@@ -1037,7 +1048,7 @@ void MakeObjectConstant(ParsingContext* context, Type* type, soul::lexer::LexerB
         }
         else
         {
-            ThrowError("object type expected", lexer, pos);
+            ThrowError("error: object type expected", lexer, pos);
         }
     }
     else if (context->AddToConstant())
@@ -1056,7 +1067,7 @@ void MakeObjectConstant(ParsingContext* context, Type* type, soul::lexer::LexerB
         }
         else
         {
-            ThrowError("array or object constant expected", lexer, pos);
+            ThrowError("error: array or object constant expected", lexer, pos);
         }
         context->PushCurrentValue(value);
     }
@@ -1074,12 +1085,12 @@ Type* GetFieldType(Type* type, const std::string& fieldName, soul::lexer::LexerB
         }
         else
         { 
-            ThrowError("field '" + fieldName + "' not found", lexer, pos);
+            ThrowError("error: field '" + fieldName + "' not found", lexer, pos);
         }
     }
     else
     {
-        ThrowError("object type expected", lexer, pos);
+        ThrowError("error: object type expected", lexer, pos);
     }
     return nullptr;
 }
@@ -1151,9 +1162,11 @@ void GenerateImplementationIds(ParsingContext* context, soul::lexer::LexerBase<c
                 Constructor* ctorImplementation = MakeConstructor(context, lexer, pos);
                 ctorImplementation->Heading()->SetObjectType(objectType);
                 ctorImplementation->Heading()->InsertThisParam();
+                ctorImplementation->SetFrameSize(context);
                 defaultCtor->SetModuleId(moduleId);
                 defaultCtor->SetImplementationId(ctorImplementation->Id());
                 defaultCtor->SetImplementation(ctorImplementation);
+                defaultCtor->SetFrameSize(context);
             }
         }
     }
@@ -1190,7 +1203,7 @@ void GenerateDefaultImplementations(ParsingContext* context, soul::lexer::LexerB
                 Constructor* implementation = defaultCtor->GetImplementation();
                 if (!implementation)
                 {
-                    ThrowError("implementation not generated for generated constructor", lexer, pos);
+                    ThrowError("error: implementation not generated for generated constructor", lexer, pos);
                 }
                 BoundCompoundStatementNode compoundStatement(pos);
                 if (objectType->BaseType())
@@ -1198,7 +1211,7 @@ void GenerateDefaultImplementations(ParsingContext* context, soul::lexer::LexerB
                     Constructor* baseConstructor = objectType->BaseType()->GetDefaultConstructor();
                     if (!baseConstructor)
                     {
-                        ThrowError("base type '" + objectType->BaseType()->Name() + "' has no default constructor", lexer, pos);
+                        ThrowError("error: base type '" + objectType->BaseType()->Name() + "' has no default constructor", lexer, pos);
                     }
                     BoundConstructorCallNode* boundConstructorCall = new BoundConstructorCallNode(baseConstructor, pos);
                     boundConstructorCall->AddArgument(new BoundParameterNode(pos, implementation->Heading()->ThisParam(), objectType->BaseType()));

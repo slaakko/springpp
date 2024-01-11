@@ -52,6 +52,7 @@ soul::parser::Match ProcedureParser<LexerT>::ProcedureDeclaration(LexerT& lexer,
                     if (match.hit)
                     {
                         procedure = MakeProcedure(context, procedureHeading.release(), lexer, pos);
+                        procedure->SetLevel(context->GetBlock()->Level() + 1);
                     }
                     *parentMatch3 = match;
                 }

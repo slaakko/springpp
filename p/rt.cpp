@@ -1815,8 +1815,8 @@ void GraphicsDrawArcMethod::Execute(ExecutionContext* context)
     std::unique_ptr<Object> rectObject = stack->Pop();
     std::unique_ptr<Object> penObject = stack->Pop();
     std::unique_ptr<Object> graphicsObject = stack->Pop();
-    float sweepAngle = 0;
     float startAngle = 0;
+    float sweepAngle = 0;
     float x = 0;
     float y = 0;
     float w = 0;

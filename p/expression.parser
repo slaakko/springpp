@@ -178,6 +178,7 @@ parser ExpressionParser
         |   CHAR{ return "char"; }
         |   BOOLEAN{ return "boolean"; }
         |   STRING{ return "string"; }
+        |   POINTER{ return "pointer"; }
         ;
 
     ValueTypecast(ParsingContext* context) : Node*
@@ -246,22 +247,22 @@ parser ExpressionParser
     VariableTypecast(ParsingContext* context) : Node*
         ::= 
         (
-            TypeIdentifier(context):typeIdentifier LPAREN VariableReference(context):variableReference RPAREN
+            TypeName(context):typeName LPAREN VariableReference(context):variableReference RPAREN
         )
         {
-            return new VariableTypecastNode(typeIdentifier, variableReference, pos);
+            return new VariableTypecastNode(typeName, variableReference, pos);
         }
         ;
 
-    NewExpression(ParsingContext* context, var std::unique_ptr<IntegerLiteralNode> arraySize) : Node*
-        ::= NEW ObjectTypeIdentifier(context):objectTypeIdentifier
+    NewExpression(ParsingContext* context) : Node*
+        ::= NEW TypeName(context):type
         (   LBRACKET 
-            INTEGER_LITERAL{ arraySize.reset(ParseIntegerLiteral(lexer, lexer.GetToken(pos), pos)); } 
+            Expression(context):arraySize
             RBRACKET
             { 
-                return new NewArrayExprNode(objectTypeIdentifier, arraySize.release(), pos); 
+                return new NewArrayExprNode(type, arraySize, pos); 
             }
-        |   empty{ return new NewExprNode(objectTypeIdentifier, pos); }
+        |   empty{ return new NewExprNode(type, pos); }
         )
         ;
 }

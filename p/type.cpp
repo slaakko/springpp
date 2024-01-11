@@ -66,7 +66,7 @@ util::uuid NilTypeId()
     return typeId;
 }
 
-Type::Type(TypeKind kind_) : kind(kind_), name(), id()
+Type::Type(TypeKind kind_) : kind(kind_), name(), id(util::uuid::random())
 {
 }
 
@@ -205,7 +205,7 @@ void EnumeratedType::Resolve(Context* context)
 
 void EnumeratedType::Print(util::CodeFormatter& formatter, ExecutionContext* context)
 {
-    formatter.Write("enumerater type ");
+    formatter.Write("enumerated type ");
     Type::Print(formatter, context);
     formatter.WriteLine("(");
     formatter.IncIndent();
@@ -392,7 +392,7 @@ Subroutine* ObjectType::AddMethod(ParsingContext* context, SubroutineHeading* me
         procedureHeading->SetObjectType(this);
         procedureHeading->InsertThisParam();
         Procedure* procedure = new Procedure(ProcedureKind::regularproc, procedureHeading);
-        procedure->SetDeclaration();
+        procedure->SetAsDeclaration();
         methods.push_back(std::unique_ptr<Subroutine>(procedure));
         method = procedure;
     }
@@ -402,7 +402,7 @@ Subroutine* ObjectType::AddMethod(ParsingContext* context, SubroutineHeading* me
         functionHeading->SetObjectType(this);
         functionHeading->InsertThisParam();
         Function* function = new Function(FunctionKind::regularfn, functionHeading);
-        function->SetDeclaration();
+        function->SetAsDeclaration();
         methods.push_back(std::unique_ptr<Subroutine>(function));
         method = function;
     }
@@ -412,13 +412,13 @@ Subroutine* ObjectType::AddMethod(ParsingContext* context, SubroutineHeading* me
         constructorHeading->SetObjectType(this);
         constructorHeading->InsertThisParam();
         Constructor* constructor = new Constructor(constructorHeading);
-        constructor->SetDeclaration();
+        constructor->SetAsDeclaration();
         methods.push_back(std::unique_ptr<Subroutine>(constructor));
         method = constructor;
     }
     else
     {
-        ThrowError("unknown heading kind", lexer, pos);
+        ThrowError("error: unknown heading kind", lexer, pos);
     }
     return method;
 }
@@ -444,8 +444,21 @@ Constructor* ObjectType::GetConstructor(const std::vector<Type*>& parameterTypes
                 {
                     if (method->Parameters()[i].GetType() != parameterTypes[i])
                     {
-                        differ = true;
-                        break;
+                        if (method->Parameters()[i].GetType()->IsObjectType() && parameterTypes[i]->IsObjectType())
+                        {
+                            ObjectType* methodParamObjectType = static_cast<ObjectType*>(method->Parameters()[i].GetType());
+                            ObjectType* parameterObjectType = static_cast<ObjectType*>(parameterTypes[i]);
+                            if (!parameterObjectType->IsSameOrHasBaseType(methodParamObjectType))
+                            {
+                                differ = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            differ = true;
+                            break;
+                        }
                     }
                 }
                 if (!differ)
@@ -483,6 +496,16 @@ Constructor* ObjectType::GetConstructor(std::vector<std::unique_ptr<BoundExpress
                 {
                     if (method->Parameters()[i].GetType() != arguments[i]->GetType())
                     {
+                        if (method->Parameters()[i].GetType()->IsObjectType() && arguments[i]->GetType()->IsObjectType())
+                        {
+                            ObjectType* methodParamObjectType = static_cast<ObjectType*>(method->Parameters()[i].GetType());
+                            ObjectType* argumentObjectType = static_cast<ObjectType*>(arguments[i]->GetType());
+                            if (!argumentObjectType->IsSameOrHasBaseType(methodParamObjectType))
+                            {
+                                differ = true;
+                                break;
+                            }
+                        }
                         Function* conversionFunction = GetConversionFunction(method->Parameters()[i].GetType(), arguments[i]->GetType(), lexer, pos, false);
                         if (!conversionFunction)
                         {
@@ -733,7 +756,7 @@ Type* MakeSubrangeType(ParsingContext* context, Node* rangeStart, Node* rangeEnd
     }
     else
     {
-        ThrowError("must create", lexer, pos);
+        ThrowError("error: must create", lexer, pos);
     }
     return nullptr;
 }
@@ -756,10 +779,11 @@ Type* MakeEnumeratedType(ParsingContext* context, const std::vector<std::string>
             ++value;
         }
         block->AddType(enumeratedType, lexer, pos);
+        return enumeratedType;
     }
     else
     {
-        ThrowError("must create", lexer, pos);
+        ThrowError("error: must create", lexer, pos);
     }
     return nullptr;
 }
@@ -775,7 +799,7 @@ ObjectType* MakeObjectType(ParsingContext* context, soul::lexer::LexerBase<char>
     }
     else
     {
-        ThrowError("must create", lexer, pos);
+        ThrowError("error: must create", lexer, pos);
     }
     return nullptr;
 }

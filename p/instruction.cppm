@@ -21,8 +21,8 @@ class Constructor;
 
 enum class InstructionKind
 {
-    nop, load_local, store_local, load_global, store_global, 
-    load_result_var, push_value, pop_value, load_field, store_field, load_element, store_element, array_length, string_length, receive, jump, branch,
+    nop, load_local, store_local, load_parent, store_parent, load_global, store_global,
+    load_result_var, push_value, pop_value, load_field, store_field, load_element, store_element, array_length, string_length, receive, jump, branch, case_inst,
     call_procedure, call_function, call_stdfn, call_stdproc, call_virtual, call_external, call_ctor, new_object, new_array,
     equal_bool, not_equal_bool, and_bool, or_bool, xor_bool, not_bool,
     equal_int, not_equal_int, less_int, greater_int, less_or_equal_int, greater_or_equal_int,
@@ -30,7 +30,8 @@ enum class InstructionKind
     equal_real, not_equal_real, less_real, greater_real, less_or_equal_real, greater_or_equal_real,
     plus_real, minus_real, mul_real, fractional_divide_real, unary_plus_real, unary_minus_real,
     equal_char, not_equal_char, equal_string, not_equal_string, plus_string,
-    int_to_real, char_to_string
+    int_to_real, char_to_string,
+    equal_nil
 };
 
 std::string InstructionKindStr(InstructionKind instructionKind);
@@ -85,6 +86,37 @@ public:
 private:
     int32_t localIndex;
 };
+
+class LoadParentInstruction : public Instruction
+{
+public:
+    LoadParentInstruction();
+    void SetParentLevel(int32_t parentLevel_);
+    void SetVariableIndex(int32_t variableIndex_);
+    void Write(Writer& writer) override;
+    void Read(Reader& reader) override;
+    std::string ToString(ExecutionContext* context) const override;
+    Instruction* Execute(ExecutionContext* context) override;
+private:
+    int32_t parentLevel;
+    int32_t variableIndex;
+};
+
+class StoreParentInstruction : public Instruction
+{
+public:
+    StoreParentInstruction();
+    void SetParentLevel(int32_t parentLevel_);
+    void SetVariableIndex(int32_t variableIndex_);
+    void Write(Writer& writer) override;
+    void Read(Reader& reader) override;
+    std::string ToString(ExecutionContext* context) const override;
+    Instruction* Execute(ExecutionContext* context) override;
+private:
+    int32_t parentLevel;
+    int32_t variableIndex;
+};
+
 
 class LoadGlobalInstruction : public Instruction
 {
@@ -248,6 +280,53 @@ private:
     Instruction* falseNext;
 };
 
+class Range
+{
+public:
+    Range();
+    Range(int32_t first_, int32_t last_);
+    bool Match(int32_t value) const { return value >= first && value <= last; }
+    void Write(Writer& writer);
+    void Read(Reader& reader);
+private:
+    int32_t first;
+    int32_t last;
+};
+
+class RangeList
+{
+public:
+    RangeList();
+    void AddRange(const Range& range);
+    bool Match(int32_t value) const;
+    Instruction* Next() const { return next; }
+    void SetNext(Instruction* next_);
+    void Write(Writer& writer);
+    void Read(Reader& reader);
+    void Resolve(Reader& reader);
+private:
+    std::vector<Range> ranges;
+    Instruction* next;
+    int32_t nextIndex;
+};
+
+class CaseInstruction : public Instruction
+{
+public:
+    CaseInstruction();
+    RangeList& AddRangeList();
+    void Write(Writer& writer) override;
+    void Read(Reader& reader) override;
+    void Resolve(Reader& reader) override;
+    std::string ToString(ExecutionContext* context) const override;
+    Instruction* Execute(ExecutionContext* context) override;
+    void SetElseInst(Instruction* elseInst_);
+private:
+    std::vector<RangeList> rangeLists;
+    Instruction* elseInst;
+    int32_t elseInstIndex;
+};
+
 class CallProcedureInstruction : public Instruction
 {
 public:
@@ -361,15 +440,12 @@ public:
     NewArrayInstruction();
     void SetArrayTypeId(const util::uuid& arrayTypeId_);
     const util::uuid& ArrayTypeId() const { return arrayTypeId; }
-    void SetLength(int32_t length_) { length = length_; }
-    int32_t Length() const { return length; }
     void Write(Writer& writer) override;
     void Read(Reader& reader) override;
     std::string ToString(ExecutionContext* context) const override;
     Instruction* Execute(ExecutionContext* context) override;
 private:
     util::uuid arrayTypeId;
-    int32_t length;
 };
 
 class CallConstructorInstruction : public Instruction
@@ -699,6 +775,13 @@ class CharToStringInstruction : public Instruction
 {
 public:
     CharToStringInstruction();
+    Instruction* Execute(ExecutionContext* context) override;
+};
+
+class EqualNilInstruction : public Instruction
+{
+public:
+    EqualNilInstruction();
     Instruction* Execute(ExecutionContext* context) override;
 };
 

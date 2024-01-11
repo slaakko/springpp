@@ -15,6 +15,7 @@ namespace parsing_context {}
 
 class Value;
 class Emitter;
+class Constructor;
 
 enum class Flags
 {
@@ -60,6 +61,12 @@ public:
     Value* GetCurrentValue() const { return currentValue; }
     Emitter* GetEmitter() { return emitter; }
     void SetEmitter(Emitter* emitter_) { emitter = emitter_; }
+    void PushConstructor(Constructor* constructor_);
+    void PopConstructor();
+    Constructor* GetConstructor() const { return constructor; }
+    void PushNode(Node* node_);
+    void PopNode();
+    Node* GetNode() const { return node; }
 private:
     std::unique_ptr<Module> mod;
     ModulePart* modulePart;
@@ -71,6 +78,10 @@ private:
     Flags flags;
     std::stack<Flags> flagStack;
     Emitter* emitter;
+    Constructor* constructor;
+    std::stack<Constructor*> constructorStack;
+    Node* node;
+    std::stack<Node*> nodeStack;
 };
 
 } // namespace p

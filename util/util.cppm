@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -20,6 +20,7 @@ export import util.code.formatter;
 export import util.uuid;
 export import util.compression;
 export import util.path;
+export import util.lib;
 export import util.unicode;
 export import util.ansi;
 export import util.component;

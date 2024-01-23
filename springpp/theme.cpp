@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -81,7 +81,7 @@ void InitThemes()
         wing::SaveThemes();
     }
     wing::LoadThemes();
-    wing::SetTheme("light");;
+    wing::SetTheme("light");
 }
 
 } // namespace springpp

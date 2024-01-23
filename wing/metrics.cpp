@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -16,14 +16,14 @@ namespace wing {
 std::string GetDefaultMetricsFilePath()
 {
     std::string metricsFilePath;
-    const char* cmajorRoot = getenv("CMAJOR_ROOT");
-    if (cmajorRoot && *cmajorRoot)
+    const char* springPPRoot = getenv("SPRINGPP_ROOT");
+    if (springPPRoot && *springPPRoot)
     {
-        metricsFilePath = util::Path::Combine(util::Path::Combine(cmajorRoot, "config"), "metrics.xml");
+        metricsFilePath = util::Path::Combine(util::Path::Combine(springPPRoot, "config"), "metrics.xml");
     }
     else
     {
-        throw std::runtime_error("error: 'CMAJOR_ROOT' environment variable not set, please set it to contain /path/to/cmajor directory");
+        throw std::runtime_error("error: 'SPRINGPP_ROOT' environment variable not set, please set it to contain /path/to/springpp directory");
     }
     return metricsFilePath;
 }

@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -22,8 +22,6 @@ enum class FormatJustify
 
 std::string Trim(const std::string& s);
 std::string TrimAll(const std::string& s);
-std::u32string Trim(const std::u32string& s);
-std::u32string TrimAll(const std::u32string& s);
 std::vector<std::string> Split(const std::string& s, char c);
 std::vector<std::string> Split(const std::string& s, const std::string& subString);
 std::string Replace(const std::string& s, char oldChar, char newChar);

@@ -184,6 +184,8 @@
     <ClCompile Include="intrusive_list.cppm" />
     <ClCompile Include="json.cpp" />
     <ClCompile Include="json.cppm" />
+    <ClCompile Include="lib.cpp" />
+    <ClCompile Include="lib.cppm" />
     <ClCompile Include="log.cpp" />
     <ClCompile Include="log.cppm" />
     <ClCompile Include="log_file_writer.cpp" />

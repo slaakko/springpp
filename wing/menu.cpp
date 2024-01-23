@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -1881,7 +1881,10 @@ void MenuItem::SetAccessKey()
     std::u16string::size_type ampPos = txt.find('&');
     if (ampPos != std::u16string::npos)
     {
-        accessKey = static_cast<char16_t>(util::ToUpper(static_cast<char32_t>(txt[ampPos + 1])));
+        std::string lp = util::ToUtf8(std::u32string(1, txt[ampPos + 1]));
+        std::string up = util::ToUpperNarrow(lp);
+        std::u16string u16 = util::ToUtf16(up);
+        accessKey = u16.front();
     }
     else
     {

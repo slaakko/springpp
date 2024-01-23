@@ -178,8 +178,6 @@
     <ClCompile Include="combobox.cppm" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="component.cppm" />
-    <ClCompile Include="console.cpp" />
-    <ClCompile Include="console.cppm" />
     <ClCompile Include="container.cpp" />
     <ClCompile Include="container.cppm" />
     <ClCompile Include="container_control.cpp" />
@@ -190,10 +188,6 @@
     <ClCompile Include="cursor.cppm" />
     <ClCompile Include="dialog.cpp" />
     <ClCompile Include="dialog.cppm" />
-    <ClCompile Include="edit_command.cpp" />
-    <ClCompile Include="edit_command.cppm" />
-    <ClCompile Include="edit_command_list.cpp" />
-    <ClCompile Include="edit_command_list.cppm" />
     <ClCompile Include="environment.cpp" />
     <ClCompile Include="environment.cppm" />
     <ClCompile Include="event.cpp" />
@@ -218,8 +212,6 @@
     <ClCompile Include="label.cppm" />
     <ClCompile Include="listbox.cpp" />
     <ClCompile Include="listbox.cppm" />
-    <ClCompile Include="logview.cpp" />
-    <ClCompile Include="logview.cppm" />
     <ClCompile Include="manual_reset_event.cpp" />
     <ClCompile Include="manual_reset_event.cppm" />
     <ClCompile Include="menu.cpp" />
@@ -246,8 +238,6 @@
     <ClCompile Include="scroll_bar.cppm" />
     <ClCompile Include="shell.cpp" />
     <ClCompile Include="shell.cppm" />
-    <ClCompile Include="source_code_view.cpp" />
-    <ClCompile Include="source_code_view.cppm" />
     <ClCompile Include="split_container.cpp" />
     <ClCompile Include="split_container.cppm" />
     <ClCompile Include="status_bar.cpp" />

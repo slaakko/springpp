@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -1532,7 +1532,10 @@ bool Control::DoSysCommand(WPARAM wParam, LPARAM lParam)
     {
     case SC_KEYMENU:
     {
-        char16_t accessKey = static_cast<char16_t>(util::ToUpper(static_cast<char32_t>(static_cast<char16_t>(lParam))));
+        std::string lp = util::ToUtf8(std::u16string(1, static_cast<char16_t>(lParam)));
+        std::string up = util::ToUpperNarrow(lp);
+        std::u16string u16 = util::ToUtf16(up);
+        char16_t accessKey = u16.front();
         if (DoMenu(accessKey, Keys::none))
         {
             return true;

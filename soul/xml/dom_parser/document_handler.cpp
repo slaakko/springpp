@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -113,7 +113,7 @@ void DocumentHandler::AddTextContent(bool addSpace)
 {
     if (currentElement)
     {
-        textContent = util::ToUtf8(util::TrimAll(util::ToUtf32(textContent)));
+        textContent = util::TrimAll(textContent);
         if (!textContent.empty())
         {
             if (addSpace)

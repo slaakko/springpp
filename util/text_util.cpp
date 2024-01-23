@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -60,62 +60,6 @@ std::string TrimAll(const std::string& s)
         case 2:
         {
             if (!std::isspace(c))
-            {
-                result.append(1, ' ');
-                result.append(1, c);
-                state = 1;
-            }
-            break;
-        }
-        }
-    }
-    return result;
-}
-
-std::u32string Trim(const std::u32string& s)
-{
-    int b = 0;
-    while (b < int(s.length()) && IsWhiteSpace(s[b])) ++b;
-    int e = int(s.length()) - 1;
-    while (e >= b && IsWhiteSpace(s[e])) --e;
-    return s.substr(b, e - b + 1);
-}
-
-std::u32string TrimAll(const std::u32string& s)
-{
-    std::u32string result;
-    result.reserve(s.length());
-    int state = 0;
-    std::u32string::const_iterator e = s.cend();
-    for (std::u32string::const_iterator i = s.cbegin(); i != e; ++i)
-    {
-        char32_t c = *i;
-        switch (state)
-        {
-        case 0:
-        {
-            if (!IsWhiteSpace(c))
-            {
-                result.append(1, c);
-                state = 1;
-            }
-            break;
-        }
-        case 1:
-        {
-            if (IsWhiteSpace(c))
-            {
-                state = 2;
-            }
-            else
-            {
-                result.append(1, c);
-            }
-            break;
-        }
-        case 2:
-        {
-            if (!IsWhiteSpace(c))
             {
                 result.append(1, ' ');
                 result.append(1, c);

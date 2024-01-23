@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -78,8 +78,8 @@ Color ParseColorHexString(const std::string& colorHexString, const std::string& 
 
 std::string ConfigDir()
 {
-    std::string soulRoot = util::GetFullPath(util::SpringPPRoot());
-    std::string configDir = util::Path::Combine(soulRoot, "config");
+    std::string springPPRoot = util::GetFullPath(util::SpringPPRoot());
+    std::string configDir = util::Path::Combine(springPPRoot, "config");
     return configDir;
 }
 

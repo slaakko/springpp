@@ -1,5 +1,5 @@
 // =================================
-// Copyright (c) 2023 Seppo Laakko
+// Copyright (c) 2024 Seppo Laakko
 // Distributed under the MIT license
 // =================================
 
@@ -19,6 +19,7 @@ void InitApplication(HINSTANCE instance)
 {
     util::Init();
     wing::Init(instance);
+    springpp::InitThemes();
 }
 
 void TerminateApplication()
